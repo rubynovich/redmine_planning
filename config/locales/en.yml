@@ -1,3 +1,6 @@
 # English strings go here for Rails i18n
 en:
-  my_label: "My label"
+  label_planning: "Planning"
+  label_estimated_time_plural: "Planning"
+  label_plan: "Plan"
+  label_spent: "Spent"

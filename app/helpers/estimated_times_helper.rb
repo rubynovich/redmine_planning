@@ -1,0 +1,2 @@
+module EstimatedTimesHelper
+end

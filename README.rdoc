@@ -1,3 +1,32 @@
-= planning
+= Redmine planning plugin
 
-Description goes here
+Plugin for time managment
+
+== Installation
+
+  cd vendor/plugins
+  git clone git://github.com/rubynovich/redmine_planning.git
+  cd ../..
+  rake db:migrate:plugins RAILS_ENV=production  
+
+*or*
+
+  ./script/plugin -v install git://github.com/rubynovich/redmine_planning.git
+  rake db:migrate:plugins RAILS_ENV=production
+
+== Update
+
+  cd vendor/plugins/redmine_planning
+  git pull
+  cd ../../..
+  rake db:migrate:plugins RAILS_ENV=production  
+  
+*or*
+
+  ./script/plugin update
+  rake db:migrate:plugins RAILS_ENV=production    
+
+== Remove
+
+  rake db:migrate:plugin NAME=redmine_planning VERSION=0 RAILS_ENV=production
+  ./script/plugin remove redmine_planning

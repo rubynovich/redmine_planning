@@ -1,0 +1,6 @@
+# Russian strings go here for Rails i18n
+ru:
+  label_planning: "Планирование"
+  label_estimated_time_plural: "Планирование"
+  label_plan: "План"
+  label_spent: "Факт"
