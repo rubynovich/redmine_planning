@@ -1,12 +1,25 @@
-- current_date = Date.today - 7.days
+- current_date = if params[:current_date].blank? 
+  - Date.today
+- else
+  - Date.parse(params[:current_date])
+- current_date -= current_date.wday.days - 1.day
 - current_user = User.current
 
 .contextual
-  = link_to "<- неделей раньше", :current_date => current_date - 7.days
+  = link_to "неделей раньше", :current_date => current_date - 7.days
   = " | "
-  = format_date(current_date)
+  - form_tag({}, :method => :get) do
+    %select{:id => 'current_date', :name => 'current_date', :class => "small", :onchange => "this.form.submit(); return false;"}
+      %option
+      - [current_date-2.week, current_date-1.week, current_date, current_date+1.week, current_date+2.week].each do |cur_date|
+        - if params[:current_date] == cur_date.to_s
+          %option{:value => cur_date, :selected => "selected"}
+            = format_date(cur_date)
+        - else
+          %option{:value => cur_date}
+            = format_date(cur_date)
   = " | "  
-  = link_to "неделей позже ->", :current_date => current_date + 7.days  
+  = link_to "неделей позже", :current_date => current_date + 7.days  
 
 %h2=l(:label_estimated_time_plural)
 
@@ -45,10 +58,21 @@
               - if sum > 0.0
                 = link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => current_date + day.days, :to => current_date + day.days}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
               - else
-                = "-"
+                = link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => current_date+day.days}}
               
         %td{:align=>:center}= rand(10)
         %td= issue.total_spent_hours
-        
+    %tr
+      %th{:colspan => 2}
+        = l(:label_total)
+      - 7.times do |day|
+        %th
+          = "-"
+        - day_hours = assigned_issues.map do |issue|
+          - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => current_date + day.days, :user_id => current_user})
+            - time_entries.inject(0.0){ |r,i| r + i.hours}
+        %th= day_hours.compact.inject(0.0){ |r,i| r + i }
+      %th
+      %th   
 
 - html_title(l(:label_estimated_time_plural))
