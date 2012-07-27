@@ -1,17 +1,10 @@
-- current_date = if params[:current_date].blank? 
-  - Date.today
-- else
-  - Date.parse(params[:current_date])
-- current_date -= current_date.wday.days - 1.day
-- current_user = User.current
-
 .contextual
-  = link_to "неделей раньше", :current_date => current_date - 7.days
+  = link_to "неделей раньше", :@current_date => @current_date - 1.week
   = " | "
   - form_tag({}, :method => :get) do
-    %select{:id => 'current_date', :name => 'current_date', :class => "small", :onchange => "this.form.submit(); return false;"}
+    %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
       %option
-      - [current_date-2.week, current_date-1.week, current_date, current_date+1.week, current_date+2.week].each do |cur_date|
+      - @current_dates.each do |cur_date|
         - if params[:current_date] == cur_date.to_s
           %option{:value => cur_date, :selected => "selected"}
             = format_date(cur_date)
@@ -19,31 +12,29 @@
           %option{:value => cur_date}
             = format_date(cur_date)
   = " | "  
-  = link_to "неделей позже", :current_date => current_date + 7.days  
+  = link_to "неделей позже", :current_date => @current_date + 1.week
 
 %h2=l(:label_estimated_time_plural)
-
-- assigned_issues = Issue.visible.open.find(:all, :conditions => {:assigned_to_id => ([User.current.id] + User.current.group_ids)}, :limit => 10, :include => [ :status, :project, :tracker, :priority ], :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.updated_on DESC")
 
 %table.list
   %thead
     %tr
       %th{:rowspan => 2}="#"
       %th{:rowspan => 2}= l(:field_subject)
-      %th{:colspan => 2}= (current_date).strftime("%d.%m")
-      %th{:colspan => 2}= (current_date + 1.day).strftime("%d.%m")
-      %th{:colspan => 2}= (current_date + 2.days).strftime("%d.%m")
-      %th{:colspan => 2}= (current_date + 3.days).strftime("%d.%m")
-      %th{:colspan => 2}= (current_date + 4.days).strftime("%d.%m")
-      %th{:colspan => 2}= (current_date + 5.days).strftime("%d.%m")
-      %th{:colspan => 2}= (current_date + 6.days).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date + 1.day).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date + 2.days).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date + 3.days).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date + 4.days).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date + 5.days).strftime("%d.%m")
+      %th{:colspan => 2}= (@current_date + 6.days).strftime("%d.%m")
       %th{:colspan => 2}= l(:label_total)
     %tr
       - 8.times do
         %th= l(:label_plan)
         %th= l(:label_spent)
   %tbody  
-    - assigned_issues.each do |issue|
+    - @assigned_issues.each do |issue|
       %tr
         %td.id
           = link_to issue.id, issue_path(issue), :title => issue.subject
@@ -53,13 +44,12 @@
         - 7.times do |day|
           %td{:align=>:center}= rand(10)
           %td{:align=>:center}
-            - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => current_date + day.days, :user_id => current_user})
+            - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
               - sum = time_entries.inject(0.0){ |r,i| r + i.hours}
               - if sum > 0.0
-                = link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => current_date + day.days, :to => current_date + day.days}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
+                = link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => @current_date + day.days, :to => @current_date + day.days}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
               - else
-                = link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => current_date+day.days}}
-              
+                = link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => @current_date+day.days}}
         %td{:align=>:center}= rand(10)
         %td= issue.total_spent_hours
     %tr
@@ -68,11 +58,17 @@
       - 7.times do |day|
         %th
           = "-"
-        - day_hours = assigned_issues.map do |issue|
-          - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => current_date + day.days, :user_id => current_user})
+        - day_hours = @assigned_issues.map do |issue|
+          - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
             - time_entries.inject(0.0){ |r,i| r + i.hours}
         %th= day_hours.compact.inject(0.0){ |r,i| r + i }
       %th
-      %th   
+      %th         
+
+%h2= l(:label_plan_time)
+- @time_entry = TimeEntry.first
+- labelled_form_for @time_entry, :url => project_time_entry_path(@time_entry.project, @time_entry) do |f|
+  = render :partial => 'timelog/form', :locals => {:f => f}
+  = submit_tag l(:button_save), :disabled => true
 
 - html_title(l(:label_estimated_time_plural))
