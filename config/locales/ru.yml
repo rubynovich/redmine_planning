@@ -5,3 +5,4 @@ ru:
   label_plan: "План"
   label_spent: "Факт"
   label_plan_time: "Запланированное время"
+  field_deadline: "Сроки выполнения"

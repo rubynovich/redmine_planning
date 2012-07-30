@@ -18,6 +18,6 @@ class EstimatedTimesController < ApplicationController
         :assigned_to_id => ([User.current.id] + User.current.group_ids)}, 
       :limit => 10, 
       :include => [ :status, :project, :tracker, :priority ], 
-      :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.updated_on DESC")
+      :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
   end
 end

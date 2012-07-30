@@ -21,6 +21,7 @@
     %tr
       %th{:rowspan => 2}="#"
       %th{:rowspan => 2}= l(:field_subject)
+      %th{:rowspan => 2}= l(:field_deadline)      
       %th{:colspan => 2}= (@current_date).strftime("%d.%m")
       %th{:colspan => 2}= (@current_date + 1.day).strftime("%d.%m")
       %th{:colspan => 2}= (@current_date + 2.days).strftime("%d.%m")
@@ -41,8 +42,13 @@
         %td.subject
           = link_to issue.subject, issue_path(issue), :title => issue.project
           = "(#{issue.status})"
+        %td.deadline{:align => :center}
+          = issue.start_date.strftime("%d.%m")
+          = "-"
+          = format_date(issue.due_date)
         - 7.times do |day|
-          %td{:align=>:center}= rand(10)
+          %td{:align=>:center}
+            = "-"
           %td{:align=>:center}
             - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
               - sum = time_entries.inject(0.0){ |r,i| r + i.hours}
@@ -50,11 +56,12 @@
                 = link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => @current_date + day.days, :to => @current_date + day.days}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
               - else
                 = link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => @current_date+day.days}}
-        %td{:align=>:center}= rand(10)
+        %td{:align=>:center}
+          = "-"
         %td= issue.total_spent_hours
     %tr
-      %th{:colspan => 2}
-        = l(:label_total)
+      %th{:colspan => 3}
+        = l(:label_total)        
       - 7.times do |day|
         %th
           = "-"
@@ -68,7 +75,7 @@
 %h2= l(:label_plan_time)
 - @time_entry = TimeEntry.first
 - labelled_form_for @time_entry, :url => project_time_entry_path(@time_entry.project, @time_entry) do |f|
-  = render :partial => 'timelog/form', :locals => {:f => f}
+  = render :partial => 'form', :locals => {:f => f}
   = submit_tag l(:button_save), :disabled => true
 
 - html_title(l(:label_estimated_time_plural))
