@@ -1,8 +1,9 @@
-= error_messages_for 'estimated_times'
+= error_messages_for @estimated_time
 = back_url_hidden_field_tag
 = hidden_field_tag :current_date, params[:current_date]
 
 .box.tabular
+  = f.hidden_field :user_id, :value => User.current.id
   %p
     = f.select :issue_id, @assigned_issues.map{ |i| [h("#{i.tracker.name} ##{i.id}: #{i.subject}"), i.id] }, :include_blank => true, :required => true
   %p

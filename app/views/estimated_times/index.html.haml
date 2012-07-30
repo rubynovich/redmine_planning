@@ -48,7 +48,7 @@
           = format_date(issue.due_date)
         - 7.times do |day|
           %td{:align=>:center}
-            = "-"
+            = link_to "+", {:action => 'new', :estimated_time => {:plan_on => @current_date+day.days, :issue_id => issue}}
           %td{:align=>:center}
             - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
               - sum = time_entries.inject(0.0){ |r,i| r + i.hours}
@@ -74,7 +74,6 @@
       %th         
 
 %h2= l(:label_plan_time)
-- @estimated_time = EstimatedTime.new
 - labelled_form_for @estimated_time do |f|
   = render :partial => 'form', :locals => {:f => f}
   = submit_tag l(:button_save), :disabled => false
