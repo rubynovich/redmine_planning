@@ -1,5 +1,5 @@
 .contextual
-  = link_to "неделей раньше", :@current_date => @current_date - 1.week
+  = link_to "неделей раньше", :current_date => @current_date - 1.week
   = " | "
   - form_tag({}, :method => :get) do
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -58,7 +58,8 @@
                 = link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => @current_date+day.days}}
         %td{:align=>:center}
           = "-"
-        %td= issue.total_spent_hours
+        %td
+          = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
     %tr
       %th{:colspan => 3}
         = l(:label_total)        
@@ -73,9 +74,9 @@
       %th         
 
 %h2= l(:label_plan_time)
-- @time_entry = TimeEntry.first
-- labelled_form_for @time_entry, :url => project_time_entry_path(@time_entry.project, @time_entry) do |f|
+- @estimated_time = EstimatedTime.new
+- labelled_form_for @estimated_time do |f|
   = render :partial => 'form', :locals => {:f => f}
-  = submit_tag l(:button_save), :disabled => true
+  = submit_tag l(:button_save), :disabled => false
 
 - html_title(l(:label_estimated_time_plural))

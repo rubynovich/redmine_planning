@@ -10,5 +10,5 @@ Redmine::Plugin.register :redmine_planning do
   
   permission :view_planning, :estimated_times => [:index, :show]
     
-  menu :application_menu, :planning, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.allowed_to?({:controller => :estimated_times, :action => :index}, nil, {:global => true})}
+  menu :application_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.allowed_to?({:controller => :estimated_times, :action => :index}, nil, {:global => true})}
 end

@@ -20,4 +20,17 @@ class EstimatedTimesController < ApplicationController
       :include => [ :status, :project, :tracker, :priority ], 
       :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
   end
+  
+  def create
+      project_id = Issue.find(params[:estimated_time][:issue_id]).project.id
+      plan_on = Date.parse(params[:estimated_time][:plan_on])
+      tyear = plan_on.year
+      tmonth = plan_on.month
+      tweek = plan_on.cweek
+      flash[:notice] = l(:notice_successful_create)      
+      redirect_to :action => :index, :current_date => params[:current_date]
+#      render :action => :index, :current_date => params[:current_date]
+#    rescue
+#      render_404      
+  end
 end
