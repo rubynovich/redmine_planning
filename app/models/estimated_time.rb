@@ -9,7 +9,7 @@ class EstimatedTime < ActiveRecord::Base
   
   validates_presence_of :issue_id, :hours, :plan_on
   validates_numericality_of :hours
-  validates_uniqueness_of :issue_id, :scope => :user_id
+  validates_uniqueness_of :issue_id, :scope => [:user_id, :plan_on]
   
   def add_info
     if self.valid?

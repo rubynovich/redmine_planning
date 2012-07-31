@@ -14,6 +14,21 @@ class EstimatedTimesController < ApplicationController
     @estimated_time = EstimatedTime.new(params[:estimated_time])
   end
   
+  def edit
+    add_info
+    @estimated_time = EstimatedTime.find(params[:id])
+  end
+  
+  def update
+    @estimated_time = EstimatedTime.find(params[:id])
+    if @estimated_time.update_attributes(params[:estimated_time])
+      flash[:notice] = l(:notice_successful_update)
+      redirect_to :action => :index, :current_date => params[:current_date]
+    else
+      render :action => :edit, :current_date => params[:current_date]
+    end
+  end
+  
   def create
       @estimated_time = EstimatedTime.new(params[:estimated_time])  
       if @estimated_time.present? && @estimated_time.save

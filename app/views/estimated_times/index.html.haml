@@ -48,16 +48,19 @@
           = format_date(issue.due_date)
         - 7.times do |day|
           %td{:align=>:center}
-            = link_to "+", {:action => 'new', :estimated_time => {:plan_on => @current_date+day.days, :issue_id => issue}}
+            - if estimated_time = EstimatedTime.find(:first, :conditions => {:user_id => @current_user, :plan_on => @current_date + day.days, :issue_id => issue})
+              = link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}
+            - else
+              = link_to "+", {:action => 'new', :estimated_time => {:plan_on => @current_date+day.days, :issue_id => issue}}
           %td{:align=>:center}
             - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
-              - sum = time_entries.inject(0.0){ |r,i| r + i.hours}
+              - sum = time_entries.map{|i| i.hours }.sum(0.0)
               - if sum > 0.0
                 = link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => @current_date + day.days, :to => @current_date + day.days}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
               - else
                 = link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => @current_date+day.days}}
         %td{:align=>:center}
-          = "-"
+          = EstimatedTime.find(:all, :conditions => {:issue_id => issue.id, :user_id => @current_user}).map{|i| i.hours }.sum(0.0)
         %td
           = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
     %tr
@@ -65,11 +68,27 @@
         = l(:label_total)        
       - 7.times do |day|
         %th
-          = "-"
-        - day_hours = @assigned_issues.map do |issue|
-          - if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
-            - time_entries.inject(0.0){ |r,i| r + i.hours}
-        %th= day_hours.compact.inject(0.0){ |r,i| r + i }
+          - sum = sum_hours_plan_on(day)
+          - if sum < 6.0
+            %span{:style => "color: green"}
+              = sum
+          - elsif sum < 8.0
+            %span{:style => "color: orange"}
+              = sum          
+          - else
+            %span{:style => "color: red"}
+              = sum          
+        %th
+          - sum = sum_hours_spent_on(day)
+          - if sum < 6.0
+            %span{:style => "color: green"}
+              = sum
+          - elsif sum < 8.0
+            %span{:style => "color: orange"}
+              = sum          
+          - else
+            %span{:style => "color: red"}
+              = sum
       %th
       %th         
 
