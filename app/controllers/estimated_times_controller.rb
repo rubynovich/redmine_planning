@@ -38,8 +38,6 @@ class EstimatedTimesController < ApplicationController
         add_info
         render :action => :new, :current_date => params[:current_date]
       end
-#    rescue
-#      render_404      
   end
   
   private
@@ -51,13 +49,20 @@ class EstimatedTimesController < ApplicationController
         Date.parse(params[:current_date])
       end
       @current_date -= @current_date.wday.days - 1.day
-      @current_user = User.current
+      @current_user = if params[:current_user_id].present? &&
+        User.current.allowed_to?(:change_current_user, nil, :global=>true)
+        User.find(params[:current_user_id])
+      else
+        User.current
+      end
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
       @assigned_issues = Issue.visible.open.find(:all, 
         :conditions => {
           :assigned_to_id => ([User.current.id] + User.current.group_ids)}, 
         :limit => 10, 
         :include => [ :status, :project, :tracker, :priority ], 
-        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")      
+        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+#    rescue
+#      render_404
     end
 end
