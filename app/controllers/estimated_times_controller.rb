@@ -2,6 +2,7 @@ class EstimatedTimesController < ApplicationController
   unloadable
   
   before_filter :add_info, :only => [:new, :index]
+  before_filter :authorized
   
   helper :timelog
   include TimelogHelper
@@ -59,10 +60,13 @@ class EstimatedTimesController < ApplicationController
       @assigned_issues = Issue.visible.open.find(:all, 
         :conditions => {
           :assigned_to_id => ([User.current.id] + User.current.group_ids)}, 
-        :limit => 10, 
         :include => [ :status, :project, :tracker, :priority ], 
         :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 #    rescue
 #      render_404
+    end    
+    
+    def authorized
+      render_404 unless User.current.class == User      
     end
 end
