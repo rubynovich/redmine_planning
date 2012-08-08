@@ -26,7 +26,7 @@
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
         - User.active.all(:order => "lastname, firstname").each do |user|
-          - if params[:current_user_id].to_i == user.id
+          - if @current_user.id == user.id
             %option{:value => user.id, :selected => "selected"}
               = user.name
           - else

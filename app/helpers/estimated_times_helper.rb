@@ -29,14 +29,14 @@ module EstimatedTimesHelper
     (User.current == @current_user)&&
     (issue.start_date && (issue.start_date < day))&&
     (issue.due_date && (day < issue.due_date))&&
-    (1.day.ago < day)&&(day < 2.week.from_now.to_date)
+    (1.day.ago < day)
   end
   
   def link_to_plan(issue, day)
     shift_day = @current_date + day.days
     if estimated_time = EstimatedTime.find(:first, :conditions => {:user_id => @current_user, :plan_on => shift_day, :issue_id => issue})
       if can_change_plan?(issue, shift_day)
-        link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}
+        link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}, :title => estimated_time.comments
       else
         estimated_time.hours
       end
@@ -53,7 +53,7 @@ module EstimatedTimesHelper
     (User.current == @current_user)&&
     (issue.start_date && (issue.start_date < day))&&
     (issue.due_date && (day < issue.due_date))&&
-    (2.week.ago < day)&&(day < 1.day.from_now.to_date)
+    (1.week.ago < day)&&(day < 1.day.from_now.to_date)
   end
   
   def link_to_spant(issue, day)
