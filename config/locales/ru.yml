@@ -7,3 +7,5 @@ ru:
   label_plan_time: "Запланированное время"
   field_deadline: "Сроки выполнения"
   field_plan_on: "Запланировано на"
+  permission_view_planning: "Работа с планированием"
+  permission_change_current_user: "Просмотр чужых планов"

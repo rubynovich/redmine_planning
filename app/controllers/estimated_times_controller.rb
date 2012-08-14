@@ -48,7 +48,7 @@ class EstimatedTimesController < ApplicationController
         Date.today
       else
         Date.parse(params[:current_date])
-      end
+      end      
       @current_date -= @current_date.wday.days - 1.day
       @current_user = if params[:current_user_id].present? &&
         User.current.allowed_to?(:change_current_user, nil, :global=>true)
@@ -57,11 +57,19 @@ class EstimatedTimesController < ApplicationController
         User.current
       end
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
+      @project = if params[:project_id].present?
+        Project.find_by_identifier(params[:project_id])
+      end
+      
+      conditions = {:assigned_to_id => ([User.current.id] + User.current.group_ids)}
+      conditions.merge!(:project_id => @project.id) if @project
+      
       @assigned_issues = Issue.visible.open.find(:all, 
-        :conditions => {
-          :assigned_to_id => ([User.current.id] + User.current.group_ids)}, 
+        :conditions => conditions, 
         :include => [ :status, :project, :tracker, :priority ], 
         :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+      @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }
+
 #    rescue
 #      render_404
     end    

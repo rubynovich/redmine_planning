@@ -16,13 +16,12 @@
 
 %h2=l(:label_estimated_time_plural)
 
-- if User.current.allowed_to?(:change_current_user, nil, :global=>true)
-  - form_tag({}, :method => :get) do
-    %fieldset
-      %legend= l(:label_filter_plural)
+- form_tag({}, :method => :get) do
+  %fieldset
+    %legend= l(:label_filter_plural)
 
-      = hidden_field_tag :current_date, params[:current_date]
-      
+    = hidden_field_tag :current_date, params[:current_date]
+    - if User.current.allowed_to?(:change_current_user, nil, :global=>true)
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
         - User.active.all(:order => "lastname, firstname").each do |user|
@@ -32,6 +31,18 @@
           - else
             %option{:value => user.id}
               = user.name
+              
+    %label{:for=>'project_id'}= l(:field_project) + ":"
+    %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
+      %option
+      - @assigned_projects.each do |project|
+        - if params[:project_id] == project.identifier
+          %option{:value => project.identifier, :selected => "selected"}
+            = project.name
+        - else
+          %option{:value => project.identifier}
+            = project.name
+
 
 %table.list
   %thead

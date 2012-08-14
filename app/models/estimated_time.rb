@@ -28,7 +28,7 @@ class EstimatedTime < ActiveRecord::Base
     unless day && (issue.start_date && (issue.start_date < day))&&
       (issue.due_date && (day < issue.due_date))&&(1.day.ago < day)
       
-      errors.add :plan, :invalid
+      errors.add :plan_on, :invalid
     end
   end
 end
