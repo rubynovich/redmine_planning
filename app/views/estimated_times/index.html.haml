@@ -1,5 +1,5 @@
 .contextual
-  = link_to "неделей раньше", :current_date => @current_date - 1.week
+  = link_to "неделей раньше", {:current_date => @current_date - 1.week}.merge(params)
   = " | "
   - form_tag({}, :method => :get) do
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -12,7 +12,7 @@
           %option{:value => cur_date}
             = format_date(cur_date)
   = " | "  
-  = link_to "неделей позже", :current_date => @current_date + 1.week
+  = link_to "неделей позже", {:current_date => @current_date + 1.week}.merge(params)
 
 %h2=l(:label_estimated_time_plural)
 
@@ -20,7 +20,7 @@
   %fieldset
     %legend= l(:label_filter_plural)
 
-    = hidden_field_tag :current_date, params[:current_date]
+    = hidden_field_tag :current_date, @current_date
     - if User.current.allowed_to?(:change_current_user, nil, :global=>true)
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}

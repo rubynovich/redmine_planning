@@ -61,7 +61,7 @@ class EstimatedTimesController < ApplicationController
         Project.find_by_identifier(params[:project_id])
       end
       
-      conditions = {:assigned_to_id => ([User.current.id] + User.current.group_ids)}
+      conditions = {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}
       conditions.merge!(:project_id => @project.id) if @project
       
       @assigned_issues = Issue.visible.open.find(:all, 
