@@ -27,9 +27,9 @@ module EstimatedTimesHelper
   
   def can_change_plan?(issue, day)
     (User.current == @current_user)&&
-    (issue.start_date && (issue.start_date < day))&&
-    (issue.due_date && (day < issue.due_date))&&
-    (1.day.ago < day)
+    (issue.start_date && (issue.start_date <= day))&&
+    (issue.due_date && (day <= issue.due_date))&&
+    (1.day.ago < day) && !issue.status.is_closed?
   end
   
   def link_to_plan(issue, day)
@@ -42,7 +42,7 @@ module EstimatedTimesHelper
       end
     else
       if can_change_plan?(issue, shift_day)
-        link_to "+", {:action => 'new', :estimated_time => {:plan_on => shift_day, :issue_id => issue}}
+        link_to "+", {:action => 'new', :estimated_time => {:plan_on => shift_day, :issue_id => issue}}, :title => t(:title_plan_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
       else
         "-"
       end
@@ -51,9 +51,9 @@ module EstimatedTimesHelper
   
   def can_change_spant?(issue, day)
     (User.current == @current_user)&&
-    (issue.start_date && (issue.start_date < day))&&
-    (issue.due_date && (day < issue.due_date))&&
-    (1.week.ago < day)&&(day < 1.day.from_now.to_date)
+    (issue.start_date && (issue.start_date <= day))&&
+    (issue.due_date && (day <= issue.due_date))&&
+    (1.week.ago <= day)&&(day < 1.day.from_now.to_date)
   end
   
   def link_to_spant(issue, day)
@@ -68,7 +68,7 @@ module EstimatedTimesHelper
         end
       else
         if can_change_spant?(issue, shift_day)
-          link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}
+          link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spant_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
         else
           "-"
         end

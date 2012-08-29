@@ -1,4 +1,12 @@
 require 'redmine'
+require 'dispatcher'
+require_dependency 'issue'
+require_dependency 'issue_status'
+require 'planning_issue_patch'
+
+Dispatcher.to_prepare do
+  Issue.send(:include, Planning::IssuePatch) unless Issue.included_modules.include? Planning::IssuePatch
+end  
 
 Redmine::Plugin.register :redmine_planning do
   name 'Redmine Planning plugin'
@@ -20,3 +28,4 @@ Redmine::Plugin.register :redmine_planning do
   
   menu :project_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.allowed_to?({:controller => :estimated_times, :action => :index}, nil, {:global => true})}, :require => :member
 end
+

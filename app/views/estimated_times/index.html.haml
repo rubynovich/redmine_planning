@@ -2,10 +2,13 @@
   = link_to "неделей раньше", {:current_date => @current_date - 1.week}.merge(params)
   = " | "
   - form_tag({}, :method => :get) do
+    = hidden_field_tag :current_user_id, @current_user.id
+    - if @project.present?
+      = hidden_field_tag :project_id, @project.identifier
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
       %option
-      - @current_dates.each do |cur_date|
-        - if params[:current_date] == cur_date.to_s
+      - @current_dates.each do |cur_date|        
+        - if @current_date == cur_date
           %option{:value => cur_date, :selected => "selected"}
             = format_date(cur_date)
         - else
@@ -16,10 +19,10 @@
 
 %h2=l(:label_estimated_time_plural)
 
-- form_tag({}, :method => :get) do
-  %fieldset
-    %legend= l(:label_filter_plural)
 
+%fieldset
+  %legend= l(:label_filter_plural)
+  - form_tag({}, :method => :get) do
     = hidden_field_tag :current_date, @current_date
     - if User.current.allowed_to?(:change_current_user, nil, :global=>true)
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
@@ -32,9 +35,13 @@
             %option{:value => user.id}
               = user.name
               
+  - form_tag({}, :method => :get) do
+    = hidden_field_tag :current_date, @current_date
+    = hidden_field_tag :current_user_id, @current_user.id
     %label{:for=>'project_id'}= l(:field_project) + ":"
     %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
       %option
+        = l(:label_project_all)
       - @assigned_projects.each do |project|
         - if params[:project_id] == project.identifier
           %option{:value => project.identifier, :selected => "selected"}
@@ -42,7 +49,8 @@
         - else
           %option{:value => project.identifier}
             = project.name
-
+  - if @project.present?
+    = link_to l(:label_issue_new), {:controller => :issues, :project_id => @project.identifier, :action => :new}, :class => 'icon icon-add'
 
 %table.list
   %thead
@@ -73,10 +81,16 @@
         %td.deadline{:align => :center}
           = issue_dates(issue)
         - 7.times do |day|
-          %td{:align=>:center}
-            = link_to_plan(issue, day)
-          %td{:align=>:center}
-            = link_to_spant(issue, day)
+          - if day >= 5
+            %td{:align=>:center, :class => "odd"}
+              = link_to_plan(issue, day)
+            %td{:align=>:center, :class => "odd"}
+              = link_to_spant(issue, day)            
+          - else
+            %td{:align=>:center}
+              = link_to_plan(issue, day)
+            %td{:align=>:center}
+              = link_to_spant(issue, day)
         %td{:align=>:center}
           = EstimatedTime.find(:all, :conditions => {:issue_id => issue.id, :user_id => @current_user}).map{|i| i.hours }.sum(0.0)
         %td
@@ -98,10 +112,22 @@
             = sum
       %th
       %th         
+
+%fieldset
+  %legend= l(:label_issue_new)
+  - form_tag({:controller => :issues, :action => :new}, :method => :get) do
+    %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
+      %option
+        = l(:label_select_project_for_new_issue)
+      - @assigned_projects.each do |project|
+        %option{:value => project.identifier}
+          = project.name
+
+      
 - if User.current == @current_user
   %h2= l(:label_plan_time)
   - labelled_form_for @estimated_time do |f|
     = render :partial => 'form', :locals => {:f => f}
     = submit_tag l(:button_save), :disabled => false
-
+            
 - html_title(l(:label_estimated_time_plural))
