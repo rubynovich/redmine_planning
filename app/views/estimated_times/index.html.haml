@@ -117,7 +117,7 @@
   %legend= l(:label_issue_new)
   - form_tag({:controller => :issues, :action => :new}, :method => :get) do
     %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
-      %option
+      %option{:selected => "selected"}
         = l(:label_select_project_for_new_issue)
       - @assigned_projects.each do |project|
         %option{:value => project.identifier}
