@@ -3,6 +3,7 @@ class EstimatedTimesController < ApplicationController
   
   before_filter :add_info, :only => [:new, :index]
   before_filter :authorized
+  before_filter :require_planning_manager  
   
   helper :timelog
   include TimelogHelper
@@ -44,11 +45,11 @@ class EstimatedTimesController < ApplicationController
   private
   
     def add_info
-      @current_date = if params[:current_date].blank? 
+      @current_date = if params[:current_date].blank?
         Date.today
       else
         Date.parse(params[:current_date])
-      end      
+      end
       @current_date -= @current_date.wday.days - 1.day
       @current_user = if params[:current_user_id].present? &&
         User.current.allowed_to?(:change_current_user, nil, :global=>true)
@@ -60,45 +61,21 @@ class EstimatedTimesController < ApplicationController
       @project = if params[:project_id].present?
         Project.find_by_identifier(params[:project_id])
       end
-       
-#      Issue.class_eval do
-#        named_scope :in_project, lambda { |project|
-#          if project.present?
-#            { :conditions => 
-#              {
-#                :project_id => project.id
-#              }
-#            }
-#          end
-#        }
-
-#        named_scope :actual, lambda { |start_date, due_date|
-#          if start_date.present? && due_date.present?
-#            { :conditions => 
-#                ["#{IssueStatus.table_name}.is_closed = :is_closed OR #{Issue.table_name}.start_date BETWEEN :start_date AND :due_date OR #{Issue.table_name}.due_date BETWEEN :start_date AND :due_date", {:is_closed => false, :start_date => start_date, :due_date => due_date}],
-#              :include => :status
-#            }
-#          else
-#            { :conditions => 
-#                ["#{IssueStatus.table_name}.is_closed = :is_closed",
-#                  {:is_closed => false}],
-#              :include => :status
-#            }            
-#          end
-#        }                  
-#      end   
            
       @assigned_issues = Issue.visible.actual(@current_date, @current_date+6.days).in_project(@project).find(:all, 
         :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
         :include => [ :status, :project, :tracker, :priority ], 
         :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
       @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }
-
-#    rescue
-#      render_404
+      
+      @planning_manager = PlanningManager.find_by_user_id(User.current.id)
     end    
     
     def authorized
       render_404 unless User.current.class == User      
     end
+    
+    def require_planning_manager
+      (render_403; return false) unless User.current.is_planning_manager?
+    end    
 end

@@ -23,6 +23,10 @@ class PlanningManager < ActiveRecord::Base
     v.present? ? v : []
   end
 
+  def self.user_ids
+    all.map(&:user).sort.map(&:id)
+  end
+
   def add_workers(array_ids)
     self.workers = (worker_ids+array_ids).uniq
     self.save
@@ -37,5 +41,4 @@ class PlanningManager < ActiveRecord::Base
     v = v.to_yaml if v.present?
     write_attribute(:workers, v.to_s)
   end
-    
 end

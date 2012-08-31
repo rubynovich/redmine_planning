@@ -12,6 +12,10 @@ module PlanningPlugin
         { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
         }
         
+        named_scope :planning_managers, lambda {
+        { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
+        }        
+        
         named_scope :not_workers, lambda { |manager|
           { 
             :conditions => ["#{User.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.worker_ids + [manager.user_id]}]

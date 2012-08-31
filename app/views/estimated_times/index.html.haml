@@ -24,10 +24,10 @@
   %legend= l(:label_filter_plural)
   - form_tag({}, :method => :get) do
     = hidden_field_tag :current_date, @current_date
-    - if User.current.allowed_to?(:change_current_user, nil, :global=>true)
+    - if @planning_manager.workers.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
-        - User.active.all(:order => "lastname, firstname").each do |user|
+        - ([User.current] + @planning_manager.workers).each do |user|
           - if @current_user.id == user.id
             %option{:value => user.id, :selected => "selected"}
               = user.name
@@ -72,7 +72,7 @@
         %th= l(:label_spent)
   %tbody  
     - @assigned_issues.each do |issue|
-      %tr
+      %tr.even{:class => issue.css_classes}
         %td.id
           = link_to issue.id, issue_path(issue), :title => issue.subject
         %td.subject
