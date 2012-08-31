@@ -1,0 +1,31 @@
+.splitcontentleft
+  - if @planning_manager.workers.any?
+    %table.list.users
+      %thead
+        %tr
+          %th= l(:label_workers)
+          %th{:style=>"width:15%"}
+      %tbody
+        - @planning_manager.workers.sort.each do |member|
+          %tr{:id=>"user-#{member.id}", :class => cycle('odd', 'even')}
+            %td.user
+              = link_to_user member
+            %td.buttons
+              = link_to l(:button_delete), {:action => :destroy, :id => @planning_manager, :worker_id => member}, :confirm => l(:text_are_you_sure), :method => :delete, :class => 'icon icon-del'
+  - else
+    %p.nodata
+      = l(:label_no_data)
+
+.splitcontentright
+  #tab-content-users
+    - workers = User.active.not_workers(@planning_manager).all(:order => "lastname, firstname")
+    - if workers.any?
+      - form_for @planning_manager, :html => {:class => :edit_group} do |f|
+        %fieldset
+          %legend
+            =l(:label_worker_new)
+          #users
+            = principals_check_box_tags 'worker_ids[]', workers
+
+          %p= submit_tag l(:button_add)  
+

@@ -1,22 +1,4 @@
-.contextual
-  = link_to l(:label_planning_manager_new), new_planning_manager_path, :class => 'icon icon-add'
-
 %h2=l(:label_planning_manager_plural)
 
-%table.list
-  %thead
-    %tr
-      %th=l(:field_planning_manager)
-      %th=l(:field_workers)
-      %th
-  %tbody
-    - for planning_manager in @planning_managers
-      %tr{:class=>cycle("odd", "even")}
-        %td
-          = link_to h(planning_manager.user.name), user_path(planning_manager.user)
-        %td= h(planning_manager.workers.map(&:name).join(", "))
-        %td.buttons
-          = link_to l(:button_update), {:action => 'edit', :id => planning_manager.id}, :class => 'icon icon-edit'        
-          = link_to(l(:button_delete), planning_manager_path(planning_manager), :method => :delete, :confirm => l(:text_are_you_sure), :class => 'icon icon-del')
-
-- html_title(l(:label_planning_manager_plural))
+#content-users
+  =render :partial => 'manager'

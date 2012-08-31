@@ -1,6 +1,9 @@
 %h2
-  = l(:label_planning_manager)
+  = link_to l(:label_planning_manager_plural), :action => :index
+  &#187; 
+  = @planning_manager.user
 
-= render_tabs administration_planning_manager_tabs %>
+#content-users
+  =render :partial => 'worker'
 
 - html_title(l(:label_planning_manager), l(:label_administration))

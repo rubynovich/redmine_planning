@@ -1,5 +1,0 @@
-= error_messages_for @planning_manager
-
-.box.tabular
-  %p
-    = f.select :user_id, candidates.collect{|t| [t.name, t.id]}, :required => true, :size => 10, :label => :field_planning_manager
