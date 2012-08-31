@@ -19,6 +19,8 @@ Redmine::Plugin.register :redmine_planning do
   url 'https://github.com/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
     
+  permission :view_planning, :estimated_times => [:index], :public => true
+      
   menu :application_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.is_planning_manager?}
   
   menu :project_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.is_planning_manager?}, :require => :member
