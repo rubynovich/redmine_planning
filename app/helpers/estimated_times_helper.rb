@@ -49,26 +49,26 @@ module EstimatedTimesHelper
     end
   end
   
-  def can_change_spant?(issue, day)
+  def can_change_spent?(issue, day)
     (User.current == @current_user)&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
     (1.week.ago <= day)&&(day < 1.day.from_now.to_date)
   end
   
-  def link_to_spant(issue, day)
+  def link_to_spent(issue, day)
     shift_day = @current_date + day.days
     if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => shift_day, :user_id => @current_user})
       sum = time_entries.map{|i| i.hours }.sum(0.0)
       if sum > 0.0
-        if can_change_spant?(issue, shift_day)
+        if can_change_spent?(issue, shift_day)
           link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
         else
           sum
         end
       else
-        if can_change_spant?(issue, shift_day)
-          link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spant_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
+        if can_change_spent?(issue, shift_day)
+          link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spent_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
         else
           "-"
         end

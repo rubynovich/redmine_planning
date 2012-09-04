@@ -85,12 +85,12 @@
             %td{:align=>:center, :class => "odd"}
               = link_to_plan(issue, day)
             %td{:align=>:center, :class => "odd"}
-              = link_to_spant(issue, day)            
+              = link_to_spent(issue, day)            
           - else
             %td{:align=>:center}
               = link_to_plan(issue, day)
             %td{:align=>:center}
-              = link_to_spant(issue, day)
+              = link_to_spent(issue, day)
         %td{:align=>:center}
           = EstimatedTime.find(:all, :conditions => {:issue_id => issue.id, :user_id => @current_user}).map{|i| i.hours }.sum(0.0)
         %td
