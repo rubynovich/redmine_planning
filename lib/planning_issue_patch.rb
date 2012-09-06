@@ -45,7 +45,7 @@ module PlanningPlugin
         
         named_scope :exclude_not_planned, lambda{ |exclude, current_date|
           if exclude.present?
-            { :conditions => ["#{Issue.table_name}.id IN (SELECT #{EstimatedTime.table_name}.user_id FROM #{EstimatedTime.table_name} WHERE #{EstimatedTime.table_name}.plan_on BETWEEN :start_date AND :due_date )", {:start_date => current_date, :due_date => current_date + 6.days}]
+            { :conditions => ["#{Issue.table_name}.id IN (SELECT #{EstimatedTime.table_name}.issue_id FROM #{EstimatedTime.table_name} WHERE #{EstimatedTime.table_name}.plan_on BETWEEN :start_date AND :due_date)", {:start_date => current_date, :due_date => current_date + 6.days}]
             }
           end
         }

@@ -111,6 +111,8 @@
         %td{:align=>:center}
           - if estimated_time_sum = @estimated_time_sum[issue.id]
             = estimated_time_sum.map(&:hours).sum(0.0)
+          - else
+            = "-"            
         %td
           - if User.current == @current_user
             = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
