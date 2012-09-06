@@ -80,11 +80,16 @@ class EstimatedTimesController < ApplicationController
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)
       
+      @estimated_time_sum = EstimatedTime.
+        for_issues(@assigned_issue_ids).
+        for_user(@current_user.id).
+        group_by(&:issue_id)
+              
       @time_entries = TimeEntry.
         for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)        
-
+        
       @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }
       
       @planning_manager = PlanningManager.find_by_user_id(User.current.id)

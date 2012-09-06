@@ -109,7 +109,7 @@
             %td{:align=>:center}
               = link_to_spent(issue, day)
         %td{:align=>:center}
-          = EstimatedTime.find(:all, :conditions => {:issue_id => issue.id, :user_id => @current_user}).map{|i| i.hours }.sum(0.0)
+          = @estimated_time_sum[issue.id].map{|i| i.hours }.sum(0.0)
         %td
           - if User.current == @current_user
             = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
