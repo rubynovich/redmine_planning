@@ -3,6 +3,9 @@
   = " | "
   - form_tag({}, :method => :get) do
     = hidden_field_tag :current_user_id, @current_user.id
+    - exclude_filters.each do |key|  
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]    
     - if @project.present?
       = hidden_field_tag :project_id, @project.identifier
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -24,6 +27,9 @@
   %legend= l(:label_filter_plural)
   - form_tag({}, :method => :get) do
     = hidden_field_tag :current_date, @current_date
+    - exclude_filters.each do |key|  
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]    
     - if @planning_manager.workers.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -38,6 +44,9 @@
   - form_tag({}, :method => :get) do
     = hidden_field_tag :current_date, @current_date
     = hidden_field_tag :current_user_id, @current_user.id
+    - exclude_filters.each do |key|  
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]      
     %label{:for=>'project_id'}= l(:field_project) + ":"
     %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
       %option
@@ -51,6 +60,15 @@
             = project.name
   - if @project.present?
     = link_to l(:label_issue_new), {:controller => :issues, :project_id => @project.identifier, :action => :new}, :class => 'icon icon-add'
+    
+  %br
+  
+  - exclude_filters.each do |key|  
+    - if params[:"exclude_#{key}"].present?
+      = link_to l(:"label_include_#{key}"), params.merge( :"exclude_#{key}" => nil)
+    - else
+      = link_to l(:"label_exclude_#{key}"), params.merge( :"exclude_#{key}" => 1)
+    = " / " unless key == exclude_filters.last
 
 %table.list
   %thead
@@ -70,7 +88,7 @@
       - 8.times do
         %th= l(:label_plan)
         %th= l(:label_spent)
-  %tbody  
+  %tbody
     - @assigned_issues.each do |issue|
       %tr.even{:class => issue.css_classes}
         %td.id
@@ -98,20 +116,21 @@
             = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
           - else
             = issue.total_spent_hours
-    %tr
-      %th{:colspan => 3}
-        = l(:label_total)        
-      - 7.times do |day|
+    %tfoot
+      %tr
+        %th{:colspan => 3}
+          = l(:label_total)        
+        - 7.times do |day|
+          %th
+            - sum = sum_hours_plan_on(day)
+            %span{:style => style_for_sum(sum)}
+              = sum
+          %th
+            - sum = sum_hours_spent_on(day)
+            %span{:style => style_for_sum(sum)}
+              = sum
         %th
-          - sum = sum_hours_plan_on(day)
-          %span{:style => style_for_sum(sum)}
-            = sum
-        %th
-          - sum = sum_hours_spent_on(day)
-          %span{:style => style_for_sum(sum)}
-            = sum
-      %th
-      %th         
+        %th         
 
 %fieldset
   %legend= l(:label_issue_new)
@@ -124,7 +143,7 @@
           = project.name
 
       
-- if User.current == @current_user
+- if (User.current == @current_user)&&(@assigned_issues.any?)
   %h2= l(:label_plan_time)
   - labelled_form_for @estimated_time do |f|
     = render :partial => 'form', :locals => {:f => f}

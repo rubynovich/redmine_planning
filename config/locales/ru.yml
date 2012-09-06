@@ -11,6 +11,12 @@ ru:
   label_planning_manager_new: Новый планирующий
   label_worker_new: Новый подчиненный
   label_planning_manager_plural: Планирующие
+  label_exclude_closed: убрать закрытые
+  label_exclude_not_planned: убрать незапланированные
+  label_exclude_overdue: убрать просроченные
+  label_include_closed: добавить закрытые
+  label_include_not_planned: добавить незапланированные
+  label_include_overdue: добавить просроченные
   field_deadline: "Сроки выполнения"
   field_plan_on: "Запланировано на"
   permission_view_planning: "Работа с планированием"

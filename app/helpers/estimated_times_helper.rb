@@ -85,4 +85,8 @@ module EstimatedTimesHelper
       "color: red"
     end
   end
+  
+  def exclude_filters
+    %w{closed overdue not_planned}  
+  end
 end

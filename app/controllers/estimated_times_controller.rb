@@ -62,10 +62,16 @@ class EstimatedTimesController < ApplicationController
         Project.find_by_identifier(params[:project_id])
       end
            
-      @assigned_issues = Issue.visible.actual(@current_date, @current_date+6.days).in_project(@project).find(:all, 
-        :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
-        :include => [:status, :project, :tracker, :priority], 
-        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+      @assigned_issues = Issue.visible.
+        actual(@current_date, @current_date+6.days).
+        in_project(@project).
+        exclude_closed(params[:exclude_closed]).
+        exclude_overdue(params[:exclude_overdue], @current_date).
+        exclude_not_planned(params[:exclude_not_planned], @current_date).
+        find(:all, 
+          :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
+          :include => [:status, :project, :tracker, :priority], 
+          :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
       @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }
       
       @planning_manager = PlanningManager.find_by_user_id(User.current.id)
