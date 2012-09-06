@@ -1,18 +1,20 @@
 module EstimatedTimesHelper
   def sum_hours_spent_on(day)  
-    @assigned_issues.map do |issue|
-      if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => @current_date + day.days, :user_id => @current_user})
-        time_entries.map{ |i| i.hours }.sum(0.0)
-      end
-    end.compact.sum(0.0)
+    time_entries = @time_entries.group_by(&:spent_on)[@current_date + day.days]
+    if time_entries.present?
+      time_entries.map{|i| i.hours }.sum(0.0)
+    else
+      0.0
+    end
   end
   
   def sum_hours_plan_on(day)
-    @assigned_issues.map do |issue|
-      if estimated_times = EstimatedTime.find(:all, :conditions => {:issue_id => issue.id, :plan_on => @current_date + day.days, :user_id => @current_user})
-        estimated_times.map{|i| i.hours }.sum(0.0)
-      end
-    end.compact.sum(0.0)
+    estimated_times = @estimated_times.group_by(&:plan_on)[@current_date + day.days]
+    if estimated_times.present?
+      estimated_times.map{|i| i.hours }.sum(0.0)
+    else
+      0.0
+    end
   end
   
   def issue_dates(issue)
@@ -34,7 +36,8 @@ module EstimatedTimesHelper
   
   def link_to_plan(issue, day)
     shift_day = @current_date + day.days
-    if estimated_time = EstimatedTime.find(:first, :conditions => {:user_id => @current_user, :plan_on => shift_day, :issue_id => issue})
+    estimated_time = @estimated_times.select{ |et| (et.plan_on == shift_day)&&(et.issue_id == issue.id)}.first
+    if estimated_time.present?
       if can_change_plan?(issue, shift_day)
         link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}, :title => estimated_time.comments
       else
@@ -58,7 +61,8 @@ module EstimatedTimesHelper
   
   def link_to_spent(issue, day)
     shift_day = @current_date + day.days
-    if time_entries = TimeEntry.find(:all, :conditions => {:issue_id => issue.id, :spent_on => shift_day, :user_id => @current_user})
+    time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}
+    if time_entries.any?
       sum = time_entries.map{|i| i.hours }.sum(0.0)
       if sum > 0.0
         if can_change_spent?(issue, shift_day)
@@ -72,7 +76,9 @@ module EstimatedTimesHelper
         else
           "-"
         end
-      end
+      end      
+    else
+      "-"      
     end
   end
   

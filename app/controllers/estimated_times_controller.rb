@@ -72,6 +72,19 @@ class EstimatedTimesController < ApplicationController
           :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
           :include => [:status, :project, :tracker, :priority], 
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+          
+      @assigned_issue_ids = @assigned_issues.map(&:id)
+      
+      @estimated_times = EstimatedTime.
+        for_issues(@assigned_issue_ids).
+        actual(@current_date, @current_date+6.days).
+        for_user(@current_user.id)
+      
+      @time_entries = TimeEntry.
+        for_issues(@assigned_issue_ids).
+        actual(@current_date, @current_date+6.days).
+        for_user(@current_user.id)        
+
       @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }
       
       @planning_manager = PlanningManager.find_by_user_id(User.current.id)
