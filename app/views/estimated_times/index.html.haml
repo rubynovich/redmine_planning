@@ -114,7 +114,7 @@
           - else
             = "-"            
         %td
-          - if User.current == @current_user
+          - if my_planning?
             = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
           - else
             = issue.total_spent_hours
@@ -145,7 +145,7 @@
           = project.name
 
       
-- if (User.current == @current_user)&&(@assigned_issues.any?)
+- if my_planning? && @assigned_issues.any?
   %h2= l(:label_plan_time)
   - labelled_form_for @estimated_time do |f|
     = render :partial => 'form', :locals => {:f => f}
