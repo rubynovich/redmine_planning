@@ -22,5 +22,5 @@ ru:
   permission_view_planning: "Работа с планированием"
   permission_change_current_user: "Просмотр чужих планов"
   title_plan_on_date: "План на %{date} (%{wday})"
-  title_spant_on_date: "Факт на %{date} (%{wday})"  
+  title_spent_on_date: "Факт на %{date} (%{wday})"  
   

@@ -16,6 +16,10 @@ module EstimatedTimesHelper
       0.0
     end
   end
+
+  def my_planning?
+    (User.current == @current_user)
+  end
   
   def issue_dates(issue)
     str = ""
@@ -28,23 +32,23 @@ module EstimatedTimesHelper
   end
   
   def can_change_plan?(issue, day)
-    (User.current == @current_user)&&
+    day&&issue&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    (1.day.ago < day) && !issue.status.is_closed?
+    (1.day.ago < day) && !issue.status.is_closed?   
   end
   
   def link_to_plan(issue, day)
     shift_day = @current_date + day.days
     estimated_time = @estimated_times.select{ |et| (et.plan_on == shift_day)&&(et.issue_id == issue.id)}.first
     if estimated_time.present?
-      if can_change_plan?(issue, shift_day)
+      if can_change_plan?(issue, shift_day)&&my_planning?
         link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}, :title => estimated_time.comments
       else
         estimated_time.hours
       end
     else
-      if can_change_plan?(issue, shift_day)
+      if can_change_plan?(issue, shift_day)&&my_planning?
         link_to "+", {:action => 'new', :estimated_time => {:plan_on => shift_day, :issue_id => issue}}, :title => t(:title_plan_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
       else
         "-"
@@ -52,8 +56,8 @@ module EstimatedTimesHelper
     end
   end
   
-  def can_change_spent?(issue, day)
-    (User.current == @current_user)&&
+  def can_change_spent?(issue, day)    
+    issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
     (1.week.ago <= day)&&(day < 1.day.from_now.to_date)
@@ -64,13 +68,13 @@ module EstimatedTimesHelper
     time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}
     if time_entries.any?
       sum = time_entries.map{|i| i.hours }.sum(0.0)
-      if can_change_spent?(issue, shift_day)
+      if can_change_spent?(issue, shift_day) && my_planning?
         link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
       else
         sum > 0.0 ? sum : "-"
       end      
     else
-      if can_change_spent?(issue, shift_day)
+      if can_change_spent?(issue, shift_day) && my_planning?
         link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spent_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
       else
         "-"
