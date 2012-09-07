@@ -93,6 +93,6 @@ module EstimatedTimesHelper
   end
   
   def exclude_filters
-    %w{closed overdue not_planned}  
+    %w{closed not_planned}  
   end
 end
