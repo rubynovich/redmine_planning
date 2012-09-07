@@ -69,70 +69,74 @@
       = link_to l(:"label_exclude_#{key}"), params.merge( :"exclude_#{key}" => 1)
     = " / " unless key == exclude_filters.last
 
-%table.list
-  %thead
-    %tr
-      %th{:rowspan => 2}="#"
-      %th{:rowspan => 2}= l(:field_subject)
-      %th{:rowspan => 2}= l(:field_deadline)      
-      %th{:colspan => 2}= (@current_date).strftime("%d.%m")
-      %th{:colspan => 2}= (@current_date + 1.day).strftime("%d.%m")
-      %th{:colspan => 2}= (@current_date + 2.days).strftime("%d.%m")
-      %th{:colspan => 2}= (@current_date + 3.days).strftime("%d.%m")
-      %th{:colspan => 2}= (@current_date + 4.days).strftime("%d.%m")
-      %th{:colspan => 2}= (@current_date + 5.days).strftime("%d.%m")
-      %th{:colspan => 2}= (@current_date + 6.days).strftime("%d.%m")
-      %th{:colspan => 2}= l(:label_total)
-    %tr
-      - 8.times do
-        %th= l(:label_plan)
-        %th= l(:label_spent)
-  %tbody
-    - @assigned_issues.each do |issue|
-      %tr.even{:class => issue.css_classes}
-        %td.id
-          = link_to issue.id, issue_path(issue), :title => issue.subject
-        %td.subject
-          = link_to issue.subject, issue_path(issue), :title => issue.project
-          = "(#{issue.status})"
-        %td.deadline{:align => :center}
-          = issue_dates(issue)
-        - 7.times do |day|
-          - if day >= 5
-            %td{:align=>:center, :class => "odd"}
-              = link_to_plan(issue, day)
-            %td{:align=>:center, :class => "odd"}
-              = link_to_spent(issue, day)            
-          - else
-            %td{:align=>:center}
-              = link_to_plan(issue, day)
-            %td{:align=>:center}
-              = link_to_spent(issue, day)
-        %td{:align=>:center}
-          - if estimated_time_sum = @estimated_time_sum[issue.id]
-            = estimated_time_sum.map(&:hours).sum(0.0)
-          - else
-            = "-"            
-        %td
-          - if my_planning?
-            = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
-          - else
-            = issue.total_spent_hours
-    %tfoot
+- if @assigned_issues.any?
+  %table.list
+    %thead
       %tr
-        %th{:colspan => 3}
-          = l(:label_total)        
-        - 7.times do |day|
+        %th{:rowspan => 2}="#"
+        %th{:rowspan => 2}= l(:field_subject)
+        %th{:rowspan => 2}= l(:field_deadline)      
+        %th{:colspan => 2}= (@current_date).strftime("%d.%m")
+        %th{:colspan => 2}= (@current_date + 1.day).strftime("%d.%m")
+        %th{:colspan => 2}= (@current_date + 2.days).strftime("%d.%m")
+        %th{:colspan => 2}= (@current_date + 3.days).strftime("%d.%m")
+        %th{:colspan => 2}= (@current_date + 4.days).strftime("%d.%m")
+        %th{:colspan => 2}= (@current_date + 5.days).strftime("%d.%m")
+        %th{:colspan => 2}= (@current_date + 6.days).strftime("%d.%m")
+        %th{:colspan => 2}= l(:label_total)
+      %tr
+        - 8.times do
+          %th= l(:label_plan)
+          %th= l(:label_spent)
+    %tbody
+      - @assigned_issues.each do |issue|
+        %tr.even{:class => issue.css_classes}
+          %td.id
+            = link_to issue.id, issue_path(issue), :title => issue.subject
+          %td.subject
+            = link_to issue.subject, issue_path(issue), :title => issue.project
+            = "(#{issue.status})"
+          %td.deadline{:align => :center}
+            = issue_dates(issue)
+          - 7.times do |day|
+            - if day >= 5
+              %td{:align=>:center, :class => "odd"}
+                = link_to_plan(issue, day)
+              %td{:align=>:center, :class => "odd"}
+                = link_to_spent(issue, day)            
+            - else
+              %td{:align=>:center}
+                = link_to_plan(issue, day)
+              %td{:align=>:center}
+                = link_to_spent(issue, day)
+          %td{:align=>:center}
+            - if estimated_time_sum = @estimated_time_sum[issue.id]
+              = estimated_time_sum.map(&:hours).sum(0.0)
+            - else
+              = "-"            
+          %td
+            - if my_planning?
+              = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
+            - else
+              = issue.total_spent_hours
+      %tfoot
+        %tr
+          %th{:colspan => 3}
+            = l(:label_total)        
+          - 7.times do |day|
+            %th
+              - sum = sum_hours_plan_on(day)
+              %span{:style => style_for_sum(sum)}
+                = sum
+            %th
+              - sum = sum_hours_spent_on(day)
+              %span{:style => style_for_sum(sum)}
+                = sum
           %th
-            - sum = sum_hours_plan_on(day)
-            %span{:style => style_for_sum(sum)}
-              = sum
-          %th
-            - sum = sum_hours_spent_on(day)
-            %span{:style => style_for_sum(sum)}
-              = sum
-        %th
-        %th         
+          %th         
+- else
+  %p.nodata
+    = l(:label_no_data)
 
 %fieldset
   %legend= l(:label_issue_new)
