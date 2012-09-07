@@ -64,22 +64,18 @@ module EstimatedTimesHelper
     time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}
     if time_entries.any?
       sum = time_entries.map{|i| i.hours }.sum(0.0)
-      if sum > 0.0
-        if can_change_spent?(issue, shift_day)
-          link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
-        else
-          sum
-        end
+      if can_change_spent?(issue, shift_day)
+        link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
       else
-        if can_change_spent?(issue, shift_day)
-          link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spent_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
-        else
-          "-"
-        end
+        sum > 0.0 ? sum : "-"
       end      
     else
-      "-"      
-    end
+      if can_change_spent?(issue, shift_day)
+        link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spent_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
+      else
+        "-"
+      end
+    end      
   end
   
   def style_for_sum(sum)

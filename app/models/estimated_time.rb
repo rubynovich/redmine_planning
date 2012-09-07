@@ -25,9 +25,10 @@ class EstimatedTime < ActiveRecord::Base
   def validate_plan_on
     issue = self.issue
     day = self.plan_on
-    unless day && (issue.start_date && (issue.start_date <= day))&&
-      (issue.due_date && (day <= issue.due_date))&&(1.day.ago < day)&& 
-      !issue.status.is_closed?
+    unless day && can_change_plan?(issue, day)
+#    (issue.start_date && (issue.start_date <= day))&&
+#      (issue.due_date && (day <= issue.due_date))&&(1.day.ago < day)&& 
+#      !issue.status.is_closed?
       
       errors.add :plan_on, :invalid
     end
