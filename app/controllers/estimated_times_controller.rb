@@ -62,7 +62,7 @@ class EstimatedTimesController < ApplicationController
         Project.find_by_identifier(params[:project_id])
       end
            
-      @assigned_issues = Issue.visible.
+      @assigned_issues = Issue.
         actual(@current_date, @current_date+6.days).
         in_project(@project).
         exclude_closed(params[:exclude_closed]).
