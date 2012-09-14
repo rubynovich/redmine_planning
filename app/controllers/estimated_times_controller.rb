@@ -51,8 +51,7 @@ class EstimatedTimesController < ApplicationController
         Date.parse(params[:current_date])
       end
       @current_date -= @current_date.wday.days - 1.day
-      @current_user = if params[:current_user_id].present? &&
-        User.current.allowed_to?(:change_current_user, nil, :global=>true)
+      @current_user = if params[:current_user_id].present?
         User.find(params[:current_user_id])
       else
         User.current
@@ -62,7 +61,7 @@ class EstimatedTimesController < ApplicationController
         Project.find_by_identifier(params[:project_id])
       end
            
-      @assigned_issues = Issue.
+      @assigned_issues = Issue.visible.
         actual(@current_date, @current_date+6.days).
         in_project(@project).
         exclude_closed(params[:exclude_closed]).
