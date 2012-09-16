@@ -1,7 +1,8 @@
 class EstimatedTimesController < ApplicationController
   unloadable
   
-  before_filter :add_info, :only => [:new, :index]
+  before_filter :current_date
+  before_filter :add_info, :only => [:new, :index, :update]
   before_filter :authorized
   before_filter :require_planning_manager  
   
@@ -23,11 +24,15 @@ class EstimatedTimesController < ApplicationController
   
   def update
     @estimated_time = EstimatedTime.find(params[:id])
-    if @estimated_time.update_attributes(params[:estimated_time])
+    if params[:estimated_time][:hours].to_f == 0.0
+      @estimated_time.destroy
+      flash[:notice] = l(:notice_successful_delete)
+      redirect_to :action => :index, :current_date => @current_date
+    elsif @estimated_time.update_attributes(params[:estimated_time])
       flash[:notice] = l(:notice_successful_update)
-      redirect_to :action => :index, :current_date => params[:current_date]
+      redirect_to :action => :index, :current_date => @current_date
     else
-      render :action => :edit, :current_date => params[:current_date]
+      render :action => :edit, :current_date => @current_date
     end
   end
   
@@ -35,22 +40,33 @@ class EstimatedTimesController < ApplicationController
       @estimated_time = EstimatedTime.new(params[:estimated_time])  
       if @estimated_time.present? && @estimated_time.save
         flash[:notice] = l(:notice_successful_create)      
-        redirect_to :action => :index, :current_date => params[:current_date]
+        redirect_to :action => :index, :current_date => @current_date
       else
         add_info
-        render :action => :new, :current_date => params[:current_date]
+        render :action => :new, :current_date => @current_date
       end
+  end
+  
+  def destroy
+    if (estimated_time = EstimatedTime.find(params[:id]))
+      estimated_time.destroy
+      flash[:notice] = l(:notice_successful_delete)
+    end
+    redirect_to :action => :index, :current_date => @current_date   
   end
   
   private
   
-    def add_info
+    def current_date
       @current_date = if params[:current_date].blank?
         Date.today
       else
         Date.parse(params[:current_date])
       end
       @current_date -= @current_date.wday.days - 1.day
+    end
+  
+    def add_info
       @current_user = if params[:current_user_id].present?
         User.find(params[:current_user_id])
       else

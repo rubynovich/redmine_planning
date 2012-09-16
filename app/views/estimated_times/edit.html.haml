@@ -1,3 +1,6 @@
+.contextual
+  = link_to l(:button_delete), estimated_time_path(@estimated_time.id), :confirm => l(:text_are_you_sure), :method => :delete, :class => 'icon icon-del'
+
 %h2= l(:label_plan_time)
 - labelled_form_for @estimated_time, :html => {:method => :put} do |f|
   = render :partial => 'form', :locals => {:f => f}
