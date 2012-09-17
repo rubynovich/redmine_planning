@@ -38,7 +38,7 @@ class EstimatedTime < ActiveRecord::Base
     issue = self.issue
     hours = self.hours
     if hours.to_f <= 0.0
-      errors.add :plan_on, :invalid
+      errors.add :hours, :invalid
     end
   end
   
