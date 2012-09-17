@@ -8,11 +8,13 @@ class EstimatedTime < ActiveRecord::Base
   belongs_to :issue
   
   before_save :add_info
+  before_destroy :validate_before_destroy
   
   validates_presence_of :issue_id, :hours, :plan_on
   validates_numericality_of :hours
   validates_uniqueness_of :issue_id, :scope => [:user_id, :plan_on]
   validate :validate_plan_on
+  validate :validate_hours
   
   def add_info
     if self.valid?
@@ -30,6 +32,20 @@ class EstimatedTime < ActiveRecord::Base
     unless can_change_plan?(issue, day)
       errors.add :plan_on, :invalid
     end
+  end
+  
+  def validate_hours
+    issue = self.issue
+    hours = self.hours
+    if hours.to_f <= 0.0
+      errors.add :plan_on, :invalid
+    end
+  end
+  
+  def validate_before_destroy
+    issue = self.issue
+    day = self.plan_on
+    raise unless can_change_plan?(issue, day)
   end
   
   named_scope :for_issues, lambda{ |issue_ids|

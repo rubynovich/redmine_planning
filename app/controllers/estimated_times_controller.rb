@@ -23,17 +23,18 @@ class EstimatedTimesController < ApplicationController
   end
   
   def update
-    @estimated_time = EstimatedTime.find(params[:id])
-    if params[:estimated_time][:hours].to_f == 0.0
-      @estimated_time.destroy
-      flash[:notice] = l(:notice_successful_delete)
-      redirect_to :action => :index, :current_date => @current_date
-    elsif @estimated_time.update_attributes(params[:estimated_time])
-      flash[:notice] = l(:notice_successful_update)
-      redirect_to :action => :index, :current_date => @current_date
-    else
-      render :action => :edit, :current_date => @current_date
-    end
+      @estimated_time = EstimatedTime.find(params[:id])
+      if params[:estimated_time][:hours].to_f <= 0.0      
+        flash[:notice] = l(:notice_successful_delete) if @estimated_time.destroy
+        redirect_to :action => :index, :current_date => @current_date
+      elsif @estimated_time.update_attributes(params[:estimated_time])
+        flash[:notice] = l(:notice_successful_update)
+        redirect_to :action => :index, :current_date => @current_date
+      else
+        render :action => :edit, :current_date => @current_date
+      end    
+    rescue
+      render_403
   end
   
   def create
@@ -48,11 +49,12 @@ class EstimatedTimesController < ApplicationController
   end
   
   def destroy
-    if (estimated_time = EstimatedTime.find(params[:id]))
-      estimated_time.destroy
-      flash[:notice] = l(:notice_successful_delete)
-    end
-    redirect_to :action => :index, :current_date => @current_date   
+      if (estimated_time = EstimatedTime.find(params[:id]))
+        flash[:notice] = l(:notice_successful_delete) if estimated_time.destroy
+      end
+      redirect_to :action => :index, :current_date => @current_date   
+    rescue
+      render_403
   end
   
   private
