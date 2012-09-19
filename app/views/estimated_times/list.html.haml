@@ -43,6 +43,9 @@
 
 - if @estimated_times.any?
   = render :partial => 'list', :locals => {:entries => @estimated_times}
+  %p.other-formats
+    = l(:label_export_to)
+    = link_to 'CSV', params.merge(:format => :csv)  
 - else
   %p.nodata
     = l(:label_no_data)

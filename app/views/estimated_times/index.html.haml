@@ -134,6 +134,9 @@
                 = sum
           %th
           %th         
+  %p.other-formats
+    = l(:label_export_to)
+    = link_to 'CSV', params.merge(:format => :csv)
 - else
   %p.nodata
     = l(:label_no_data)
@@ -147,7 +150,6 @@
       - @assigned_projects.each do |project|
         %option{:value => project.identifier}
           = project.name
-
       
 - if my_planning? && @assigned_issues.any?
   %h2= l(:label_plan_time)

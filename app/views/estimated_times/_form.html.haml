@@ -5,7 +5,7 @@
 .box.tabular
   = f.hidden_field :user_id, :value => User.current.id
   %p
-    = f.select :issue_id, @assigned_issues.map{ |i| [h("#{i.tracker.name} ##{i.id}: #{i.subject}"), i.id] }, :include_blank => true, :required => true
+    = f.select :issue_id, @assigned_issues.sort_by(&:id).map{ |i| [h("#{i.tracker.name} ##{i.id}: #{i.subject}"), i.id] }, :include_blank => true, :required => true
   %p
     = f.text_field :plan_on, :size => 10, :required => true
     = calendar_for('estimated_time_plan_on')

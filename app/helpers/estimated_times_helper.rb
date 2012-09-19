@@ -102,4 +102,55 @@ module EstimatedTimesHelper
   def exclude_filters
     %w{overdue closed not_planned}  
   end
+  
+  def index_to_csv
+    decimal_separator = l(:general_csv_decimal_separator)
+    export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+      # csv header fields
+      csv << [ "#", l(:field_subject), l(:field_deadline)] + (0...7).map{ |day| [(@current_date + day.days).strftime("%d.%m")]*2 }.flatten
+      csv << [ "" ]*3 + [l(:label_plan), l(:label_spent)]*7
+      
+      # csv lines
+      @assigned_issues.each do |issue|
+        col_values = (0...7).map do |day|
+          shift_day = @current_date + day.days
+          plan = @estimated_times.select{ |et| (et.plan_on == shift_day)&&(et.issue_id == issue.id)}.map(&:hours).sum(0.0)
+          spent = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}.map(&:hours).sum(0.0)
+          
+          [plan, spent].map do |f| 
+            ("%.2f" % f).gsub('.', decimal_separator)
+          end
+        end.flatten
+        csv << [ issue.id.to_s, issue.subject + " (#{issue.status})", issue_dates(issue) ] + col_values
+      end
+    end
+    export  
+  end
+  
+  def list_to_csv
+    decimal_separator = l(:general_csv_decimal_separator)
+    export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+      # csv header fields
+      csv << [ 
+        l(:label_date), 
+        l(:label_member), 
+        l(:label_project), 
+        l(:label_issue), 
+        l(:field_comments), 
+        l(:field_hours)] 
+      
+      # csv lines
+      @estimated_times.each do |entry|
+        csv << [
+          format_date(entry.plan_on), 
+          entry.user.name, 
+          entry.project.name,
+          "#{entry.issue.tracker} ##{entry.issue.id}: " + entry.issue.subject,
+          entry.comments,
+          ("%.2f" % entry.hours).gsub('.', decimal_separator)          
+        ]
+      end
+    end
+    export  
+  end
 end

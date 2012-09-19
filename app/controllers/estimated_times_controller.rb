@@ -4,7 +4,7 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_current_date
   before_filter :get_project
   before_filter :get_current_user
-  before_filter :get_planning_manager, :only => [:index, :list]
+  before_filter :get_planning_manager
   before_filter :add_info, :only => [:new, :index, :edit, :update]
   before_filter :authorized
   before_filter :require_planning_manager  
@@ -12,10 +12,17 @@ class EstimatedTimesController < ApplicationController
   helper :timelog
   include TimelogHelper
   helper :sort
-  include SortHelper
+  include SortHelper  
+  helper :estimated_times
+  include EstimatedTimesHelper
   
   def index
     @estimated_time = EstimatedTime.new
+    
+    respond_to do |format|
+      format.html{ render :action => :index }
+      format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
+    end
   end
 
   def new
@@ -85,6 +92,11 @@ class EstimatedTimesController < ApplicationController
     end
     
     @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).all(:order => sort_clause)
+    
+    respond_to do |format|
+      format.html{ render :action => :list }
+      format.csv{ send_data(list_to_csv, :type => 'text/csv; header=present', :filename => Date.today.strftime("planning_list_%Y-%m-%d_#{@current_user.login}.csv"))}
+    end    
   end
   
   private
