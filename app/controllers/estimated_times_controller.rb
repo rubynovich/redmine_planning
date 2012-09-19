@@ -1,13 +1,17 @@
 class EstimatedTimesController < ApplicationController
   unloadable
   
-  before_filter :current_date
+  before_filter :get_current_date
+  before_filter :get_project
+  before_filter :get_current_user
   before_filter :add_info, :only => [:new, :index, :update]
   before_filter :authorized
   before_filter :require_planning_manager  
   
   helper :timelog
   include TimelogHelper
+  helper :sort
+  include SortHelper
   
   def index
     @estimated_time = EstimatedTime.new
@@ -57,9 +61,33 @@ class EstimatedTimesController < ApplicationController
       render_403
   end
   
+  def list
+    sort_init 'plan_on', 'desc'
+    sort_update 'plan_on' => 'plan_on',
+                'user' => 'user_id',
+                'project' => "#{Project.table_name}.name",
+                'issue' => 'issue_id',
+                'hours' => 'hours'
+                  
+    if params[:issue_id].present? && 
+      (issue = Issue.visible.find(params[:issue_id]))
+      
+      @assigned_issues = [issue]
+      @assigned_issue_ids = [issue.id]
+    else
+      @assigned_issues = Issue.visible.
+        find(:all, 
+          :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
+          :include => [:status, :project, :tracker, :priority], 
+          :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+      @assigned_issue_ids = @assigned_issues.map(&:id)
+    end
+    @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).all(:order => sort_clause)
+  end
+  
   private
   
-    def current_date
+    def get_current_date
       @current_date = if params[:current_date].blank?
         Date.today
       else
@@ -68,16 +96,22 @@ class EstimatedTimesController < ApplicationController
       @current_date -= @current_date.wday.days - 1.day
     end
   
-    def add_info
+    def get_project
+      @project = if params[:project_id].present?
+        Project.find_by_identifier(params[:project_id])
+      end
+    end
+    
+    def get_current_user
       @current_user = if params[:current_user_id].present?
         User.find(params[:current_user_id])
       else
         User.current
       end
+    end
+  
+    def add_info
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
-      @project = if params[:project_id].present?
-        Project.find_by_identifier(params[:project_id])
-      end
            
       @assigned_issues = Issue.visible.
         actual(@current_date, @current_date+6.days).

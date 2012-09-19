@@ -1,0 +1,10 @@
+%h2
+  =link_to l(:label_estimated_time_plural), :action => :index
+
+- if @assigned_issues.any?
+  = render :partial => 'list', :locals => {:entries => @estimated_times}
+- else
+  %p.nodata
+    = l(:label_no_data)
+
+- html_title(l(:label_estimated_time_plural))

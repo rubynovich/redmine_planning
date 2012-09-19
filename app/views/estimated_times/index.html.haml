@@ -111,14 +111,14 @@
                 = link_to_spent(issue, day)
           %td{:align=>:center}
             - if estimated_time_sum = @estimated_time_sum[issue.id]
-              = estimated_time_sum.map(&:hours).sum(0.0)
+              = link_to estimated_time_sum.map(&:hours).sum(0.0), :action => :list, :issue_id => issue.id
             - else
               = "-"            
           %td
-            - if my_planning?
+            - if issue.total_spent_hours > 0.0
               = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
             - else
-              = issue.total_spent_hours
+              = "-"
       %tfoot
         %tr
           %th{:colspan => 3}

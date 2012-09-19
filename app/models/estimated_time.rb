@@ -10,7 +10,7 @@ class EstimatedTime < ActiveRecord::Base
   before_save :add_info
   before_destroy :validate_before_destroy
   
-  validates_presence_of :issue_id, :hours, :plan_on
+  validates_presence_of :issue_id, :hours, :plan_on, :comments
   validates_numericality_of :hours
   validates_uniqueness_of :issue_id, :scope => [:user_id, :plan_on]
   validate :validate_plan_on

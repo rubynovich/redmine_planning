@@ -1,0 +1,31 @@
+.autoscroll
+  %table.list.time-entries
+    %thead
+      %tr
+        = sort_header_tag('plan_on', :caption => l(:label_date), :default_order => 'desc')
+        = sort_header_tag('user', :caption => l(:label_member))
+        = sort_header_tag('project', :caption => l(:label_project))
+        = sort_header_tag('issue', :caption => l(:label_issue), :default_order => 'desc')
+        %th= l(:field_comments)
+        = sort_header_tag('hours', :caption => l(:field_hours))
+        %th
+    %tbody
+      - entries.each do |entry|
+        %tr{:style => cycle("odd", "even")}
+          %td.plan_on
+            = format_date(entry.plan_on)
+          %td.user
+            = link_to_user(entry.user)
+          %td.project
+            = link_to_project(entry.project)
+          %td.subject
+            - if entry.issue
+              = entry.issue.visible? ? link_to_issue(entry.issue, :truncate => 50) : "##{entry.issue.id}"
+          %td.comments
+            =h entry.comments
+          %td.hours
+            = html_hours("%.2f" % entry.hours)
+          %td{:align => "center"}
+            - if my_planning? && can_change_plan?(entry.issue, Date.today)              
+              = link_to image_tag('edit.png'), {:controller => 'estimated_times', :action => 'edit', :id => entry, :project_id => nil}, :title => l(:button_edit)
+              = link_to image_tag('delete.png'), {:controller => 'estimated_times', :action => 'destroy', :id => entry, :project_id => nil}, :confirm => l(:text_are_you_sure), :method => :delete, :title => l(:button_delete)

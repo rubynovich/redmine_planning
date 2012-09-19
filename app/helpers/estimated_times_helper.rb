@@ -1,4 +1,10 @@
 module EstimatedTimesHelper
+  def span_for(text, title = "")
+    content_tag :span, :title => title do
+      text
+    end
+  end
+  
   def sum_hours_spent_on(day)  
     time_entries = @time_entries.group_by(&:spent_on)[@current_date + day.days]
     if time_entries.present?
@@ -45,7 +51,7 @@ module EstimatedTimesHelper
       if can_change_plan?(issue, shift_day)&&my_planning?
         link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}, :title => estimated_time.comments
       else
-        estimated_time.hours
+        span_for estimated_time.hours, estimated_time.comments
       end
     else
       if can_change_plan?(issue, shift_day)&&my_planning?
@@ -68,10 +74,11 @@ module EstimatedTimesHelper
     time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}
     if time_entries.any?
       sum = time_entries.map{|i| i.hours }.sum(0.0)
+      comment = time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
       if can_change_spent?(issue, shift_day) && my_planning?
-        link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
+        link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => comment
       else
-        sum > 0.0 ? sum : "-"
+        sum > 0.0 ? span_for(sum, comment) : "-"
       end      
     else
       if can_change_spent?(issue, shift_day) && my_planning?
