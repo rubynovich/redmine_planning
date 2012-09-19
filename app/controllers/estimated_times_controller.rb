@@ -4,7 +4,8 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_current_date
   before_filter :get_project
   before_filter :get_current_user
-  before_filter :add_info, :only => [:new, :index, :update]
+  before_filter :get_planning_manager, :only => [:index, :list]
+  before_filter :add_info, :only => [:new, :index, :edit, :update]
   before_filter :authorized
   before_filter :require_planning_manager  
   
@@ -22,7 +23,6 @@ class EstimatedTimesController < ApplicationController
   end
   
   def edit
-    add_info
     @estimated_time = EstimatedTime.find(params[:id])
   end
   
@@ -68,20 +68,22 @@ class EstimatedTimesController < ApplicationController
                 'project' => "#{Project.table_name}.name",
                 'issue' => 'issue_id',
                 'hours' => 'hours'
+
+    @assigned_issues = Issue.visible.
+      find(:all, 
+        :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
+        :include => [:status, :project, :tracker, :priority], 
+        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+
                   
-    if params[:issue_id].present? && 
+    @assigned_issue_ids = if params[:issue_id].present? && 
       (issue = Issue.visible.find(params[:issue_id]))
       
-      @assigned_issues = [issue]
-      @assigned_issue_ids = [issue.id]
+      [issue.id]      
     else
-      @assigned_issues = Issue.visible.
-        find(:all, 
-          :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
-          :include => [:status, :project, :tracker, :priority], 
-          :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
-      @assigned_issue_ids = @assigned_issues.map(&:id)
+      @assigned_issues.map(&:id)
     end
+    
     @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).all(:order => sort_clause)
   end
   
@@ -110,6 +112,10 @@ class EstimatedTimesController < ApplicationController
       end
     end
   
+    def get_planning_manager
+      @planning_manager = PlanningManager.find_by_user_id(User.current.id)      
+    end
+    
     def add_info
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
            
@@ -141,9 +147,7 @@ class EstimatedTimesController < ApplicationController
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)        
         
-      @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }
-      
-      @planning_manager = PlanningManager.find_by_user_id(User.current.id)
+      @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}).map{ |m| m.project }      
     end    
     
     def authorized
