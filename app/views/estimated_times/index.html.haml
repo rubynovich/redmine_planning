@@ -99,39 +99,33 @@
           %td.deadline{:align => :center}
             = issue_dates(issue)
           - 7.times do |day|
-            - if day >= 5
-              %td{:align=>:center, :class => "odd"}
-                = link_to_plan(issue, day)
-              %td{:align=>:center, :class => "odd"}
-                = link_to_spent(issue, day)            
-            - else
-              %td{:align=>:center}
-                = link_to_plan(issue, day)
-              %td{:align=>:center}
-                = link_to_spent(issue, day)
+            %td{:align=>:center, :class => ("odd" if day >= 5)}
+              = link_to_plan(issue, day)
+            %td{:align=>:center, :class => ("odd" if day >= 5)}
+              = link_to_spent(issue, day)
           %td{:align=>:center}
             - if estimated_time_sum = @estimated_time_sum[issue.id]
-              = link_to estimated_time_sum.map(&:hours).sum(0.0), :action => :list, :issue_id => issue.id
+              = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.map(&:comments).join("\r")
             - else
               = "-"            
           %td
             - if issue.total_spent_hours > 0.0
-              = link_to issue.total_spent_hours, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}
+              = link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.map(&:comments).join("\r")
             - else
               = "-"
       %tfoot
         %tr
           %th{:colspan => 3}
-            = l(:label_total)        
+            = l(:label_total)
           - 7.times do |day|
             %th
               - sum = sum_hours_plan_on(day)
               %span{:style => style_for_sum(sum)}
-                = sum
+                = html_hours("%.2f" % sum)
             %th
               - sum = sum_hours_spent_on(day)
               %span{:style => style_for_sum(sum)}
-                = sum
+                = html_hours("%.2f" % sum)
           %th
           %th         
   %p.other-formats

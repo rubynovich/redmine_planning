@@ -49,9 +49,9 @@ module EstimatedTimesHelper
     estimated_time = @estimated_times.select{ |et| (et.plan_on == shift_day)&&(et.issue_id == issue.id)}.first
     if estimated_time.present?
       if can_change_plan?(issue, shift_day)&&my_planning?
-        link_to estimated_time.hours, {:action => 'edit', :id => estimated_time.id}, :title => estimated_time.comments
+        link_to html_hours("%.2f" % estimated_time.hours), {:action => 'edit', :id => estimated_time.id}, :title => estimated_time.comments
       else
-        span_for estimated_time.hours, estimated_time.comments
+        span_for html_hours("%.2f" % estimated_time.hours), estimated_time.comments
       end
     else
       if can_change_plan?(issue, shift_day)&&my_planning?
@@ -78,7 +78,7 @@ module EstimatedTimesHelper
       if can_change_spent?(issue, shift_day) && my_planning?
         link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => comment
       else
-        sum > 0.0 ? span_for(sum, comment) : "-"
+        sum > 0.0 ? span_for(html_hours("%.2f" % sum), comment) : "-"
       end      
     else
       if can_change_spent?(issue, shift_day) && my_planning?
