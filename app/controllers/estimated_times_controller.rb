@@ -37,10 +37,10 @@ class EstimatedTimesController < ApplicationController
       @estimated_time = EstimatedTime.find(params[:id])
       if params[:estimated_time][:hours].to_f <= 0.0      
         flash[:notice] = l(:notice_successful_delete) if @estimated_time.destroy
-        redirect_to :action => :index, :current_date => @current_date
+        redirect_back_or_default :action => :index, :current_date => @current_date
       elsif @estimated_time.update_attributes(params[:estimated_time])
         flash[:notice] = l(:notice_successful_update)
-        redirect_to :action => :index, :current_date => @current_date
+        redirect_back_or_default :action => :index, :current_date => @current_date
       else
         render :action => :edit, :current_date => @current_date
       end    
@@ -52,7 +52,7 @@ class EstimatedTimesController < ApplicationController
       @estimated_time = EstimatedTime.new(params[:estimated_time])  
       if @estimated_time.present? && @estimated_time.save
         flash[:notice] = l(:notice_successful_create)      
-        redirect_to :action => :index, :current_date => @current_date
+        redirect_back_or_default :action => :index, :current_date => @current_date
       else
         add_info
         render :action => :new, :current_date => @current_date
