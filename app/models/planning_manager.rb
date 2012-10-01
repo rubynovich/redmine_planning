@@ -9,12 +9,15 @@ class PlanningManager < ActiveRecord::Base
   def workers
     v = read_attribute(:workers)
     v = YAML::load(v) if v.is_a?(String)
-    v = if v.present? && v.is_a?(Array)
-      v.map{ |i| User.find(i) }.compact
+    if v.present? && v.is_a?(Array)
+      begin
+        User.find(v)
+      rescue
+        v.map{ |i| User.find(i) }.compact
+      end
     else
       []
     end
-    v
   end
 
   def worker_ids
@@ -22,7 +25,11 @@ class PlanningManager < ActiveRecord::Base
   end
 
   def self.user_ids
-    all.map{|i| User.find(i) }.compact.sort.map(&:id)
+    begin
+      all.map(&:user).sort.map(&:id)
+    rescue
+      all.map{|i| User.find(i) }.compact.sort.map(&:id)
+    end
   end
 
   def add_workers(array_ids)
