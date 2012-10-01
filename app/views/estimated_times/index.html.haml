@@ -105,12 +105,12 @@
               = link_to_spent(issue, day)
           %td{:align=>:center}
             - if estimated_time_sum = @estimated_time_sum[issue.id]
-              = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.map(&:comments).join("\r")
+              = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
             - else
               = "-"            
           %td
             - if issue.total_spent_hours > 0.0
-              = link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.map(&:comments).join("\r")
+              = link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spant_on).map(&:comments).join("\r")
             - else
               = "-"
       %tfoot
