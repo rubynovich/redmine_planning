@@ -1,24 +1,30 @@
 require 'redmine'
-require 'dispatcher'
-require_dependency 'issue'
-require_dependency 'issue_status'
-require_dependency 'user'
-require_dependency 'time_entry'
-require 'planning_issue_patch'
-require 'planning_user_patch'
-require 'planning_time_entry_patch'
+if Rails::VERSION::MAJOR < 3
+  require 'dispatcher'
+  object_to_prepare = Dispatcher
+else
+  object_to_prepare = Rails.configuration
+end
 
-Dispatcher.to_prepare do
+object_to_prepare.to_prepare do
+  require_dependency 'issue'
+  require_dependency 'issue_status'
+  require_dependency 'user'
+  require_dependency 'time_entry'
+  require 'planning_issue_patch'
+  require 'planning_user_patch'
+  require 'planning_time_entry_patch'
+
   Issue.send(:include, PlanningPlugin::IssuePatch) unless Issue.included_modules.include? PlanningPlugin::IssuePatch
   User.send(:include, PlanningPlugin::UserPatch) unless User.included_modules.include? PlanningPlugin::UserPatch
   TimeEntry.send(:include, PlanningPlugin::TimeEntryPatch) unless TimeEntry.included_modules.include? PlanningPlugin::TimeEntryPatch  
-end  
+end
 
 Redmine::Plugin.register :redmine_planning do
   name 'Redmine Planning plugin'
   author 'Roman Shipiev'
   description 'Plugin for time managment'
-  version '0.0.4'
+  version '0.0.5'
   url 'https://github.com/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
   

@@ -9,7 +9,6 @@
     - if @project.present?
       = hidden_field_tag :project_id, @project.identifier
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
-      %option
       - @current_dates.each do |cur_date|        
         - if @current_date == cur_date
           %option{:value => cur_date, :selected => "selected"}
@@ -48,7 +47,7 @@
         = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]      
     %label{:for=>'project_id'}= l(:field_project) + ":"
     %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
-      %option
+      %option{:value => ""}
         = l(:label_project_all)
       - @assigned_projects.each do |project|
         - if params[:project_id] == project.identifier
