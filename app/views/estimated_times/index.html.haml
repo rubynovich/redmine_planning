@@ -88,10 +88,11 @@
           %th= l(:label_plan)
           %th= l(:label_spent)
     %tbody
-      - @assigned_issues.group_by(&:project).each do |project, issues|
+      - @project_issues.each do |project, issues|
         %tr
-          %th{:colspan => 19, :align => :center}
-            = link_to project.name, {:controller => :issues, :project_id => project.identifier, :action => :new}, :class => 'icon icon-add'
+          - if project.present?
+            %th{:colspan => 19, :align => :center}
+              = link_to project.name, {:controller => :issues, :project_id => project.identifier, :action => :new}, :class => 'icon icon-add'
         - issues.each do |issue|
           %tr.even{:class => issue.css_classes}
             %td.id

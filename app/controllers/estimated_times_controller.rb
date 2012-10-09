@@ -141,6 +141,12 @@ class EstimatedTimesController < ApplicationController
           :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
           :include => [:status, :project, :tracker, :priority], 
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+
+      @project_issues = if params[:exclude_group_by_project].present?
+        [[nil, @assigned_issues]]
+      else
+        @assigned_issues.group_by(&:project).sort_by{|p,i| p.name }
+      end
           
       @assigned_issue_ids = @assigned_issues.map(&:id)
       
