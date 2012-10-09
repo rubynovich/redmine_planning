@@ -21,7 +21,7 @@ module PlanningPlugin
         named_scope :actual, lambda { |start_date, due_date|
           if start_date.present? && due_date.present?
             { :conditions => 
-                ["#{IssueStatus.table_name}.is_closed = :is_closed OR #{Issue.table_name}.start_date BETWEEN :start_date AND :due_date OR #{Issue.table_name}.due_date BETWEEN :start_date AND :due_date", {:is_closed => false, :start_date => start_date, :due_date => due_date}],
+                ["#{IssueStatus.table_name}.is_closed = :is_closed OR #{Issue.table_name}.start_date BETWEEN :start_date AND :due_date OR #{Issue.table_name}.due_date BETWEEN :start_date AND :due_date OR #{Issue.table_name}.start_date <= :start_date AND #{Issue.table_name}.due_date >= :due_date", {:is_closed => false, :start_date => start_date, :due_date => due_date}],
               :include => :status
             }
           else

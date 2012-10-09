@@ -88,30 +88,34 @@
           %th= l(:label_plan)
           %th= l(:label_spent)
     %tbody
-      - @assigned_issues.each do |issue|
-        %tr.even{:class => issue.css_classes}
-          %td.id
-            = link_to issue.id, issue_path(issue), :title => issue.subject
-          %td.subject
-            = link_to issue.subject, issue_path(issue), :title => issue.project
-            = "(#{issue.status})"
-          %td.deadline{:align => :center}
-            = issue_dates(issue)
-          - 7.times do |day|
-            %td{:align=>:center, :class => ("odd" if day >= 5)}
-              = link_to_plan(issue, day)
-            %td{:align=>:center, :class => ("odd" if day >= 5)}
-              = link_to_spent(issue, day)
-          %td{:align=>:center}
-            - if estimated_time_sum = @estimated_time_sum[issue.id]
-              = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
-            - else
-              = "-"            
-          %td
-            - if issue.total_spent_hours > 0.0
-              = link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
-            - else
-              = "-"
+      - @assigned_issues.group_by(&:project).each do |project, issues|
+        %tr
+          %th{:colspan => 19, :align => :center}
+            = link_to_project project
+        - issues.each do |issue|
+          %tr.even{:class => issue.css_classes}
+            %td.id
+              = link_to issue.id, issue_path(issue), :title => issue.subject
+            %td.subject
+              = link_to issue.subject, issue_path(issue), :title => issue.project
+              = "(#{issue.status})"
+            %td.deadline{:align => :center}
+              = issue_dates(issue)
+            - 7.times do |day|
+              %td{:align=>:center, :class => ("odd" if day >= 5)}
+                = link_to_plan(issue, day)
+              %td{:align=>:center, :class => ("odd" if day >= 5)}
+                = link_to_spent(issue, day)
+            %td{:align=>:center}
+              - if estimated_time_sum = @estimated_time_sum[issue.id]
+                = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
+              - else
+                = "-"            
+            %td
+              - if issue.total_spent_hours > 0.0
+                = link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
+              - else
+                = "-"
       %tfoot
         %tr
           %th{:colspan => 3}

@@ -52,7 +52,7 @@ class EstimatedTime < ActiveRecord::Base
     { :conditions => 
         ["issue_id IN (:issue_ids)",
           {:issue_ids => issue_ids}]
-    }      
+    }
   }
   
   named_scope :actual, lambda{ |start_date, due_date|
