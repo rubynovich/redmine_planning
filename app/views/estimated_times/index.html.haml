@@ -91,9 +91,7 @@
       - @assigned_issues.group_by(&:project).each do |project, issues|
         %tr
           %th{:colspan => 19, :align => :center}
-            .contextual
-              = link_to l(:label_issue_new), {:controller => :issues, :project_id => project.identifier, :action => :new}, :class => 'icon icon-add'
-            = link_to_project project
+            = link_to project.name, {:controller => :issues, :project_id => project.identifier, :action => :new}, :class => 'icon icon-add'
         - issues.each do |issue|
           %tr.even{:class => issue.css_classes}
             %td.id
