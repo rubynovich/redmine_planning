@@ -33,12 +33,12 @@ class PlanningManager < ActiveRecord::Base
   end
 
   def add_workers(array_ids)
-    self.workers = (worker_ids+array_ids).uniq
+    self.workers = (worker_ids+array_ids.map(&:to_i)).uniq
     self.save
   end
   
-  def remove_worker(id)
-    self.workers = worker_ids-[id]
+  def remove_worker(worker_id)
+    self.workers = worker_ids-[worker_id.to_i]
     self.save
   end
 
