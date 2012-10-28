@@ -1,3 +1,6 @@
+require_dependency 'issue'
+require_dependency 'issue_status'
+
 module PlanningPlugin
   module IssuePatch
     def self.included(base)

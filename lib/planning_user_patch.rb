@@ -1,3 +1,5 @@
+require_dependency 'user'
+
 module PlanningPlugin
   module UserPatch
     def self.included(base)

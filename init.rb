@@ -7,17 +7,15 @@ else
 end
 
 object_to_prepare.to_prepare do
-  require_dependency 'issue'
-  require_dependency 'issue_status'
-  require_dependency 'user'
-  require_dependency 'time_entry'
-  require 'planning_issue_patch'
-  require 'planning_user_patch'
-  require 'planning_time_entry_patch'
+  [:issue, :user, :time_entry, :timelog_helper].each do |cl|
+    require "planning_#{cl}_patch"
+  end
 
-  Issue.send(:include, PlanningPlugin::IssuePatch) unless Issue.included_modules.include? PlanningPlugin::IssuePatch
-  User.send(:include, PlanningPlugin::UserPatch) unless User.included_modules.include? PlanningPlugin::UserPatch
-  TimeEntry.send(:include, PlanningPlugin::TimeEntryPatch) unless TimeEntry.included_modules.include? PlanningPlugin::TimeEntryPatch  
+  [ [Issue, PlanningPlugin::IssuePatch], [User, PlanningPlugin::UserPatch], 
+    [TimeEntry, PlanningPlugin::TimeEntryPatch], [TimelogHelper, PlanningPlugin::TimelogHelperPatch]
+  ].each do |cl, patch|
+    cl.send(:include, patch) unless cl.included_modules.include? patch
+  end
 end
 
 Redmine::Plugin.register :redmine_planning do

@@ -1,3 +1,5 @@
+require_dependency 'time_entry'
+
 module PlanningPlugin
   module TimeEntryPatch
     def self.included(base)
