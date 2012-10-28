@@ -99,36 +99,36 @@ class EstimatedTimesController < ApplicationController
     end    
   end
 
-  def list_with_spent
-    sort_init 'plan_on', 'desc'
-    sort_update 'plan_on' => 'plan_on',
-                'user' => 'user_id',
-                'project' => "#{Project.table_name}.name",
-                'issue' => 'issue_id',
-                'hours' => 'hours'
+#  def list_with_spent
+#    sort_init 'plan_on', 'desc'
+#    sort_update 'plan_on' => 'plan_on',
+#                'user' => 'user_id',
+#                'project' => "#{Project.table_name}.name",
+#                'issue' => 'issue_id',
+#                'hours' => 'hours'
 
-    @assigned_issues = Issue.visible.
-      find(:all, 
-        :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
-        :include => [:status, :project, :tracker, :priority], 
-        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+#    @assigned_issues = Issue.visible.
+#      find(:all, 
+#        :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)}, 
+#        :include => [:status, :project, :tracker, :priority], 
+#        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 
-                  
-    @assigned_issue_ids = if params[:issue_id].present? && 
-      (issue = Issue.visible.find(params[:issue_id]))
-      
-      [issue.id]      
-    else
-      @assigned_issues.map(&:id)
-    end
-    
-    @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).all(:order => sort_clause)
-    
-    respond_to do |format|
-      format.html{ render :action => :list_with_spent }
-      format.csv{ send_data(list_to_csv, :type => 'text/csv; header=present', :filename => Date.today.strftime("planning_list_%Y-%m-%d_#{@current_user.login}.csv"))}
-    end    
-  end
+#                  
+#    @assigned_issue_ids = if params[:issue_id].present? && 
+#      (issue = Issue.visible.find(params[:issue_id]))
+#      
+#      [issue.id]      
+#    else
+#      @assigned_issues.map(&:id)
+#    end
+#    
+#    @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).all(:order => sort_clause)
+#    
+#    respond_to do |format|
+#      format.html{ render :action => :list_with_spent }
+#      format.csv{ send_data(list_to_csv, :type => 'text/csv; header=present', :filename => Date.today.strftime("planning_list_%Y-%m-%d_#{@current_user.login}.csv"))}
+#    end    
+#  end
     
   private
   
