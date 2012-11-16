@@ -3,6 +3,7 @@
 
 %h2= l(:label_plan_time)
 - labelled_form_for @estimated_time, :html => {:method => :put} do |f|
+  = back_url_hidden_field_tag
   = render :partial => 'form', :locals => {:f => f}
   = submit_tag l(:button_save), :disabled => false
 

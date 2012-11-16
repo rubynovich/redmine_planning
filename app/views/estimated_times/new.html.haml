@@ -1,6 +1,8 @@
 %h2= l(:label_plan_time)
 - labelled_form_for @estimated_time do |f|
+  = back_url_hidden_field_tag
   = render :partial => 'form', :locals => {:f => f}
+  = render :partial => 'google_calendar', :locals => {:f => f}  
   = submit_tag l(:button_save), :disabled => false
 
 - html_title(l(:label_estimated_time_plural))

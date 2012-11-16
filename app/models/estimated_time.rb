@@ -12,9 +12,13 @@ class EstimatedTime < ActiveRecord::Base
   
   validates_presence_of :issue_id, :hours, :plan_on, :comments
   validates_numericality_of :hours
-  validates_uniqueness_of :issue_id, :scope => [:user_id, :plan_on]
+  validates_uniqueness_of :plan_on, :scope => [:user_id, :issue_id]
+  
   validate :validate_plan_on
   validate :validate_hours
+    
+  attr_accessor :google_calendar, :google_username, :google_password, 
+    :google_start_time
   
   def add_info
     if self.valid?

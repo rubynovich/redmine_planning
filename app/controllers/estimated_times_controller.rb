@@ -7,7 +7,9 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_planning_manager
   before_filter :add_info, :only => [:new, :index, :edit, :update]
   before_filter :authorized
-  before_filter :require_planning_manager  
+  before_filter :require_planning_manager 
+  before_filter :new_estimated_time, :only => [:new, :index, :create] 
+  before_filter :find_estimated_time, :only => [:edit, :update, :destroy]
   
   helper :timelog
   include TimelogHelper
@@ -16,9 +18,7 @@ class EstimatedTimesController < ApplicationController
   helper :estimated_times
   include EstimatedTimesHelper
   
-  def index
-    @estimated_time = EstimatedTime.new
-    
+  def index   
     respond_to do |format|
       format.html{ render :action => :index }
       format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
@@ -26,15 +26,12 @@ class EstimatedTimesController < ApplicationController
   end
 
   def new
-    @estimated_time = EstimatedTime.new(params[:estimated_time])
   end
   
-  def edit
-    @estimated_time = EstimatedTime.find(params[:id])
+  def edit    
   end
   
   def update
-      @estimated_time = EstimatedTime.find(params[:id])
       if params[:estimated_time][:hours].to_f <= 0.0      
         flash[:notice] = l(:notice_successful_delete) if @estimated_time.destroy
         redirect_back_or_default :action => :index, :current_date => @current_date
@@ -49,18 +46,36 @@ class EstimatedTimesController < ApplicationController
   end
   
   def create
-      @estimated_time = EstimatedTime.new(params[:estimated_time])  
-      if @estimated_time.present? && @estimated_time.save
-        flash[:notice] = l(:notice_successful_create)      
-        redirect_back_or_default :action => :index, :current_date => @current_date
-      else
-        add_info
-        render :action => :new, :current_date => @current_date
+    if @estimated_time.present? && @estimated_time.save
+      flash[:notice] = l(:notice_successful_create)
+      if params[:estimated_time][:google_calendar].present?
+        begin
+          cal = Google::Calendar.new(
+            :username => params[:estimated_time][:google_username],
+            :password => params[:estimated_time][:google_password])
+          time = params[:estimated_time][:google_start_time].
+            seconds_since_midnight
+          delta = (@estimated_time.hours*3600).round
+          event = cal.create_event do |e|
+            e.title = @estimated_time.comments
+            e.content = [@estimated_time.issue.project.name, "##{@estimated_time.issue_id} #{@estimated_time.issue.subject}", @estimated_time.issue.description].join("\n")
+            e.start_time = @estimated_time.plan_on.in(time)
+            e.end_time = @estimated_time.plan_on.in(time + delta)
+          end
+          flash[:warning] = l(:google_calendar_create_event_successful)
+        rescue
+          flash[:error] = l(:google_calendar_create_event_error)
+        end
       end
+      redirect_back_or_default :action => :index, :current_date => @current_date
+    else
+      add_info
+      render :action => :new, :current_date => @current_date
+    end
   end
   
   def destroy
-      if (estimated_time = EstimatedTime.find(params[:id]))
+      if (@estimated_time.present?)
         flash[:notice] = l(:notice_successful_delete) if estimated_time.destroy
       end
       redirect_to :action => :index, :current_date => @current_date   
@@ -206,4 +221,24 @@ class EstimatedTimesController < ApplicationController
     def require_planning_manager
       (render_403; return false) unless User.current.is_planning_manager?
     end    
+    
+    def parse_google_start_date
+      if ["(4i)", "(5i)"].all?{|i|
+        params[:estimated_time]["google_start_time"+i]
+      }
+        google_start_time = ["(4i)", "(5i)"].map{ |i|
+          params[:estimated_time].delete("google_start_time"+i)
+        }.join(":")
+        params[:estimated_time][:google_start_time] = Time.parse(google_start_time)
+      end    
+    end
+    
+    def new_estimated_time
+      parse_google_start_date if params[:estimated_time].present?
+      @estimated_time = EstimatedTime.new(params[:estimated_time])
+    end
+    
+    def find_estimated_time
+      @estimated_time = EstimatedTime.find(params[:id])      
+    end
 end

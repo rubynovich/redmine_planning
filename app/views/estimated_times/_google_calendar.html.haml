@@ -1,0 +1,11 @@
+.box.tabular
+  %p
+    = f.check_box :google_calendar, :onclick => 'if ($("estimated_time_google_calendar").checked) { $("google").show(); } else { $("google").hide(); }'
+  #google{:style => "display:none;"}
+    %p
+      = f.label :google_start_time
+      = f.time_select :google_start_time, :value => Time.now, :minute_step => 15, :ignore_date => true
+    %p
+      = f.text_field :google_username, :size => 20, :value => User.current.mail
+    %p
+      = f.password_field :google_password, :size => 20
