@@ -6,6 +6,6 @@
       = f.label :google_start_time
       = f.time_select :google_start_time, :value => Time.now, :minute_step => 15, :ignore_date => true
     %p
-      = f.text_field :google_username, :size => 20, :value => User.current.mail
+      = f.text_field :google_username, :size => 20, :value => @estimated_time.google_username || User.current.mail
     %p
       = f.password_field :google_password, :size => 20
