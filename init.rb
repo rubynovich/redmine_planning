@@ -19,10 +19,10 @@ object_to_prepare.to_prepare do
 end
 
 Redmine::Plugin.register :redmine_planning do
-  name 'Redmine Planning plugin'
+  name 'Планирование'
   author 'Roman Shipiev'
-  description 'Plugin for time managment'
-  version '0.0.5'
+  description 'Позволяет планировать время на ту или иную задачу. Планировать можно вплоть до срока выполнения задачи.'
+  version '0.0.6'
   url 'https://github.com/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
   
