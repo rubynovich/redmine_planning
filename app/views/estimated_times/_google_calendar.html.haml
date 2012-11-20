@@ -9,12 +9,22 @@
       = f.text_field :google_username, :size => 20, :value => @estimated_time.google_username || User.current.mail
     %p
       = f.password_field :google_password, :size => 20
-:javascript
-  var check_function = function(){
-    if ($("estimated_time_google_calendar").checked)
-      $("google").show();
-    else
-      $("google").hide();
-  }
-  check_function();
-  $("estimated_time_google_calendar").observe('click',check_function);
+- if Rails::VERSION::MAJOR < 3
+  :javascript
+    var check_function = function(){
+      if ($("estimated_time_google_calendar").checked)
+        $("google").show();
+      else
+        $("google").hide();
+    };
+    check_function();
+    $("estimated_time_google_calendar").observe('click',check_function);
+- else
+  :javascript
+    var check_function = function(){
+      if($('#estimated_time_google_calendar').is(':checked'))
+        $("#google").show();
+      else
+        $("#google").hide();
+    };
+    $('#estimated_time_google_calendar').click(check_function);
