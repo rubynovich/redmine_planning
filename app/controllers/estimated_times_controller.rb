@@ -63,6 +63,8 @@ class EstimatedTimesController < ApplicationController
             e.end_time = @estimated_time.plan_on.in(time + delta)
           end
           flash[:warning] = l(:google_calendar_create_event_successful)
+          cookies[:google_username] = params[:estimated_time][:google_username]
+          cookies[:google_password] = params[:estimated_time][:google_password]
         rescue
           flash[:error] = l(:google_calendar_create_event_error)
         end
