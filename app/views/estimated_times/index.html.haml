@@ -103,9 +103,9 @@
             %td.deadline{:align => :center}
               = issue_dates(issue)
             - 7.times do |day|
-              %td{:align=>:center, :class => ("odd" if day >= 5)}
+              %td{:align=>:center, :style => "border-left-width:3px;", :class => ("odd" if day >= 5)}
                 = link_to_plan(issue, day)
-              %td{:align=>:center, :class => ("odd" if day >= 5)}
+              %td{:align=>:center, :style => "border-right-width:3px;", :class => ("odd" if day >= 5)}
                 = link_to_spent(issue, day)
             %td{:align=>:center}
               - if estimated_time_sum = @estimated_time_sum[issue.id]

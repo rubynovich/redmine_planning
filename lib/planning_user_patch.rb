@@ -11,19 +11,35 @@ module PlanningPlugin
       base.class_eval do
         unloadable
         
-        named_scope :not_planning_managers, lambda {
-        { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
-        }
-        
-        named_scope :planning_managers, lambda {
-        { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
-        }        
-        
-        named_scope :not_workers, lambda { |manager|
-          { 
-            :conditions => ["#{User.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.worker_ids + [manager.user_id]}]
+        if Rails::VERSION::MAJOR >= 3
+          scope :not_planning_managers, lambda {
+            { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
           }
-        }
+          
+          scope :planning_managers, lambda {
+            { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
+          }        
+          
+          scope :not_workers, lambda { |manager|
+            { 
+              :conditions => ["#{User.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.worker_ids + [manager.user_id]}]
+            }
+          }
+        else
+          named_scope :not_planning_managers, lambda {
+            { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
+          }
+          
+          named_scope :planning_managers, lambda {
+            { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
+          }        
+          
+          named_scope :not_workers, lambda { |manager|
+            { 
+              :conditions => ["#{User.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.worker_ids + [manager.user_id]}]
+            }
+          }
+        end        
       end
     end
       
