@@ -5,7 +5,7 @@ class PlanningManagersController < ApplicationController
   before_filter :require_admin  
 
   def index
-    @planning_managers = PlanningManager.all(:order => "users.lastname, users.firstname", :include => :user).compact
+    @planning_managers = PlanningManager.all(:order => "users.lastname, users.firstname", :include => :user).select(&:user)
   end  
     
   def edit
