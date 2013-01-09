@@ -11,9 +11,11 @@ class PlanningManager < ActiveRecord::Base
     v = YAML::load(v) if v.is_a?(String)
     if v.present? && v.is_a?(Array)
       v.map do |i|
+        begin
           User.find(v)
         rescue
           nil
+        end
       end.compact
     else
       []
