@@ -12,7 +12,7 @@ class PlanningManager < ActiveRecord::Base
     if v.present? && v.is_a?(Array)
       v.map do |i|
         begin
-          User.find(v)
+          User.find(i)
         rescue
           nil
         end
@@ -27,11 +27,11 @@ class PlanningManager < ActiveRecord::Base
   end
 
   def self.user_ids
-    begin
-      all.map(&:user).sort.map(&:id)
-    rescue
-      all.map{|i| User.find(i) }.compact.sort.map(&:id)
-    end
+#    begin
+      all.select(&:user).map(&:user).sort.map(&:id)
+#    rescue
+#      all.map{|i| User.find(i) }.compact.sort.map(&:id)
+#    end
   end
 
   def add_workers(array_ids)
