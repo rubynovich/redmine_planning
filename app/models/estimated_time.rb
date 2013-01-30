@@ -52,27 +52,53 @@ class EstimatedTime < ActiveRecord::Base
     raise unless can_change_plan?(issue, day)
   end
   
-  named_scope :for_issues, lambda{ |issue_ids|
-    { :conditions => 
-        ["issue_id IN (:issue_ids)",
-          {:issue_ids => issue_ids}]
-    }
-  }
-  
-  named_scope :actual, lambda{ |start_date, due_date|
-    if start_date.present? && due_date.present?
+  if Rails::VERSION::MAJOR < 3
+    named_scope :for_issues, lambda{ |issue_ids|
       { :conditions => 
-          ["plan_on BETWEEN :start_date AND :due_date",
-            {:start_date => start_date, :due_date => due_date}]
+          ["issue_id IN (:issue_ids)",
+            {:issue_ids => issue_ids}]
       }
-    end          
-  }
-  
-  named_scope :for_user, lambda{ |user_id| 
-    if user_id.present?
+    }
+    
+    named_scope :actual, lambda{ |start_date, due_date|
+      if start_date.present? && due_date.present?
+        { :conditions => 
+            ["plan_on BETWEEN :start_date AND :due_date",
+              {:start_date => start_date, :due_date => due_date}]
+        }
+      end          
+    }
+    
+    named_scope :for_user, lambda{ |user_id| 
+      if user_id.present?
+        { :conditions => 
+          {:user_id => user_id}
+        }            
+      end
+    }
+  else
+    scope :for_issues, lambda{ |issue_ids|
       { :conditions => 
-        {:user_id => user_id}
-      }            
-    end
-  }  
+          ["issue_id IN (:issue_ids)",
+            {:issue_ids => issue_ids}]
+      }
+    }
+    
+    scope :actual, lambda{ |start_date, due_date|
+      if start_date.present? && due_date.present?
+        { :conditions => 
+            ["plan_on BETWEEN :start_date AND :due_date",
+              {:start_date => start_date, :due_date => due_date}]
+        }
+      end          
+    }
+    
+    scope :for_user, lambda{ |user_id| 
+      if user_id.present?
+        { :conditions => 
+          {:user_id => user_id}
+        }            
+      end
+    }
+  end   
 end

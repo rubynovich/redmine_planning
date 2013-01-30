@@ -78,7 +78,7 @@ class EstimatedTimesController < ApplicationController
   
   def destroy
       if (@estimated_time.present?)
-        flash[:notice] = l(:notice_successful_delete) if estimated_time.destroy
+        flash[:notice] = l(:notice_successful_delete) if @estimated_time.destroy
       end
       redirect_to :action => :index, :current_date => @current_date   
     rescue
