@@ -66,7 +66,7 @@ module EstimatedTimesHelper
     issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    (10.days.ago <= day)&&(day < 1.day.from_now.to_date)
+    (1.week.ago <= day)&&(day < 1.day.from_now.to_date)
   end
 
   def link_to_spent(issue, day)
