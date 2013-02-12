@@ -1,7 +1,7 @@
 .box.tabular
   %p
     = f.check_box :google_calendar
-  #google
+  #google{:style => "display: none;"}
     %p
       = f.label :google_start_time
       = f.time_select :google_start_time, :value => Time.now, :minute_step => 15, :ignore_date => true
