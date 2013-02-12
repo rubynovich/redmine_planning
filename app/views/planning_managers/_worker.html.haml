@@ -20,21 +20,12 @@
   #tab-content-users
     - workers = User.active.not_workers(@planning_manager).planning_managers.all(:order => "lastname, firstname")
     - if workers.any?
-      - if Rails::VERSION::MAJOR >= 3
-        = form_for @planning_manager, :html => {:class => :edit_group} do |f|
-          %fieldset
-            %legend
-              =l(:label_worker_new)
-            #users
-              = principals_check_box_tags 'worker_ids[]', workers
+      - form_for @planning_manager, :html => {:class => :edit_group} do |f|
+        %fieldset
+          %legend
+            =l(:label_worker_new)
+          #users
+            = principals_check_box_tags 'worker_ids[]', workers
 
-            %p= submit_tag l(:button_add)
-      - else
-        - form_for @planning_manager, :html => {:class => :edit_group} do |f|
-          %fieldset
-            %legend
-              =l(:label_worker_new)
-            #users
-              = principals_check_box_tags 'worker_ids[]', workers
-
-            %p= submit_tag l(:button_add)  
+          %p= submit_tag l(:button_add)
+      = form if Rails::VERSION::MAJOR >= 
