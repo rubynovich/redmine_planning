@@ -151,15 +151,10 @@
 
 - if my_planning? && @assigned_issues.any?
   %h2= l(:label_plan_time)
-  - if Rails::VERSION::MAJOR >= 3
-    = labelled_form_for @estimated_time do |f|
-      = render :partial => 'form', :locals => {:f => f}
-      = render :partial => 'google_calendar', :locals => {:f => f}
-      = submit_tag l(:button_save), :disabled => false
-  - else
-    - labelled_form_for @estimated_time do |f|
-      = render :partial => 'form', :locals => {:f => f}
-      = render :partial => 'google_calendar', :locals => {:f => f}
-      = submit_tag l(:button_save), :disabled => false
+  - form = labelled_form_for @estimated_time do |f|
+    = render :partial => 'form', :locals => {:f => f}
+    = render :partial => 'google_calendar', :locals => {:f => f}
+    = submit_tag l(:button_save), :disabled => false
+  = form if Rails::VERSION::MAJOR >= 3
 
 - html_title(l(:label_estimated_time_plural))
