@@ -31,10 +31,10 @@
             %p= submit_tag l(:button_add)
       - else
         - form_for @planning_manager, :html => {:class => :edit_group} do |f|
-            %fieldset
-              %legend
-                =l(:label_worker_new)
-              #users
-                = principals_check_box_tags 'worker_ids[]', workers
+          %fieldset
+            %legend
+              =l(:label_worker_new)
+            #users
+              = principals_check_box_tags 'worker_ids[]', workers
 
-              %p= submit_tag l(:button_add)  
+            %p= submit_tag l(:button_add)  
