@@ -9,8 +9,8 @@
     = submit_tag l(:button_save), :disabled => false
 - else
   - labelled_form_for @estimated_time, :html => {:method => :put} do |f|
-      = back_url_hidden_field_tag
-      = render :partial => 'form', :locals => {:f => f}
-      = submit_tag l(:button_save), :disabled => false
+    = back_url_hidden_field_tag
+    = render :partial => 'form', :locals => {:f => f}
+    = submit_tag l(:button_save), :disabled => false
 
 - html_title(l(:label_estimated_time_plural))
