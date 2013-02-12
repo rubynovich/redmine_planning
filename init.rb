@@ -9,7 +9,7 @@ Redmine::Plugin.register :redmine_planning do
   author_url 'http://roman.shipiev.me'
 
   project_module :planning do
-    permission :view_planning, :estimated_times => [:index], :public => true
+#    permission :view_planning, :estimated_times => [:index], :public => true
   end
 
   menu :top_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.is_planning_manager?}

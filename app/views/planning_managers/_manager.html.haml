@@ -24,14 +24,23 @@
 
 .splitcontentright
   #tab-content-users
-    - managers = User.active.not_planning_managers.all(:order => "lastname, firstname")    
+    - managers = User.active.not_planning_managers.all(:order => "lastname, firstname")
     - if managers.any?
-      - form_for :planning_manager, :html => {:class => :edit_group} do |f|
-        %fieldset
-          %legend
-            =l(:label_planning_manager_new)
-          #users
-            = principals_check_box_tags 'manager_ids[]', managers
+      - if Rails::VERSION::MAJOR >= 3
+        = form_for :planning_manager, :html => {:class => :edit_group} do |f|
+          %fieldset
+            %legend
+              =l(:label_planning_manager_new)
+            #users
+              = principals_check_box_tags 'manager_ids[]', managers
 
-          %p= submit_tag l(:button_add)  
+            %p= submit_tag l(:button_add)
+      - else
+        - form_for :planning_manager, :html => {:class => :edit_group} do |f|
+          %fieldset
+            %legend
+              =l(:label_planning_manager_new)
+            #users
+              = principals_check_box_tags 'manager_ids[]', managers
 
+            %p= submit_tag l(:button_add)  
