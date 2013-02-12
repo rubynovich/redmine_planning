@@ -48,7 +48,7 @@ class EstimatedTimesController < ApplicationController
   def create
     if @estimated_time.present? && @estimated_time.save
       flash[:notice] = l(:notice_successful_create)
-      if params[:estimated_time][:google_calendar].present?
+      if params[:estimated_time][:google_calendar] == "1"
         begin
           cal = Google::Calendar.new(
             :username => params[:estimated_time][:google_username],
