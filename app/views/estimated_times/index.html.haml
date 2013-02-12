@@ -1,33 +1,33 @@
 .contextual
   = link_to "неделей раньше", {:current_date => @current_date - 1.week}.merge(params)
   = " | "
-  - form_tag({}, :method => :get) do
+  %form{:method => :get}
     = hidden_field_tag :current_user_id, @current_user.id
-    - exclude_filters.each do |key|  
+    - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]    
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     - if @project.present?
       = hidden_field_tag :project_id, @project.identifier
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
-      - @current_dates.each do |cur_date|        
+      - @current_dates.each do |cur_date|
         - if @current_date == cur_date
           %option{:value => cur_date, :selected => "selected"}
             = format_date(cur_date)
         - else
           %option{:value => cur_date}
             = format_date(cur_date)
-  = " | "  
+  = " | "
   = link_to "неделей позже", {:current_date => @current_date + 1.week}.merge(params)
 
 %h2=l(:label_estimated_time_plural)
 
 %fieldset
   %legend= l(:label_filter_plural)
-  - form_tag({}, :method => :get) do
+  %form{:method => :get}
     = hidden_field_tag :current_date, @current_date
-    - exclude_filters.each do |key|  
+    - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]    
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     - if @planning_manager.workers.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -38,13 +38,13 @@
           - else
             %option{:value => user.id}
               = user.name
-              
-  - form_tag({}, :method => :get) do
+
+  %form{:method => :get}
     = hidden_field_tag :current_date, @current_date
     = hidden_field_tag :current_user_id, @current_user.id
-    - exclude_filters.each do |key|  
+    - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]      
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     %label{:for=>'project_id'}= l(:field_project) + ":"
     %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
       %option{:value => ""}
@@ -58,10 +58,10 @@
             = project.name
   - if @project.present?
     = link_to l(:label_issue_new), {:controller => :issues, :project_id => @project.identifier, :action => :new}, :class => 'icon icon-add'
-    
+
   %br
-  
-  - exclude_filters.each do |key|  
+
+  - exclude_filters.each do |key|
     - if params[:"exclude_#{key}"].present?
       = link_to l(:"label_include_#{key}"), params.merge( :"exclude_#{key}" => nil)
     - else
@@ -74,7 +74,7 @@
       %tr
         %th{:rowspan => 2}="#"
         %th{:rowspan => 2}= l(:field_subject)
-        %th{:rowspan => 2}= l(:field_deadline)      
+        %th{:rowspan => 2}= l(:field_deadline)
         %th{:colspan => 2}= (@current_date).strftime("%d.%m")
         %th{:colspan => 2}= (@current_date + 1.day).strftime("%d.%m")
         %th{:colspan => 2}= (@current_date + 2.days).strftime("%d.%m")
@@ -111,7 +111,7 @@
               - if estimated_time_sum = @estimated_time_sum[issue.id]
                 = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
               - else
-                = "-"            
+                = "-"
             %td
               - if issue.total_spent_hours > 0.0
                 = link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
@@ -131,7 +131,7 @@
               %span{:style => style_for_sum(sum)}
                 = html_hours("%.2f" % sum)
           %th
-          %th         
+          %th
   %p.other-formats
     = l(:label_export_to)
     = link_to 'CSV', params.merge(:format => :csv)
@@ -141,19 +141,25 @@
 
 %fieldset
   %legend= l(:label_issue_new)
-  - form_tag({:controller => :issues, :action => :new}, :method => :get) do
+  %form{:action => url_for({:controller => :issues, :action => :new}), :method => :get}
     %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
       %option{:selected => "selected"}
         = l(:label_select_project_for_new_issue)
       - @assigned_projects.each do |project|
         %option{:value => project.identifier}
           = project.name
-      
+
 - if my_planning? && @assigned_issues.any?
   %h2= l(:label_plan_time)
-  - labelled_form_for @estimated_time do |f|
-    = render :partial => 'form', :locals => {:f => f}
-    = render :partial => 'google_calendar', :locals => {:f => f}    
-    = submit_tag l(:button_save), :disabled => false
-            
+  - if Rails::VERSION::MAJOR >= 3
+    = labelled_form_for @estimated_time do |f|
+      = render :partial => 'form', :locals => {:f => f}
+      = render :partial => 'google_calendar', :locals => {:f => f}
+      = submit_tag l(:button_save), :disabled => false
+  - else
+    - labelled_form_for @estimated_time do |f|
+      = render :partial => 'form', :locals => {:f => f}
+      = render :partial => 'google_calendar', :locals => {:f => f}
+      = submit_tag l(:button_save), :disabled => false
+
 - html_title(l(:label_estimated_time_plural))
