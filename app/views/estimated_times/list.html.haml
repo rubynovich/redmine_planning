@@ -3,10 +3,10 @@
 
 %fieldset
   %legend= l(:label_filter_plural)
-  - form_tag({}, :method => :get) do
-    - exclude_filters.each do |key|  
+  %form{:method => :get}
+    - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]    
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     - if @planning_manager.workers.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -17,12 +17,12 @@
           - else
             %option{:value => user.id}
               = user.name
-              
-  - form_tag({}, :method => :get) do
+
+  %form{:method => :get}
     = hidden_field_tag :current_user_id, @current_user.id
-    - exclude_filters.each do |key|  
+    - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]      
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     %label{:for=>'issue_id'}= l(:field_issue) + ":"
     %select{:id => 'issue_id', :name => 'issue_id', :class => "small", :onchange => "this.form.submit(); return false;"}
       %option{:value => ""}
@@ -37,7 +37,7 @@
         - else
           %option{:value => issue.id}
             = issue.tracker
-            = "##{issue.id}:"          
+            = "##{issue.id}:"
             = issue.subject
             = "(#{issue.status})"
 
@@ -45,7 +45,7 @@
   = render :partial => 'list', :locals => {:entries => @estimated_times}
   %p.other-formats
     = l(:label_export_to)
-    = link_to 'CSV', params.merge(:format => :csv)  
+    = link_to 'CSV', params.merge(:format => :csv)
 - else
   %p.nodata
     = l(:label_no_data)

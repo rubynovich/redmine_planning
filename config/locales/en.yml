@@ -20,6 +20,8 @@ en:
   label_include_not_planned: "include not planned"
   label_include_overdue: "include overdue"
   label_include_group_by_project: "group by project"
+  label_week_ago: "week ago"
+  label_next_week: "next week"
   field_deadline: "Deadline"
   field_plan_on: "Plan on"
   field_google_calendar: "Export event to Google Calendar"

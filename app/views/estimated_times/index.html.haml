@@ -1,5 +1,5 @@
 .contextual
-  = link_to "неделей раньше", {:current_date => @current_date - 1.week}.merge(params)
+  = link_to t(:week_ago), {:current_date => @current_date - 1.week}.merge(params)
   = " | "
   %form{:method => :get}
     = hidden_field_tag :current_user_id, @current_user.id
@@ -17,7 +17,7 @@
           %option{:value => cur_date}
             = format_date(cur_date)
   = " | "
-  = link_to "неделей позже", {:current_date => @current_date + 1.week}.merge(params)
+  = link_to t(:next_week), {:current_date => @current_date + 1.week}.merge(params)
 
 %h2=l(:label_estimated_time_plural)
 
