@@ -26,7 +26,7 @@
   #tab-content-users
     - managers = User.active.not_planning_managers.all(:order => "lastname, firstname")
     - if managers.any?
-      - form_for :planning_manager, :html => {:class => :edit_group} do |f|
+      - form = form_for :planning_manager, :html => {:class => :edit_group} do |f|
         %fieldset
           %legend
             =l(:label_planning_manager_new)

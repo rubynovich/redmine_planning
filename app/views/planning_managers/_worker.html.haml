@@ -20,7 +20,7 @@
   #tab-content-users
     - workers = User.active.not_workers(@planning_manager).planning_managers.all(:order => "lastname, firstname")
     - if workers.any?
-      - form_for @planning_manager, :html => {:class => :edit_group} do |f|
+      - form = form_for @planning_manager, :html => {:class => :edit_group} do |f|
         %fieldset
           %legend
             =l(:label_worker_new)
