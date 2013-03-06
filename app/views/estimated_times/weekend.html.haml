@@ -1,3 +1,24 @@
+.contextual
+  = link_to t(:label_week_ago), {:current_date => @current_date - 1.week}.merge(params)
+  = " | "
+  %form{:method => :get}
+    = hidden_field_tag :current_user_id, @current_user.id
+    - exclude_filters.each do |key|
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
+    - if @project.present?
+      = hidden_field_tag :project_id, @project.identifier
+    %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
+      - @current_dates.each do |cur_date|
+        - if @current_date == cur_date
+          %option{:value => cur_date, :selected => "selected"}
+            = format_date(cur_date)
+        - else
+          %option{:value => cur_date}
+            = format_date(cur_date)
+  = " | "
+  = link_to t(:label_next_week), {:current_date => @current_date + 1.week}.merge(params)
+
 %h2
   =link_to l(:label_estimated_time_plural), :action => :index
   &#187;
