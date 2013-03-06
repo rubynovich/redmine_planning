@@ -3,9 +3,6 @@
   = " | "
   %form{:method => :get}
     = hidden_field_tag :current_user_id, @current_user.id
-    - exclude_filters.each do |key|
-      - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     - if @project.present?
       = hidden_field_tag :project_id, @project.identifier
     %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
