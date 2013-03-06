@@ -5,7 +5,7 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_project
   before_filter :get_current_user
   before_filter :get_planning_manager
-  before_filter :add_info, :only => [:new, :index, :edit, :update]
+  before_filter :add_info, :only => [:new, :index, :edit, :update, :weekend]
   before_filter :authorized
   before_filter :require_planning_manager
   before_filter :new_estimated_time, :only => [:new, :index, :create]
