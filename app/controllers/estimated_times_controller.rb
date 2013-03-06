@@ -116,6 +116,12 @@ class EstimatedTimesController < ApplicationController
     end
   end
 
+  def weekend
+    sat = @current_date + 5.days
+    sun = @current_date + 6.days
+    @weekend_users = EstimatedTime.find(:all, :conditions => ["plan_on = ? OR plan_on = ?", sun, sat]).map(&:user).uniq
+  end
+
   private
 
     def get_current_date

@@ -22,6 +22,8 @@ en:
   label_include_group_by_project: "group by project"
   label_week_ago: "week ago"
   label_next_week: "next week"
+  label_request_for_weekend: "request for weekend"
+  label_request_for_weekend_capitalize: "Request for weekend"
   field_deadline: "Deadline"
   field_plan_on: "Plan on"
   field_google_calendar: "Export event to Google Calendar"

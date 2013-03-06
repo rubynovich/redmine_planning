@@ -1,0 +1,15 @@
+%h2
+  =link_to l(:label_estimated_time_plural), :action => :index
+  &#187;
+  =l(:label_request_for_weekend_capitalize)
+
+- if @weekend_users.any?
+  %ol
+    - @weekend_users.sort_by(&:name).each do |user|
+      %li= user.name
+
+- else
+  %p.nodata
+    = l(:label_no_data)
+
+- html_title(l(:label_estimated_time_plural))

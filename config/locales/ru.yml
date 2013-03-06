@@ -22,6 +22,8 @@ ru:
   label_include_group_by_project: добавить группировку по проектам
   label_week_ago: "неделей раньше"
   label_next_week: "неделей позже"
+  label_request_for_weekend: "заявка на выходные"
+  label_request_for_weekend_capitalize: "Заявка на выходные"
   field_deadline: "Сроки выполнения"
   field_plan_on: "Запланировано на"
   field_google_calendar: "Экспорт события в Календарь Google"

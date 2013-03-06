@@ -3,15 +3,17 @@ if Rails::VERSION::MAJOR >= 3
     resources :estimated_times do
       collection do
         get :list
+        get :weekend
 #        get :list_with_spent
       end
     end
-    resources :planning_managers    
+    resources :planning_managers
   end
 else
   ActionController::Routing::Routes.draw do |map|
     map.resources :estimated_times
     map.connect 'estimated_time/list', :controller => 'estimated_times', :action => 'list'
+    map.connect 'estimated_time/weekend', :controller => 'estimated_times', :action => 'weekend'
 #    map.connect 'estimated_time/list_with_spent', :controller => 'estimated_times', :action => 'list_with_spent'
     map.resources :planning_managers
   end
