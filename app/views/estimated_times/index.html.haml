@@ -111,7 +111,7 @@
                 = link_to_spent(issue, day)
             %td{:align=>:center}
               - if estimated_time_sum = @estimated_time_sum[issue.id]
-                = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
+                = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id, :current_user_id => @current_user.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
               - else
                 = "-"
             %td
