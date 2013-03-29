@@ -55,7 +55,7 @@ module EstimatedTimesHelper
       end
     else
       if can_change_plan?(issue, shift_day)&&my_planning?
-        link_to "+", {:action => 'new', :estimated_time => {:plan_on => shift_day, :issue_id => issue}}, :title => t(:title_plan_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
+        link_to "+", {:action => 'new', :estimated_time => {:plan_on => shift_day, :issue_id => issue, :current_user_id => @current_user.id}}, :title => t(:title_plan_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
       else
         "-"
       end

@@ -4,19 +4,23 @@ module PlanningPlugin
   module TimelogHelperPatch
     def self.included(base)
       base.extend(ClassMethods)
-      
+
       base.send(:include, InstanceMethods)
-      
+
       base.class_eval do
         unloadable
-        
-        alias_method_chain :entries_to_csv, :patch
+
+        begin
+          alias_method_chain :entries_to_csv, :patch
+        rescue
+          #TODO for Redmine 2.3
+        end
       end
     end
-      
+
     module ClassMethods
     end
-    
+
     module InstanceMethods
       def entries_to_csv_with_patch(entries)
         issue_ids = entries.map(&:issue_id).uniq
@@ -38,7 +42,7 @@ module PlanningPlugin
                      l(:label_spent),
                      l(:field_comments),
                      l(:label_plan),
-                     l(:field_comments)                 
+                     l(:field_comments)
                      ]
           # Export custom fields
           headers += custom_fields.collect(&:name)
@@ -74,6 +78,6 @@ module PlanningPlugin
         end
         export
       end
-    end    
+    end
   end
 end
