@@ -34,3 +34,7 @@ ru:
   title_spent_on_date: "Факт на %{date} (%{wday})"
   google_calendar_create_event_successful: "Событие в Календаре Google удачно создано"
   google_calendar_create_event_error: "Произошла ошибка при создании события в Календаре Google"
+  error_day_has_only_24_hours: "превышает 24 часа. Не занимайтесь приписками"
+  error_workday_has_only_12_work_hours: "превышает 12 часов. Не перерабатывайте и не занимайтесь приписками. Бухгалтерия этого не оценит"
+  error_not_assign_labor_of_others_yourself: "Не присваивайте чужую работу себе"
+  error_be_creative_in_the_comments: "слишком однообразен. Будьте изобретательней при описании собственной работы!"

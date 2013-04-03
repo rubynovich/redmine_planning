@@ -34,3 +34,7 @@ en:
   title_spent_on_date: "Spent on %{date} (%{wday})"
   google_calendar_create_event_successful: "Export event to Google Calendar success"
   google_calendar_create_event_error: "Export event to Google Calendar error"
+  error_day_has_only_24_hours: "more 24 hours"
+  error_workday_has_only_12_work_hours: "more 12 hours"
+  error_not_assign_labor_of_others_yourself: "Not assign labor of others yourself"
+  error_be_creative_in_the_comments: "is too monotonous. Be creative in the comments!"
