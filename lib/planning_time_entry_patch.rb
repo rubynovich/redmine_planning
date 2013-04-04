@@ -88,7 +88,7 @@ module PlanningPlugin
 
       def validate_hours
         return if self.hours.blank?
-        total_sum = TimeEntry.where(:user_id => self.user_id, :issue_id => self.issue_id, :spent_on => self.spent_on).select(&:hours).sum(&:hours)
+        total_sum = TimeEntry.where(:user_id => self.user_id, :issue_id => self.issue_id, :spent_on => self.spent_on).select(&:hours).compact.sum(&:hours)
         if total_sum + self.hours > 24.0
           errors.add :hours, I18n.t(:error_day_has_only_24_hours)
         end
