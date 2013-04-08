@@ -153,4 +153,30 @@ module EstimatedTimesHelper
     end
     export
   end
+
+  def style_for_workplace_start_time(workplace_time)
+    if workplace_time.start_time.seconds_since_midnight == 0.0
+      "color: gray"
+    elsif workplace_time.delay.seconds_since_midnight > 600.0
+      "color: red"
+    elsif workplace_time.delay.seconds_since_midnight > 0.0
+      "color: pink"
+    end
+  end
+
+  def style_for_workplace_end_time(workplace_time)
+    if workplace_time.end_time.seconds_since_midnight == 0.0
+      "color: gray"
+    elsif workplace_time.duration.seconds_since_midnight > 3600*8.5
+      "color: red"
+    end
+  end
+
+  def title_for_workplace_start_time(workplace_time)
+    l(:label_workplace_delay)+": "+workplace_time.delay.strftime("%H:%M")
+  end
+
+  def title_for_workplace_end_time(workplace_time)
+    l(:label_workplace_duration)+": "+workplace_time.duration.strftime("%H:%M")
+  end
 end
