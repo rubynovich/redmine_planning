@@ -19,9 +19,9 @@ class EstimatedTimesController < ApplicationController
   include EstimatedTimesHelper
 
   def index
-    @workplace_times = if Object.const_defined?("WorkplaceTime")
+    @workplace_times = begin
       WorkplaceTime.where(:user_id => @current_user.id).where("workday BETWEEN ? AND ?", @current_date, @current_date+7.days).group_by(&:workday)
-    else
+    rescue
       {}
     end
 
