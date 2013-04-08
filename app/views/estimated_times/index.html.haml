@@ -129,18 +129,18 @@
                 = html_hours("%.2f" % sum)
           %th
           %th
-        -# if Redmine::Plugin.find(:redmine_ckyg)
-        %tr
-          %th{:colspan => 3}
-            = l(:label_workplace_time_plural)
-          - 7.times do |day|
-            - if workplace_time = @workplace_times[@current_date+day.days].try(:first)
-              %th{:colspan => 2}
-                %span{:style => style_for_workplace_start_time(workplace_time), :title => title_for_workplace_start_time(workplace_time)}
-                  = format_time(workplace_time.start_time, false)
-                = "-"
-                %span{:style => style_for_workplace_end_time(workplace_time), :title => title_for_workplace_end_time(workplace_time)}
-                  = format_time(workplace_time.end_time, false)
+        - if @workplace_times.any?
+          %tr
+            %th{:colspan => 3}
+              = l(:label_workplace_time_plural)
+            - 7.times do |day|
+              - if workplace_time = @workplace_times[@current_date+day.days].try(:first)
+                %th{:colspan => 2}
+                  %span{:style => style_for_workplace_start_time(workplace_time), :title => title_for_workplace_start_time(workplace_time)}
+                    = format_time(workplace_time.start_time, false)
+                  = "-"
+                  %span{:style => style_for_workplace_end_time(workplace_time), :title => title_for_workplace_end_time(workplace_time)}
+                    = format_time(workplace_time.end_time, false)
   %p.other-formats
     = l(:label_export_to)
     = link_to 'CSV', params.merge(:format => :csv)

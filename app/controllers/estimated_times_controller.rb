@@ -19,9 +19,11 @@ class EstimatedTimesController < ApplicationController
   include EstimatedTimesHelper
 
   def index
-#    if Redmine::Plugin.find(:redmine_ckyg)
-      @workplace_times = WorkplaceTime.where(:user_id => @current_user.id).where("workday BETWEEN ? AND ?", @current_date, @current_date+7.days).group_by(&:workday)
-#    end
+    @workplace_times = if Object.const_defined?("WorkplaceTime")
+      WorkplaceTime.where(:user_id => @current_user.id).where("workday BETWEEN ? AND ?", @current_date, @current_date+7.days).group_by(&:workday)
+    else
+      {}
+    end
 
     respond_to do |format|
       format.html{ render :action => :index }
