@@ -162,7 +162,7 @@ module EstimatedTimesHelper
     elsif delay > 900.0
       "color: red"
     elsif delay > 0.0
-      "color: yellow"
+      "color: darkorange"
     else
       "color: green"
     end
@@ -176,7 +176,7 @@ module EstimatedTimesHelper
     elsif duration > 3600*9
       "color: red"
     elsif duration > 3600*8
-      "color: yellow"
+      "color: darkorange"
     else
       "color: green"
     end
