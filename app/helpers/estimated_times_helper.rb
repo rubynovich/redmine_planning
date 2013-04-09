@@ -155,20 +155,30 @@ module EstimatedTimesHelper
   end
 
   def style_for_workplace_start_time(workplace_time)
-    if workplace_time.start_time.seconds_since_midnight == 0.0
+    delay = workplace_time.delay.seconds_since_midnight
+    start_time = workplace_time.start_time.seconds_since_midnight
+    if start_time == 0.0
       "color: gray"
-    elsif workplace_time.delay.seconds_since_midnight > 600.0
+    elsif delay > 900.0
       "color: red"
-    elsif workplace_time.delay.seconds_since_midnight > 0.0
-      "color: pink"
+    elsif delay > 0.0
+      "color: yellow"
+    else
+      "color: green"
     end
   end
 
   def style_for_workplace_end_time(workplace_time)
-    if workplace_time.end_time.seconds_since_midnight == 0.0
+    duration = workplace_time.duration.seconds_since_midnight
+    end_time = workplace_time.start_time.seconds_since_midnight
+    if end_time == 0.0
       "color: gray"
-    elsif workplace_time.duration.seconds_since_midnight > 3600*8.5
+    elsif duration > 3600*9
       "color: red"
+    elsif duration > 3600*8
+      "color: yellow"
+    else
+      "color: green"
     end
   end
 
