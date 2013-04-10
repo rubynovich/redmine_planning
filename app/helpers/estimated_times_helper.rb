@@ -170,7 +170,7 @@ module EstimatedTimesHelper
 
   def style_for_workplace_end_time(workplace_time)
     duration = workplace_time.duration.seconds_since_midnight
-    end_time = workplace_time.start_time.seconds_since_midnight
+    end_time = workplace_time.end_time.seconds_since_midnight
     if end_time == 0.0
       "color: gray"
     elsif duration > 3600*9
