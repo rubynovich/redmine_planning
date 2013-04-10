@@ -1,5 +1,5 @@
 .contextual
-  = link_to t(:label_week_ago), {:current_date => @current_date - 1.week}.merge(params)
+  = link_to t(:label_week_ago), params.merge(:current_date => @current_date - 1.week)
   = " | "
   %form{:method => :get}
     = hidden_field_tag :current_user_id, @current_user.id
@@ -17,7 +17,7 @@
           %option{:value => cur_date}
             = format_date(cur_date)
   = " | "
-  = link_to t(:label_next_week), {:current_date => @current_date + 1.week}.merge(params)
+  = link_to t(:label_next_week), params.merge(:current_date => @current_date + 1.week)
   = " | "
   = link_to t(:label_request_for_weekend), {:current_date => @current_date, :action => :weekend}
 
