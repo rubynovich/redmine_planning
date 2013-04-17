@@ -114,7 +114,7 @@ class EstimatedTimesController < ApplicationController
       @assigned_issues.map(&:id)
     end
 
-    @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).actual(params[:current_date], params[:current_date]).all(:order => sort_clause)
+    @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).actual(params[:start_date], params[:end_date]).all(:order => sort_clause)
 
     respond_to do |format|
       format.html{ render :action => :list }

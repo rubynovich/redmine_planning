@@ -1,0 +1,14 @@
+- date = Date.today
+- date -= date.wday.days - 1.day
+- user = User.current
+- issues = EstimatedTime.actual(date, date+6.days).for_user(user.id).includes(:issue).map(&:issue).uniq
+- planned_issues = issues.sort_by{ |i| [i.priority.position, i.updated_on]}.reverse
+
+%h3
+  = l(:label_planned_issues_for_week)
+  = "(#{issues.count})"
+
+= render :partial => 'list_simple', :locals => { :issues => planned_issues, :allows => [:author] }
+
+%p.small
+  = link_to l(:label_issue_view_all), :controller => 'estimated_times', :action => 'list', :current_user_id => user.id, :start_date => date, :end_date => date+6.days
