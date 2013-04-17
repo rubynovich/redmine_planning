@@ -1,10 +1,10 @@
 # Russian strings go here for Rails i18n
 ru:
   project_module_planning: "Планирование"
-  issuesplannedfortoday: "Мои задачи на сегодня"
-  issuesplannedfortomorrow: "Мои задачи на завтра"
-  label_planned_issues_for_today: "Мои задачи на сегодня"
-  label_planned_issues_for_tomorrow: "Мои задачи на завтра"
+  issuesplannedfortoday: "Мои задачи запланированные на сегодня"
+  issuesplannedfortomorrow: "Мои задачи запланированные на завтра"
+  label_planned_issues_for_today: "Мои задачи запланированные на сегодня"
+  label_planned_issues_for_tomorrow: "Мои задачи запланированные на завтра"
   label_planning: "Планирование"
   label_estimated_time_plural: "Планирование"
   label_plan: "План"
