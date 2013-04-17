@@ -1,0 +1,17 @@
+- date = Date.today + 1.day
+- user = User.current
+- issues = EstimatedTime.actual(date, date).for_user(user.id).includes(:issue).map(&:issue)
+- issues -= TimeEntry.for_issues(issues.map(&:id)).actual(date, date).for_user(user.id).includes(:issue).map(&:issue)
+- planned_issues = issues.sort_by{ |i| [i.priority.position, i.updated_on]}.reverse
+
+%h3
+  = l(:label_planned_issues_for_tomorrow)
+  = "(#{issues.count})"
+
+= render :partial => 'list_simple', :locals => { :issues => planned_issues, :allows => [:author] }
+
+%p.small
+  = link_to l(:label_issue_view_all), :controller => 'estimated_times', :action => 'list', :current_user_id => user.id, :current_date => Date.today
+
+- content_for :header_tags do
+  = auto_discovery_link_tag(:atom, {:controller => 'estimated_times', :action => 'list', :current_user_id => user.id, :current_date => Date.today, :format => 'atom', :key => User.current.rss_key}, {:title => l(:label_planned_issues_for_tomorrow)})
