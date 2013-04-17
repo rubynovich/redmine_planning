@@ -3,6 +3,8 @@ en:
   project_module_planning: "Planning"
   issuesplannedfortoday: "My Issues planned for today"
   issuesplannedfortomorrow: "My Issues planned for tomorrow"
+  label_planned_issues_for_today: "My Issues planned for today"
+  label_planned_issues_for_tomorrow: "My Issues planned for tomorrow"
   label_planning: "Planning"
   label_estimated_time_plural: "Planning"
   label_plan: "Plan"
