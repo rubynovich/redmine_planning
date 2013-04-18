@@ -4,9 +4,6 @@
 %fieldset
   %legend= l(:label_filter_plural)
   %form{:method => :get}
-    - exclude_filters.each do |key|
-      - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     - if @planning_manager.workers.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
@@ -20,9 +17,6 @@
 
   %form{:method => :get}
     = hidden_field_tag :current_user_id, @current_user.id
-    - exclude_filters.each do |key|
-      - if params[:"exclude_#{key}"].present?
-        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     %label{:for=>'issue_id'}= l(:field_issue) + ":"
     %select{:id => 'issue_id', :name => 'issue_id', :class => "small", :onchange => "this.form.submit(); return false;"}
       %option{:value => ""}
@@ -40,6 +34,20 @@
             = "##{issue.id}:"
             = issue.subject
             = "(#{issue.status})"
+  %br
+
+  %form{:method => :get}
+    = hidden_field_tag :current_user_id, @current_user.id
+    = hidden_field_tag :issue_id, params[:issue_id]
+
+    %label{:for=>'start_date'}= l(:label_start_date) + ":"
+    = text_field_tag :start_date, params[:start_date], :size => 10, :onchange => "this.form.submit(); return false;"
+    = calendar_for('start_date')
+
+    %label{:for=>'end_date'}= l(:label_end_date) + ":"
+    = text_field_tag :end_date, params[:end_date], :size => 10, :onchange => "this.form.submit(); return false;"
+    = calendar_for('end_date')
+
 
 - if @estimated_times.any?
   = render :partial => 'list', :locals => {:entries => @estimated_times}

@@ -35,6 +35,8 @@ ru:
   label_workplace_time_plural: "Время на рабочем месте"
   label_workplace_delay: "Опоздание"
   label_workplace_duration: "Продолжительность"
+  label_start_date: "От"
+  label_end_date: "До"
   field_deadline: "Сроки выполнения"
   field_plan_on: "Запланировано на"
   field_google_calendar: "Экспорт события в Календарь Google"
