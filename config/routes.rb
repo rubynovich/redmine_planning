@@ -7,7 +7,14 @@ if Rails::VERSION::MAJOR >= 3
 #        get :list_with_spent
       end
     end
-    resources :planning_managers
+    resources :planning_managers do
+      collection do
+        get :autocomplete_for_manager
+      end
+      member do
+        get :autocomplete_for_worker
+      end
+    end
   end
 else
   ActionController::Routing::Routes.draw do |map|
