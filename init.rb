@@ -3,9 +3,9 @@ require 'redmine'
 Redmine::Plugin.register :redmine_planning do
   name 'Planning'
   author 'Roman Shipiev'
-  description 'The plugin allows schedule time on issues'
+  description 'Scheduling time on issues'
   version '0.0.6'
-  url 'https://github.com/rubynovich/redmine_planning'
+  url 'https://bitbucket.org/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
 
   project_module :planning do
