@@ -92,9 +92,9 @@ module PlanningPlugin
         if total_sum + self.hours > 24.0
           errors.add :hours, I18n.t(:error_day_has_only_24_hours)
         end
-        if total_sum + self.hours > 12.0
-          errors.add :hours, I18n.t(:error_workday_has_only_12_work_hours)
-        end
+#        if total_sum + self.hours > 12.0
+#          errors.add :hours, I18n.t(:error_workday_has_only_12_work_hours)
+#        end
       end
 
       def validate_user_id
