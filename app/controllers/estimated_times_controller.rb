@@ -18,6 +18,8 @@ class EstimatedTimesController < ApplicationController
   helper :estimated_times
   include EstimatedTimesHelper
 
+  accept_api_auth :index, :show, :list
+
   def index
     @workplace_times = begin
       WorkplaceTime.where(:user_id => @current_user.id).where("workday BETWEEN ? AND ?", @current_date, @current_date+7.days).group_by(&:workday)
@@ -28,6 +30,7 @@ class EstimatedTimesController < ApplicationController
     respond_to do |format|
       format.html{ render :action => :index }
       format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
+      format.json{ render :json => @estimated_times.group_by(&:plan_on) }
     end
   end
 
@@ -119,6 +122,7 @@ class EstimatedTimesController < ApplicationController
     respond_to do |format|
       format.html{ render :action => :list }
       format.csv{ send_data(list_to_csv, :type => 'text/csv; header=present', :filename => Date.today.strftime("planning_list_%Y-%m-%d_#{@current_user.login}.csv"))}
+      format.json{ render :json => @estimated_times.group_by(&:plan_on) }
     end
   end
 
