@@ -42,7 +42,7 @@ module PlanningPlugin
               start_date = Date.today - Date.today.wday.days - 1.day
               due_date = start_date + 6.days
               { :conditions =>
-                  ["plan_on BETWEEN :start_date AND :due_date",
+                  ["spent_on BETWEEN :start_date AND :due_date",
                     {:start_date => start_date, :due_date => due_date}]
               }
             end
@@ -79,7 +79,7 @@ module PlanningPlugin
               start_date = Date.today - Date.today.wday.days - 1.day
               due_date = start_date + 6.days
               { :conditions =>
-                  ["plan_on BETWEEN :start_date AND :due_date",
+                  ["spent_on BETWEEN :start_date AND :due_date",
                     {:start_date => start_date, :due_date => due_date}]
               }
             end
