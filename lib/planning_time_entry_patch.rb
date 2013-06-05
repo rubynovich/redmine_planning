@@ -37,6 +37,17 @@ module PlanningPlugin
             end
           }
 
+          scope :for_period, lambda{ |period|
+            if period == "current_week"
+              start_date = Date.today - Date.today.wday.days - 1.day
+              due_date = start_date + 6.days
+              { :conditions =>
+                  ["plan_on BETWEEN :start_date AND :due_date",
+                    {:start_date => start_date, :due_date => due_date}]
+              }
+            end
+          }
+
           scope :for_user, lambda{ |user_id|
             if user_id.present?
               { :conditions =>
@@ -58,6 +69,17 @@ module PlanningPlugin
             if start_date.present? && due_date.present?
               { :conditions =>
                   ["spent_on BETWEEN :start_date AND :due_date",
+                    {:start_date => start_date, :due_date => due_date}]
+              }
+            end
+          }
+
+          named_scope :for_period, lambda{ |period|
+            if period == "current_week"
+              start_date = Date.today - Date.today.wday.days - 1.day
+              due_date = start_date + 6.days
+              { :conditions =>
+                  ["plan_on BETWEEN :start_date AND :due_date",
                     {:start_date => start_date, :due_date => due_date}]
               }
             end

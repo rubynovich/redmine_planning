@@ -4,7 +4,7 @@ if Rails::VERSION::MAJOR >= 3
       collection do
         get :list
         get :weekend
-#        get :list_with_spent
+        get :time_entries
       end
     end
     resources :planning_managers do
@@ -21,7 +21,7 @@ else
     map.resources :estimated_times
     map.connect 'estimated_time/list', :controller => 'estimated_times', :action => 'list'
     map.connect 'estimated_time/weekend', :controller => 'estimated_times', :action => 'weekend'
-#    map.connect 'estimated_time/list_with_spent', :controller => 'estimated_times', :action => 'list_with_spent'
+    map.connect 'estimated_time/time_entries', :controller => 'estimated_times', :action => 'time_entries'
     map.resources :planning_managers
   end
 end

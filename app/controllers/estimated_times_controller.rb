@@ -18,7 +18,7 @@ class EstimatedTimesController < ApplicationController
   helper :estimated_times
   include EstimatedTimesHelper
 
-  accept_api_auth :index, :show, :list
+  accept_api_auth :index, :show, :list, :time_entries
 
   def index
     @workplace_times = begin
@@ -30,7 +30,11 @@ class EstimatedTimesController < ApplicationController
     respond_to do |format|
       format.html{ render :action => :index }
       format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
-      format.json{ render :json => @estimated_times.group_by(&:plan_on) }
+      format.json{ render :json => @estimated_times, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
+          :project => {:only => [:id, :name]},
+          :issue => {:only => [:id, :subject, :start_date, :due_date]}
+        }
+      }
     end
   end
 
@@ -117,12 +121,52 @@ class EstimatedTimesController < ApplicationController
       @assigned_issues.map(&:id)
     end
 
-    @estimated_times = EstimatedTime.for_user(@current_user.id).for_issues(@assigned_issue_ids).actual(params[:start_date], params[:end_date]).all(:order => sort_clause)
+    @estimated_times = EstimatedTime.
+      for_user(@current_user.id).
+      for_issues(@assigned_issue_ids).
+      actual(params[:start_date], params[:end_date]).
+      for_period(params[:period]).
+      all(:order => sort_clause)
 
     respond_to do |format|
       format.html{ render :action => :list }
       format.csv{ send_data(list_to_csv, :type => 'text/csv; header=present', :filename => Date.today.strftime("planning_list_%Y-%m-%d_#{@current_user.login}.csv"))}
-      format.json{ render :json => @estimated_times.group_by(&:plan_on) }
+      format.json{ render :json => @estimated_times, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
+          :project => {:only => [:id, :name]},
+          :issue => {:only => [:id, :subject, :start_date, :due_date]}
+        }
+      }
+    end
+  end
+
+  def time_entries
+    @assigned_issues = Issue.visible.
+      find(:all,
+        :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
+        :include => [:status, :project, :tracker, :priority],
+        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+
+    @assigned_issue_ids = if params[:issue_id].present? &&
+      (issue = Issue.visible.find(params[:issue_id]))
+
+      [issue.id]
+    else
+      @assigned_issues.map(&:id)
+    end
+
+    @time_entries = TimeEntry.
+      for_user(@current_user.id).
+      for_issues(@assigned_issue_ids).
+      actual(params[:start_date], params[:end_date]).
+      for_period(params[:period]).
+      all(:order => sort_clause)
+
+    respond_to do |format|
+      format.json{ render :json => @time_entries, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
+          :project => {:only => [:id, :name]},
+          :issue => {:only => [:id, :subject, :start_date, :due_date]}
+        }
+      }
     end
   end
 
