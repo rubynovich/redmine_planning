@@ -159,9 +159,10 @@ class EstimatedTimesController < ApplicationController
       for_issues(@assigned_issue_ids).
       actual(params[:start_date], params[:end_date]).
       for_period(params[:period]).
-      all(:order => sort_clause)
+      all(:order => :spent_on)
 
     respond_to do |format|
+      format.html{ render :action => :time_entries }
       format.json{ render :json => @time_entries, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
           :project => {:only => [:id, :name]},
           :issue => {:only => [:id, :subject, :start_date, :due_date]}
