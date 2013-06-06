@@ -231,6 +231,7 @@ class EstimatedTimesController < ApplicationController
       @estimated_times = EstimatedTime.
         for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days).
+        for_period(params[:period]).
         for_user(@current_user.id)
 
       @estimated_time_sum = EstimatedTime.

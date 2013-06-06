@@ -76,7 +76,7 @@ module EstimatedTimesHelper
       sum = time_entries.map{|i| i.hours }.sum(0.0)
       comment = time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
       if can_change_spent?(issue, shift_day) && my_planning?
-        link_to sum, {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => comment
+        link_to html_hours("%.2f" % sum), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 2, :from => shift_day, :to => shift_day}, :title => comment
       else
         sum > 0.0 ? span_for(html_hours("%.2f" % sum), comment) : "-"
       end
