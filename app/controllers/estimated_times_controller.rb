@@ -5,7 +5,7 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_project
   before_filter :get_current_user
   before_filter :get_planning_manager
-  before_filter :add_info, :only => [:new, :index, :edit, :update, :weekend]
+  before_filter :add_info, :only => [:new, :index, :edit, :update, :weekend, :widget]
   before_filter :authorized
   before_filter :require_planning_manager
   before_filter :new_estimated_time, :only => [:new, :index, :create]
@@ -18,7 +18,7 @@ class EstimatedTimesController < ApplicationController
   helper :estimated_times
   include EstimatedTimesHelper
 
-  accept_api_auth :index, :show, :list, :time_entries
+  accept_api_auth :index, :show, :list, :widget
 
   def index
     @workplace_times = begin
@@ -139,35 +139,24 @@ class EstimatedTimesController < ApplicationController
     end
   end
 
-  def time_entries
-    @assigned_issues = Issue.visible.
-      find(:all,
-        :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
-        :include => [:status, :project, :tracker, :priority],
-        :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
-
-    @assigned_issue_ids = if params[:issue_id].present? &&
-      (issue = Issue.visible.find(params[:issue_id]))
-
-      [issue.id]
-    else
-      @assigned_issues.map(&:id)
-    end
-
-    @time_entries = TimeEntry.
-      for_user(@current_user.id).
-      for_issues(@assigned_issue_ids).
-      actual(params[:start_date], params[:end_date]).
-      for_period(params[:period]).
-      all(:order => :spent_on)
+  def widget
+    @to_respond = @estimated_times.group_by(&:plan_on).inject({}){ |result, array|
+      result.update(array[0] => array[1].group_by(&:project).inject({}){ |res, arr|
+        res.update(arr[0].name => arr[1].map{ |estimated_time|
+          {
+            :issue => {:id => estimated_time.issue_id, :name => estimated_time.issue.subject, :due_date => estimated_time.issue.due_date},
+            :project => {:id => estimated_time.project_id, :name => estimated_time.project.name},
+            :estimated_time => {:hours => estimated_time.hours}
+            :time_entry => {:hours => @time_entries.select{ |time_entry|
+              (time_entry.spent_on == array[0]) && (estimated_time.issue_id == time_entry.issue_id)
+            }.map(&:hours).sum(0.0)}
+          }
+        })
+      })
+    }
 
     respond_to do |format|
-      format.html{ render :action => :time_entries }
-      format.json{ render :json => @time_entries, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
-          :project => {:only => [:id, :name]},
-          :issue => {:only => [:id, :subject, :start_date, :due_date]}
-        }
-      }
+      format.json{ render :json => @to_respond}
     end
   end
 
