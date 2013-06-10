@@ -146,7 +146,7 @@ class EstimatedTimesController < ApplicationController
           {
             :issue => {:id => estimated_time.issue_id, :name => estimated_time.issue.subject, :due_date => estimated_time.issue.due_date},
             :project => {:id => estimated_time.project_id, :name => estimated_time.project.name},
-            :estimated_time => {:hours => estimated_time.hours}
+            :estimated_time => {:hours => estimated_time.hours},
             :time_entry => {:hours => @time_entries.select{ |time_entry|
               (time_entry.spent_on == array[0]) && (estimated_time.issue_id == time_entry.issue_id)
             }.map(&:hours).sum(0.0)}
