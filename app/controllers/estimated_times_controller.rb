@@ -140,18 +140,26 @@ class EstimatedTimesController < ApplicationController
   end
 
   def widget
-    @to_respond = @estimated_times.group_by(&:plan_on).inject({}){ |result, array|
-      result.update(array[0] => array[1].group_by(&:project).inject({}){ |res, arr|
-        res.update(arr[0].name => arr[1].map{ |estimated_time|
+    @to_respond = @estimated_times.group_by(&:plan_on).map{ |date, estimated_times|
+      {
+        :date => date,
+        :projects => estimated_times.group_by(&:project).map{ |project, est_times|
           {
-            :issue => {:id => estimated_time.issue_id, :name => estimated_time.issue.subject, :due_date => estimated_time.issue.due_date},
-            :estimated_time => {:hours => estimated_time.hours},
-            :time_entry => {:hours => @time_entries.select{ |time_entry|
-              (time_entry.spent_on == array[0]) && (estimated_time.issue_id == time_entry.issue_id)
-            }.map(&:hours).sum(0.0)}
+            :project => project.name,
+            :issues => est_times.map{ |est_time|
+              {
+                :issue => {:id => est_time.issue_id, :name => est_time.issue.subject, :due_date => est_time.issue.due_date},
+                :estimated_time => {:hours => est_time.hours},
+                :time_entry => {
+                  :hours => @time_entries.select{ |time_entry|
+                    (time_entry.spent_on == date) && (est_time.issue_id == time_entry.issue_id)
+                  }.map(&:hours).sum(0.0)
+                }
+              }
+            }
           }
-        })
-      })
+        }
+      }
     }
 
     respond_to do |format|
