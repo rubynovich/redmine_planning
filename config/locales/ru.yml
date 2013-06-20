@@ -22,10 +22,12 @@ ru:
   label_planning_manager_plural: Планирующие
   label_exclude_closed: убрать закрытые
   label_exclude_not_planned: убрать незапланированные
+  label_exclude_not_urgent: убрать несрочные
   label_exclude_overdue: убрать просроченные
   label_exclude_group_by_project: убрать группировку по проектам
   label_include_closed: добавить закрытые
   label_include_not_planned: добавить незапланированные
+  label_include_not_urgent: добавить несрочные
   label_include_overdue: добавить просроченные
   label_include_group_by_project: добавить группировку по проектам
   label_week_ago: "неделей раньше"

@@ -100,7 +100,7 @@ module EstimatedTimesHelper
   end
 
   def exclude_filters
-    %w{overdue closed not_planned group_by_project}
+    %w{overdue closed not_planned not_urgent group_by_project}
   end
 
   def index_to_csv

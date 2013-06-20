@@ -211,6 +211,7 @@ class EstimatedTimesController < ApplicationController
         exclude_closed(params[:exclude_closed]).
         exclude_overdue(params[:exclude_overdue], @current_date).
         exclude_not_planned(params[:exclude_not_planned], @current_date).
+        exclude_not_urgent(params[:exclude_not_urgent], @current_date).
         find(:all,
           :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
           :include => [:status, :project, :tracker, :priority],
