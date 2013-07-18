@@ -17,9 +17,11 @@
           %option{:value => cur_date}
             = format_date(cur_date)
   = " | "
-  = link_to t(:label_next_week), params.merge(:current_date => @current_date + 1.week)
+  = link_to t(:label_next_week), params.merge(current_date: @current_date + 1.week)
   = " | "
-  = link_to t(:label_request_for_weekend), {:current_date => @current_date, :action => :weekend}
+  = link_to t(:label_request_for_weekend), {current_date: @current_date, action: 'weekend'}
+  = " | "
+  = link_to l(:label_current_users_workload), controller: 'gantts', action: 'show', set_filter: 1, assigned_to_id: @current_user.id, months: 12, month: @current_date.month, year: @current_date.year, sort: 'priority:desc,updated_on:desc'
 
 %h2=l(:label_estimated_time_plural)
 
