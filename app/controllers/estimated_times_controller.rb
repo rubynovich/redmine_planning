@@ -240,7 +240,7 @@ class EstimatedTimesController < ApplicationController
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)
 
-      @assigned_projects = Member.find(:all, :conditions => {:user_id => @current_user.id}, :include => :project).select(&:project).map(&:project)
+      @assigned_projects = Member.where(user_id: @current_user.id).includes(:project).select(&:project).map(&:project).sort_by(&:name)
     end
 
     def authorized
