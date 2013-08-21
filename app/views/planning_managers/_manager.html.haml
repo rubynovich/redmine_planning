@@ -1,6 +1,23 @@
+:css
+  input#manager_search {width:100%}
+  input#manager_search {
+    background: url(../images/magnifier.png) no-repeat 2px 50%; padding-left:20px;
+    border:1px solid #9EB1C2; border-radius:3px; height:1.5em; width:95%;
+  }
+  input#manager_search.ajax-loading {
+   background-image: url(../images/loading.gif);
+  }
+  #users{
+    height: 200px;
+    overflow: auto;
+  }
+  #users label {
+    display: block;
+  }
+
 .splitcontentleft
   - if @planning_managers.any?
-    %table.list.users
+    %table.list.members
       %thead
         %tr
           %th= l(:label_manager)
@@ -12,8 +29,8 @@
             %td.user
               = link_to_user member.user
             %td.workers
-              - member.workers.each do |user|
-                = link_to_user user
+              - member.subordinates.each do |subordinate|
+                = link_to_user subordinate.principal
                 %br
             %td.buttons
               = link_to l(:button_edit), {:action => 'edit', :id => member.id}, :class => 'icon icon-edit'
@@ -25,35 +42,16 @@
 .splitcontentright
   #tab-content-users
     - if @manager_candidates.any?
-      - form = form_for :planning_manager, :html => {:class => :edit_group} do |f|
+      = form_for :planning_manager, :html => {:class => :edit_group} do |f|
         %fieldset
-          %legend
-            =l(:label_planning_manager_new)
-          - if Rails::VERSION::MAJOR >= 3
-            :css
-              input#manager_search {width:100%}
-              input#manager_search {
-                background: url(../images/magnifier.png) no-repeat 2px 50%; padding-left:20px;
-                border:1px solid #9EB1C2; border-radius:3px; height:1.5em; width:95%;
-              }
-              input#manager_search.ajax-loading {
-               background-image: url(../images/loading.gif);
-              }
-              #users{
-                height: 200px;
-                overflow: auto;
-              }
-              #users label {
-                display: block;
-              }
-
-            %p
-              = label_tag :manager_search, l(:label_user_search)
-              = text_field_tag :manager_search, nil
-            = javascript_tag "observeSearchfield('manager_search', 'users', '#{ escape_javascript url_for(:controller => :planning_managers, :action => :autocomplete_for_manager) }')"
+          %legend= l(:label_planning_manager_new)
+          %p
+            = label_tag :manager_search, l(:label_user_search)
+            = text_field_tag :manager_search, nil
+          = javascript_tag "observeSearchfield('manager_search', 'users', '#{ escape_javascript url_for(:controller => :planning_managers, :action => :autocomplete_for_manager) }')"
 
           #users
             = principals_check_box_tags 'manager_ids[]', @manager_candidates
 
           %p= submit_tag l(:button_add)
-      = form if Rails::VERSION::MAJOR >= 3
+

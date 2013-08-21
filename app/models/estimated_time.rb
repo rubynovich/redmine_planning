@@ -20,6 +20,51 @@ class EstimatedTime < ActiveRecord::Base
   attr_accessor :google_calendar, :google_username, :google_password,
     :google_start_time
 
+  scope :for_issues, lambda{ |issue_ids|
+    { :conditions =>
+      ["issue_id IN (:issue_ids)",
+       {:issue_ids => issue_ids}]
+    }
+  }
+
+  scope :actual, lambda{ |start_date, due_date|
+    if start_date.present? && due_date.present?
+      { :conditions =>
+        ["plan_on BETWEEN :start_date AND :due_date",
+         {:start_date => start_date, :due_date => due_date}]
+      }
+    elsif start_date.present?
+      { :conditions =>
+        ["plan_on >= :start_date",
+         {:start_date => start_date}]
+      }
+    elsif  due_date.present?
+      { :conditions =>
+        ["plan_on <= :due_date",
+         {:due_date => due_date}]
+      }
+    end
+  }
+
+  scope :for_period, lambda{ |period|
+    if period == "current_week"
+      start_date = Date.today - Date.today.wday.days - 1.day
+      due_date = start_date + 6.days
+      { :conditions =>
+        ["plan_on BETWEEN :start_date AND :due_date",
+         {:start_date => start_date, :due_date => due_date}]
+      }
+    end
+  }
+
+  scope :for_user, lambda{ |user_id|
+    if user_id.present?
+      { :conditions =>
+        {:user_id => user_id}
+      }
+    end
+  }
+
   def add_info
     if self.valid?
       self.tyear = plan_on.year
@@ -52,95 +97,4 @@ class EstimatedTime < ActiveRecord::Base
     raise unless can_change_plan?(issue, day)
   end
 
-  if Rails::VERSION::MAJOR < 3
-    named_scope :for_issues, lambda{ |issue_ids|
-      { :conditions =>
-          ["issue_id IN (:issue_ids)",
-            {:issue_ids => issue_ids}]
-      }
-    }
-
-    named_scope :actual, lambda{ |start_date, due_date|
-      if start_date.present? && due_date.present?
-        { :conditions =>
-            ["plan_on BETWEEN :start_date AND :due_date",
-              {:start_date => start_date, :due_date => due_date}]
-        }
-      elsif start_date.present?
-        { :conditions =>
-            ["plan_on >= :start_date",
-              {:start_date => start_date}]
-        }
-      elsif  due_date.present?
-        { :conditions =>
-            ["plan_on <= :due_date",
-              {:due_date => due_date}]
-        }
-      end
-    }
-
-    named_scope :for_period, lambda{ |period|
-      if period == "current_week"
-        start_date = Date.today - Date.today.wday.days - 1.day
-        due_date = start_date + 6.days
-        { :conditions =>
-            ["plan_on BETWEEN :start_date AND :due_date",
-              {:start_date => start_date, :due_date => due_date}]
-        }
-      end
-    }
-
-    named_scope :for_user, lambda{ |user_id|
-      if user_id.present?
-        { :conditions =>
-          {:user_id => user_id}
-        }
-      end
-    }
-  else
-    scope :for_issues, lambda{ |issue_ids|
-      { :conditions =>
-          ["issue_id IN (:issue_ids)",
-            {:issue_ids => issue_ids}]
-      }
-    }
-
-    scope :actual, lambda{ |start_date, due_date|
-      if start_date.present? && due_date.present?
-        { :conditions =>
-            ["plan_on BETWEEN :start_date AND :due_date",
-              {:start_date => start_date, :due_date => due_date}]
-        }
-      elsif start_date.present?
-        { :conditions =>
-            ["plan_on >= :start_date",
-              {:start_date => start_date}]
-        }
-      elsif  due_date.present?
-        { :conditions =>
-            ["plan_on <= :due_date",
-              {:due_date => due_date}]
-        }
-      end
-    }
-
-    scope :for_period, lambda{ |period|
-      if period == "current_week"
-        start_date = Date.today - Date.today.wday.days - 1.day
-        due_date = start_date + 6.days
-        { :conditions =>
-            ["plan_on BETWEEN :start_date AND :due_date",
-              {:start_date => start_date, :due_date => due_date}]
-        }
-      end
-    }
-
-    scope :for_user, lambda{ |user_id|
-      if user_id.present?
-        { :conditions =>
-          {:user_id => user_id}
-        }
-      end
-    }
-  end
 end

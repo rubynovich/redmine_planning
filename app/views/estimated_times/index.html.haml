@@ -32,10 +32,10 @@
     - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
         = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
-    - if @planning_manager.workers.any?
+    - if @planning_manager.subordinates.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
-        - ([User.current] + @planning_manager.workers).sort_by(&:name).each do |user|
+        - @users.each do |user|
           - if @current_user.id == user.id
             %option{:value => user.id, :selected => "selected"}
               = user.name

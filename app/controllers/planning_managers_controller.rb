@@ -15,14 +15,33 @@ class PlanningManagersController < ApplicationController
   end
 
   def update
-    @planning_manager.add_workers(params[:worker_ids])
+    if params[:worker_ids]
+
+      for worker_id in params[:worker_ids]
+        
+        @planning_manager.subordinates.create(principal_id: worker_id.to_i)        
+        
+        principal = Principal.find(worker_id.to_i)
+        
+        if principal.kind_of?(Group)
+          for user in principal.users - [User.current]
+            @planning_manager.subordinates.create(principal_id: user.id)
+          end
+        end
+      
+      end
+    end
     redirect_to :action => 'edit', :id => params[:id]
   end
 
   def create
-    users = User.find(params[:manager_ids])
-    users.each do |user|
-      PlanningManager.create(:user_id => user.id)
+    principals = Principal.find(params[:manager_ids])
+    for principal in principals
+      if principal.kind_of?(Group)
+        principal.users.each{|user| PlanningManager.create(:user_id => user.id)}
+      else
+        PlanningManager.create(:user_id => principal.id)
+      end
     end
     redirect_to :action => 'index'
   end
@@ -30,7 +49,13 @@ class PlanningManagersController < ApplicationController
   def destroy
     if params[:id].present?
       if params[:worker_id].present?
-        @planning_manager.remove_worker(params[:worker_id])
+        principal = Principal.find(params[:worker_id].to_i)
+        if principal.kind_of?(User)
+          @planning_manager.subordinates.where(principal_id: params[:worker_id]).first.destroy  
+        else
+          @planning_manager.subordinates.where(principal_id: principal.id).first.destroy
+          @planning_manager.subordinates.where(principal_id: principal.users.map(&:id)).map(&:destroy)
+        end
         redirect_to :action => 'edit', :id => params[:id]
       else
         @planning_manager.destroy
@@ -59,7 +84,8 @@ class PlanningManagersController < ApplicationController
     end
 
     def find_worker_candidates
+      # fixme
       find_planning_manager
-      @worker_candidates = User.active.not_workers(@planning_manager).planning_managers.like(params[:q]).all(:order => "lastname, firstname")
+      @worker_candidates = Principal.not_workers(@planning_manager).like(params[:q]).all(:order => "lastname, firstname")
     end
 end

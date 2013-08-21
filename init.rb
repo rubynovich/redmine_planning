@@ -20,20 +20,17 @@ Redmine::Plugin.register :redmine_planning do
     {:controller => :planning_managers, :action => :index}, :caption => :label_planning_manager_plural, :html => {:class => :users}
 end
 
-if Rails::VERSION::MAJOR < 3
-  require 'dispatcher'
-  object_to_prepare = Dispatcher
-else
-  object_to_prepare = Rails.configuration
-end
-
-object_to_prepare.to_prepare do
-  [:issue, :user, :time_entry, :timelog_helper].each do |cl|
+Rails.configuration.to_prepare do
+  [:issue, :user, :principal, :time_entry, :timelog_helper].each do |cl|
     require "planning_#{cl}_patch"
   end
 
-  [ [Issue, PlanningPlugin::IssuePatch], [User, PlanningPlugin::UserPatch],
-    [TimeEntry, PlanningPlugin::TimeEntryPatch], [TimelogHelper, PlanningPlugin::TimelogHelperPatch]
+  [ 
+   [Issue, PlanningPlugin::IssuePatch], 
+   [User, PlanningPlugin::UserPatch],
+   [Principal, PlanningPlugin::PrincipalPatch],
+   [TimeEntry, PlanningPlugin::TimeEntryPatch], 
+   [TimelogHelper, PlanningPlugin::TimelogHelperPatch]
   ].each do |cl, patch|
     cl.send(:include, patch) unless cl.included_modules.include? patch
   end
