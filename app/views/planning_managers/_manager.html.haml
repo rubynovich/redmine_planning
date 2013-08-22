@@ -30,7 +30,11 @@
               = link_to_user member.user
             %td.workers
               - member.subordinates.each do |subordinate|
-                = link_to_user subordinate.principal
+                - principal = subordinate.principal
+                - if principal.kind_of? (User)
+                  = link_to_user principal
+                - else
+                  = link_to principal.name, edit_group_path(principal) 
                 %br
             %td.buttons
               = link_to l(:button_edit), {:action => 'edit', :id => member.id}, :class => 'icon icon-edit'

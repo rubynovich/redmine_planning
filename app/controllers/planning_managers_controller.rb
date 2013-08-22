@@ -24,7 +24,7 @@ class PlanningManagersController < ApplicationController
         principal = Principal.find(worker_id.to_i)
         
         if principal.kind_of?(Group)
-          for user in principal.users - [User.current]
+          for user in principal.users - [@planning_manager.user]
             @planning_manager.subordinates.create(principal_id: user.id)
           end
         end
