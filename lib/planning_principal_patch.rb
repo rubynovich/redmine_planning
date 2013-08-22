@@ -9,7 +9,7 @@ module PlanningPlugin
       base.class_eval do
         unloadable
 
-        scope :not_workers, lambda { |manager|
+        scope :not_subordinates, lambda { |manager|
           { 
             :conditions => ["#{Principal.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.subordinates.select(:principal_id).map(&:principal_id) + [manager.user_id]}]
           }

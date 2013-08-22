@@ -11,7 +11,7 @@ RedmineApp::Application.routes.draw do
       get :autocomplete_for_manager
     end
     member do
-      get :autocomplete_for_worker
+      get :autocomplete_for_subordinate
     end
   end
 end
