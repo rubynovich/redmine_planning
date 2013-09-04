@@ -284,7 +284,7 @@ class EstimatedTimesController < ApplicationController
     
       @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month).sum('hours') 
 
-      @today_possible_hours = (working_days(month_start, Date.today) * hours_per_day).to_f
+      @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
       @today_min_possible_hours = @today_possible_hours * min_ratio
 
       @month_possible_hours = (working_days(month_start, month_end) * hours_per_day).to_f
