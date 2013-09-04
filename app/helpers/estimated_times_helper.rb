@@ -189,4 +189,5 @@ module EstimatedTimesHelper
   def title_for_workplace_end_time(workplace_time)
     l(:label_workplace_duration)+": "+workplace_time.duration.strftime("%H:%M")
   end
+
 end

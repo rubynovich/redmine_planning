@@ -8,6 +8,8 @@ Redmine::Plugin.register :redmine_planning do
   url 'https://bitbucket.org/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
 
+  settings :partial => 'estimated_times/settings'
+
   project_module :planning do
 #    permission :view_planning, :estimated_times => [:index], :public => true
   end

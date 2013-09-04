@@ -1,0 +1,7 @@
+%p
+  %label= "Количество часов в рабочем дне"
+  = text_field_tag("settings[work_hours_per_day]", (@settings[:work_hours_per_day].to_s rescue nil), :style => 'text-align: right;') + 'ч.'
+
+%p
+  %label= "Минимальный процент заполнения графы факт"
+  = text_field_tag("settings[min_unfilled_percent]", (@settings[:min_unfilled_percent].to_s rescue nil), :style => 'text-align: right;') + '%'

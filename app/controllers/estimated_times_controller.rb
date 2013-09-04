@@ -1,6 +1,8 @@
 class EstimatedTimesController < ApplicationController
   unloadable
 
+  include Redmine::Utils::DateCalculation
+
   before_filter :get_current_date
   before_filter :get_project
   before_filter :get_current_user
@@ -10,6 +12,7 @@ class EstimatedTimesController < ApplicationController
   before_filter :require_planning_manager
   before_filter :new_estimated_time, :only => [:new, :index, :create]
   before_filter :find_estimated_time, :only => [:edit, :update, :destroy]
+  before_filter :time_entry_month_sum, :only => [:index]
 
   helper :timelog
   include TimelogHelper
@@ -270,4 +273,26 @@ class EstimatedTimesController < ApplicationController
     def find_estimated_time
       @estimated_time = EstimatedTime.find(params[:id])
     end
+
+    def time_entry_month_sum
+
+      hours_per_day = Setting[:plugin_redmine_planning][:work_hours_per_day].to_i  
+      min_ratio = Setting[:plugin_redmine_planning][:min_unfilled_percent].to_f / 100
+
+      month = Time.now.all_month
+      month_start, month_end = month.begin.to_date, month.end.to_date
+    
+      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month).sum('hours') 
+
+      @today_possible_hours = (working_days(month_start, Date.today) * hours_per_day).to_f
+      @today_min_possible_hours = @today_possible_hours * min_ratio
+
+      @month_possible_hours = (working_days(month_start, month_end) * hours_per_day).to_f
+      @month_min_possible_hours = @month_possible_hours * min_ratio
+      
+      @time_delta = (@today_spent_hours - @today_min_possible_hours).to_f
+
+
+    end
+
 end

@@ -23,6 +23,7 @@
   = " | "
   = link_to l(:label_current_users_workload), controller: 'gantts', action: 'show', set_filter: 1, assigned_to_id: @current_user.id, months: 12, month: @current_date.month, year: @current_date.year, sort: 'priority:desc,updated_on:desc'
 
+
 %h2=l(:label_estimated_time_plural)
 
 %fieldset
@@ -167,5 +168,29 @@
     = render :partial => 'google_calendar', :locals => {:f => f}
     = submit_tag l(:button_save), :disabled => false
   = form if Rails::VERSION::MAJOR >= 3
+
+%h2= "Баланс времени за месяц"
+.box
+  %p 
+    = "В графе \"факт\" описано "
+    %b= "#{@today_spent_hours}"
+    = "из #{@month_possible_hours} возможный часов."
+  %p
+    = "Сегодня это значение должно быть между "
+    %b= "#{@today_min_possible_hours}"
+    = " и "
+    %b= "#{@today_possible_hours}"
+    = "часами."
+  %p
+    - if @time_delta < 0
+      = "Вам нужно описать еще как минимум "
+      %b= "#{ @time_delta.abs }"
+      = "ч."
+    - else
+      = "У вас есть запас в "
+      %b= "#{ @time_delta }" 
+      = "ч."
+
+
 
 - html_title(l(:label_estimated_time_plural))
