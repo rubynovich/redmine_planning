@@ -54,3 +54,10 @@ en:
   error_workday_has_only_12_work_hours: "more 12 hours"
   error_not_assign_labor_of_others_yourself: "Not assign labor of others yourself"
   error_be_creative_in_the_comments: "is too monotonous. Be creative in the comments!"
+
+  label_current_month_time_balance: "Time balance for this month"
+  label_currently_described: "You described %{described} from %{total} possible spent hours."
+  label_described_today_range: "As for today this value should be in range between %{min} and %{max} hours."
+  label_you_should_describe: "You should describe at least %{amount} hours else."
+  label_you_have_reserve: "You have %{amount} reserved hours."
+
