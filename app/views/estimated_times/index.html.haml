@@ -171,6 +171,8 @@
 
 %h2= l(:label_current_month_time_balance)
 .box
+  %p
+    %i= l(:label_time_balance_disclaimer)
   %p= l(:label_currently_described, :described => @today_spent_hours, :total => @month_possible_hours)
   %p= l(:label_described_today_range, :min => @today_min_possible_hours, :max => @today_possible_hours)
   %p

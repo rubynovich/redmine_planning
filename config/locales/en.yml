@@ -56,6 +56,7 @@ en:
   error_be_creative_in_the_comments: "is too monotonous. Be creative in the comments!"
 
   label_current_month_time_balance: "Time balance for this month"
+  label_time_balance_disclaimer: "(Regardless of vacations and holidays.)"
   label_currently_described: "You described %{described} from %{total} possible spent hours."
   label_described_today_range: "As for today this value should be in range between %{min} and %{max} hours."
   label_you_should_describe: "You should describe at least %{amount} hours else."

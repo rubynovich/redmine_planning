@@ -56,6 +56,7 @@ ru:
   error_be_creative_in_the_comments: "слишком однообразен. Будьте изобретательней при описании собственной работы!"
 
   label_current_month_time_balance: "Баланс времени за текущий месяц"
+  label_time_balance_disclaimer: "(Числа указаны без учета праздников и отпусков.)"
   label_currently_described: "В графе \"факт\" описано %{described} из %{total} возможных часов."
   label_described_today_range: "Сегодня это значение должно быть между %{min} и %{max} часами."
   label_you_should_describe: "Вам нужно описать еще как минимум %{amount} ч."
