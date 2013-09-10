@@ -30,6 +30,8 @@ class EstimatedTimesController < ApplicationController
       {}
     end
 
+    @users = [User.current] + @planning_manager.subordinates.map(&:principal).select{|pr| pr.kind_of?(User)}
+
     respond_to do |format|
       format.html{ render :action => :index }
       format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}

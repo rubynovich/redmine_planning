@@ -11,35 +11,15 @@ module PlanningPlugin
       base.class_eval do
         unloadable
         
-        if Rails::VERSION::MAJOR >= 3
-          scope :not_planning_managers, lambda {
-            { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
-          }
-          
-          scope :planning_managers, lambda {
-            { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
-          }        
-          
-          scope :not_workers, lambda { |manager|
-            { 
-              :conditions => ["#{User.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.worker_ids + [manager.user_id]}]
-            }
-          }
-        else
-          named_scope :not_planning_managers, lambda {
-            { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
-          }
-          
-          named_scope :planning_managers, lambda {
-            { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
-          }        
-          
-          named_scope :not_workers, lambda { |manager|
-            { 
-              :conditions => ["#{User.table_name}.id NOT IN (:manager_ids)", {:manager_ids => manager.worker_ids + [manager.user_id]}]
-            }
-          }
-        end        
+        scope :not_planning_managers, lambda {
+          { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
+        }
+        
+        scope :planning_managers, lambda {
+          { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
+        }        
+        
+       
       end
     end
       
@@ -47,9 +27,9 @@ module PlanningPlugin
     end
     
     module InstanceMethods
-      def workers
+      def subordinates
         if manager = PlanningManager.find(self.id)
-          User.find(YAML.load(manager.workers))
+          manager.subordinates
         else
           []
         end

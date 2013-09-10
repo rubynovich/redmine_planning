@@ -1,0 +1,52 @@
+:css
+  input#subordinate_search {
+    width:100%;
+    background: url(../../images/magnifier.png) no-repeat 2px 50%; padding-left:20px;
+    border:1px solid #9EB1C2; border-radius:3px; height:1.5em; width:95%;
+  }
+  input#subordinate_search.ajax-loading {
+    background-image: url(../../images/loading.gif);
+  }
+  #users{
+    height: 200px;
+    overflow: auto;
+  }
+  #users label {
+    display: block;
+  }
+
+.splitcontentleft
+  - if @planning_manager.subordinates.any?
+    %table.list.members
+      %thead
+        %tr
+          %th= l(:label_subordinates)
+          %th{:style=>"width:15%"}
+      %tbody
+        - @planning_manager.subordinates.sort.each do |member|
+          - member = member.principal
+          %tr{:id=>"user-#{member.id}", :class => cycle('odd', 'even')}
+            %td{class: "user #{member.class.name.downcase}"}
+              = link_to_user member
+            %td.buttons
+              = link_to l(:button_delete), {:action => :destroy, :id => @planning_manager, :subordinate_id => member}, :confirm => l(:text_are_you_sure), :method => :delete, :class => 'icon icon-del'
+  - else
+    %p.nodata
+      = l(:label_no_data)
+
+.splitcontentright
+  #tab-content-users
+    - if @subordinate_candidates.any?
+      = form_for @planning_manager, :html => {:class => :edit_group} do |f|
+        %fieldset
+          %legend= l(:label_subordinate_new)
+          %p
+            = label_tag :subordinate_search, l(:label_user_search)
+            = text_field_tag :subordinate_search, nil
+          = javascript_tag "observeSearchfield('subordinate_search', 'users', '#{ escape_javascript url_for(:controller => :planning_managers, :action => :autocomplete_for_subordinate, :id => @planning_manager.id) }')"
+
+          #users
+            = principals_check_box_tags 'subordinate_ids[]', @subordinate_candidates
+
+          %p= submit_tag l(:button_add)
+
