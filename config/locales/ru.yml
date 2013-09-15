@@ -62,3 +62,4 @@ ru:
   label_you_should_describe: "Вам нужно описать еще как минимум %{amount} ч."
   label_you_have_reserve: "У вас есть запас в %{amount} ч."
 
+  label_no_planning_manager_candidates: Все пользователи уже добавлены в планирующие

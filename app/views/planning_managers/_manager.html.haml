@@ -45,10 +45,10 @@
 
 .splitcontentright
   #tab-content-users
-    - if @manager_candidates.any?
-      = form_for :planning_manager, :html => {:class => :edit_group} do |f|
-        %fieldset
-          %legend= l(:label_planning_manager_new)
+    = form_for :planning_manager, :html => {:class => :edit_group} do |f|
+      %fieldset
+        %legend= l(:label_planning_manager_new)
+        - if @manager_candidates.any?
           %p
             = label_tag :manager_search, l(:label_user_search)
             = text_field_tag :manager_search, nil
@@ -58,4 +58,6 @@
             = principals_check_box_tags 'manager_ids[]', @manager_candidates
 
           %p= submit_tag l(:button_add)
-
+        - else
+          %p{:class => "nodata"}
+            = l(:label_no_planning_manager_candidates)
