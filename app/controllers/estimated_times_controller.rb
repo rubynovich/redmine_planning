@@ -30,10 +30,8 @@ class EstimatedTimesController < ApplicationController
       {}
     end
 
-    # choose_me
-    @users = User.where(:id => @planning_manager.subordinates.pluck(:principal_id))
-    # possible variant - only active users
-    # @users = User.where(:id => @planning_manager.subordinates.pluck(:principal_id), :status => User::STATUS_ACTIVE)
+    # @users = User.where(:id => @planning_manager.subordinates.pluck(:principal_id)) # old variant
+    @users = User.where(:id => @planning_manager.subordinates.pluck(:principal_id), :status => User::STATUS_ACTIVE)
 
     respond_to do |format|
       format.html{ render :action => :index }
