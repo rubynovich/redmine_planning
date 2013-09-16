@@ -30,7 +30,7 @@ class EstimatedTimesController < ApplicationController
       {}
     end
 
-    @users = @planning_manager.active_subordinates
+    @users = [User.current] + @planning_manager.active_subordinates
 
     respond_to do |format|
       format.html{ render :action => :index }

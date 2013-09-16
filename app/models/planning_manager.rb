@@ -9,7 +9,7 @@ class PlanningManager < ActiveRecord::Base
   validates_uniqueness_of :user_id
 
   def active_subordinates
-    User.where(:id => self.subordinates.pluck(:principal_id), :status => User::STATUS_ACTIVE)
+    User.where(:id => self.subordinates.pluck(:principal_id), :status => User::STATUS_ACTIVE) #.sort_by(&:name)
   end
   
 end
