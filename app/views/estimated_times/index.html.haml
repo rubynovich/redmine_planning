@@ -33,7 +33,7 @@
     - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
         = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
-    - if @planning_manager.subordinates.any?
+    - if @users.any?
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
         %option{:value => User.current.id, :selected => "selected"}
