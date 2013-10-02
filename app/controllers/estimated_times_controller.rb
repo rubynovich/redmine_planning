@@ -289,7 +289,7 @@ class EstimatedTimesController < ApplicationController
       @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
       @today_min_possible_hours = @today_possible_hours * min_ratio
 
-      @month_possible_hours = (working_days(month_start, month_end) * hours_per_day).to_f
+      @month_possible_hours = (working_days(month_start, month_end + 1.day) * hours_per_day).to_f
       @month_min_possible_hours = @month_possible_hours * min_ratio
       
       @time_delta = (@today_spent_hours - @today_min_possible_hours).to_f

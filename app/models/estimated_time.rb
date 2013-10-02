@@ -38,7 +38,7 @@ class EstimatedTime < ActiveRecord::Base
         ["plan_on >= :start_date",
          {:start_date => start_date}]
       }
-    elsif  due_date.present?
+    elsif due_date.present?
       { :conditions =>
         ["plan_on <= :due_date",
          {:due_date => due_date}]
