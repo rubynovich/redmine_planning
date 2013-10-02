@@ -57,9 +57,9 @@ ru:
 
   label_current_month_time_balance: "Баланс времени за текущий месяц"
   label_time_balance_disclaimer: "(Числа указаны без учета праздников и отпусков.)"
-  label_currently_described: "В графе \"факт\" описано %{described} из %{total} возможных часов."
-  label_described_today_range: "Сегодня это значение должно быть между %{min} и %{max} часами."
   label_you_should_describe: "Вам нужно описать еще как минимум %{amount} ч."
   label_you_have_reserve: "У вас есть запас в %{amount} ч."
+  label_current_month_min: К концу этого месяца в графе "факт" должно быть расписано не менее %{count} часов.
+  label_as_for_today: На текущий день у вас расписано %{count} часов. Сегодня это значение должно быть между %{min} и %{max} часами.
 
   label_no_planning_manager_candidates: Все пользователи уже добавлены в планирующие
