@@ -4,7 +4,7 @@ Redmine::Plugin.register :redmine_planning do
   name 'Planning'
   author 'Roman Shipiev'
   description 'Scheduling time on issues'
-  version '0.0.6'
+  version '0.1.0'
   url 'https://bitbucket.org/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
 
@@ -27,11 +27,11 @@ Rails.configuration.to_prepare do
     require "planning_#{cl}_patch"
   end
 
-  [ 
-   [Issue, PlanningPlugin::IssuePatch], 
+  [
+   [Issue, PlanningPlugin::IssuePatch],
    [User, PlanningPlugin::UserPatch],
    [Principal, PlanningPlugin::PrincipalPatch],
-   [TimeEntry, PlanningPlugin::TimeEntryPatch], 
+   [TimeEntry, PlanningPlugin::TimeEntryPatch],
    [TimelogHelper, PlanningPlugin::TimelogHelperPatch]
   ].each do |cl, patch|
     cl.send(:include, patch) unless cl.included_modules.include? patch
