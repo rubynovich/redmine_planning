@@ -8,7 +8,10 @@ Redmine::Plugin.register :redmine_planning do
   url 'https://bitbucket.org/rubynovich/redmine_planning'
   author_url 'http://roman.shipiev.me'
 
-  settings :partial => 'estimated_times/settings'
+  settings :partial => 'estimated_times/settings', :default => {
+    :work_hours_per_day => 8,
+    :min_unfilled_percent => 75
+  }
 
   project_module :planning do
 #    permission :view_planning, :estimated_times => [:index], :public => true
