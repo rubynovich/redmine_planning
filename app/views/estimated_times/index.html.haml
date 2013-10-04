@@ -173,13 +173,13 @@
 .box
   %p
     %i= l(:label_time_balance_disclaimer)
-  %p= l(:label_currently_described, :described => @today_spent_hours, :total => @month_possible_hours)
-  %p= l(:label_described_today_range, :min => @today_min_possible_hours, :max => @today_possible_hours)
+
+  %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours)
+  %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min => @today_min_possible_hours, :max => @today_possible_hours)
   %p
     - if @time_delta < 0
-      = l(:label_you_should_describe, :amount => @time_delta.abs)
+      = l(:label_you_should_describe, :amount => "%.2f" % @time_delta.abs)
     - else
-      = l(:label_you_have_reserve, :amount => @time_delta)
-
+      = l(:label_you_have_reserve, :amount => "%.2f" % @time_delta)
 
 - html_title(l(:label_estimated_time_plural))
