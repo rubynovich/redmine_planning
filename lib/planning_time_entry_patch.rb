@@ -12,9 +12,9 @@ module PlanningPlugin
 
         include EstimatedTimesHelper
 
-        validate :validate_spent_on
+        validate :validate_spent_on, if: ->{ self.issue.meeting_member.blank? rescue true }
         validate :validate_hours
-        validate :validate_user_id
+        validate :validate_user_id, if: ->{ self.issue.meeting_member.blank? rescue true }
         validate :validate_comments
         validates_presence_of :comments
 
