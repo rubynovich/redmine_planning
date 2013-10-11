@@ -1,5 +1,8 @@
 # Russian strings go here for Rails i18n
 ru:
+
+  label_workflow_menu: Организация работы
+
   project_module_planning: "Планирование"
   issuesplannedfortoday: "Мои задачи запланированные на сегодня"
   issuesplannedfortomorrow: "Мои задачи запланированные на завтра"

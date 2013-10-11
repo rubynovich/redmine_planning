@@ -14,15 +14,39 @@ Redmine::Plugin.register :redmine_planning do
   }
 
   project_module :planning do
-#    permission :view_planning, :estimated_times => [:index], :public => true
+    # permission :view_planning, :estimated_times => [:index], :public => true
   end
 
-  menu :top_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.is_planning_manager?}
+  Redmine::MenuManager.map :top_menu do |menu| 
 
-  menu :project_menu, :estimated_times, {:controller => :estimated_times, :action => :index}, :caption => :label_planning, :param => :project_id, :if => Proc.new{User.current.is_planning_manager?}, :require => :member
+    unless menu.exists?(:workflow)
+      menu.push(:workflow, "#", 
+                { :after => :internal_intercourse,
+                  :parent => :top_menu, 
+                  :caption => :label_workflow_menu
+                })
+    end
+
+    menu.push(:estimated_times, {:controller => :estimated_times, :action => :index}, 
+              { :parent => :workflow,
+                :caption => :label_planning, 
+                :param => :project_id, 
+                :if => Proc.new{User.current.is_planning_manager?}
+              })
+
+  end
+
+  # menu :project_menu, :estimated_times, 
+  #   {:controller => :estimated_times, :action => :index}, 
+  #   :caption => :label_planning, 
+  #   :param => :project_id, 
+  #   :if => Proc.new{User.current.is_planning_manager?}, :require => :member
 
   menu :admin_menu, :planning_manager,
-    {:controller => :planning_managers, :action => :index}, :caption => :label_planning_manager_plural, :html => {:class => :users}
+    {:controller => :planning_managers, :action => :index}, 
+    :caption => :label_planning_manager_plural, 
+    :html => {:class => :users}
+
 end
 
 Rails.configuration.to_prepare do
