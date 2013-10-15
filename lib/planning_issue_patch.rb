@@ -11,8 +11,6 @@ module PlanningPlugin
       base.class_eval do
         unloadable
 
-        has_one :estimated_time
-
         if Rails::VERSION::MAJOR >= 3
           scope :in_project, lambda { |project|
             if project.present?
