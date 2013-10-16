@@ -1,8 +1,5 @@
 # English strings go here for Rails i18n
 en:
-
-  label_workflow_menu: Workflow
-
   project_module_planning: "Planning"
   issuesplannedfortoday: "My Issues planned for today"
   issuesplannedfortomorrow: "My Issues planned for tomorrow"

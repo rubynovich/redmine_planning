@@ -19,19 +19,12 @@ Redmine::Plugin.register :redmine_planning do
 
   Redmine::MenuManager.map :top_menu do |menu| 
 
-    unless menu.exists?(:workflow)
-      menu.push(:workflow, "#", 
-                { :after => :internal_intercourse,
-                  :parent => :top_menu, 
-                  :caption => :label_workflow_menu
-                })
-    end
-
+    parent = menu.exists?(:workflow) ? :workflow : :top_menu
     menu.push(:estimated_times, {:controller => :estimated_times, :action => :index}, 
-              { :parent => :workflow,
+              { :parent => parent,
                 :caption => :label_planning, 
                 :param => :project_id, 
-                :if => Proc.new{User.current.is_planning_manager?}
+                :if => Proc.new{ User.current.is_planning_manager? }
               })
 
   end
