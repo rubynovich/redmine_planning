@@ -11,8 +11,8 @@ class EstimatedTime < ActiveRecord::Base
   before_destroy :validate_before_destroy
 
   validates_presence_of :issue_id, :hours, :plan_on, :comments
-  validates_numericality_of :hours
-  validates_uniqueness_of :plan_on, :scope => [:user_id, :issue_id]
+  validates_numericality_of :hours, allow_nil: true, message: :invalid
+  validates_uniqueness_of :plan_on, scope: [:user_id, :issue_id]
 
   validate :validate_plan_on
   validate :validate_hours
@@ -86,7 +86,7 @@ class EstimatedTime < ActiveRecord::Base
   def validate_hours
     issue = self.issue
     hours = self.hours
-    if hours.to_f <= 0.0
+    if hours.is_a?(Float) && hours <= 0.0
       errors.add :hours, :invalid
     end
   end
