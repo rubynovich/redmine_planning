@@ -22,4 +22,17 @@ class PlanningPreferencesController < ApplicationController
 
   end
 
+  def drop
+    user = User.current
+    if user_preferences = user.planning_preference
+      unless user_preferences.destroy
+        Rails.logger.error('  Could not destroy PlanningPreferences for user with id #{user.id}'.red)
+      end
+    end
+
+    render nothing: true
+
+  end
+
+
 end

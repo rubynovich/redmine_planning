@@ -79,9 +79,9 @@
     - exclude_filters.each do |key|
       - if params[:"exclude_#{key}"].present?
         = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
-    = submit_tag 'Save'
+    = submit_tag l(:label_planning_preferences_save)
 
-    = # link_to 'Save', save_planning_preferences_path(params), remote: true
+    = link_to l(:label_planning_preferences_destroy), drop_planning_preferences_path, remote: true
 
 - if @assigned_issues.any?
   %table.list

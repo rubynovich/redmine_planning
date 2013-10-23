@@ -10,6 +10,7 @@ RedmineApp::Application.routes.draw do
   resources :planning_preferences do
     collection do
       post :save
+      get :drop
     end
   end
 

@@ -63,3 +63,6 @@ en:
   label_you_have_reserve: "You have %{amount} reserved hours."
 
   label_no_planning_manager_candidates: All active users are already planning managers
+
+  label_planning_preferences_save: Save
+  label_planning_preferences_destroy: Destroy
