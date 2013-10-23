@@ -1,6 +1,8 @@
 class PlanningPreferencesController < ApplicationController
   unloadable
 
+  #  include Rails.application.routes.url_helpers
+
   before_filter :require_login, :only => [:save]
 
   helper :estimated_times
@@ -30,7 +32,11 @@ class PlanningPreferencesController < ApplicationController
       end
     end
 
-    render nothing: true
+    # render nothing: true
+
+    redirect_to estimated_times_path(params.keep_if{|k,v| not(k =~ /^exclude/)})
+
+
 
   end
 
