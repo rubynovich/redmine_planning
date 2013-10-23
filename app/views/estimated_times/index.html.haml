@@ -73,6 +73,16 @@
       = link_to l(:"label_exclude_#{key}"), params.merge( :"exclude_#{key}" => 1)
     = " / " unless key == exclude_filters.last
 
+  = ' / '
+
+  = form_tag(save_planning_preferences_path, remote: true) do
+    - exclude_filters.each do |key|
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
+    = submit_tag l(:label_planning_preferences_save)
+
+    = link_to l(:label_planning_preferences_destroy), drop_planning_preferences_path, remote: true
+
 - if @assigned_issues.any?
   %table.list
     %thead
