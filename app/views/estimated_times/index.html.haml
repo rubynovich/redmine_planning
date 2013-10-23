@@ -174,7 +174,7 @@
   %p
     %i= l(:label_time_balance_disclaimer)
 
-  %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours)
+  %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours, :max => "%.2f" % @month_possible_hours)
   %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min => @today_min_possible_hours, :max => @today_possible_hours)
   %p
     - if @time_delta < 0
