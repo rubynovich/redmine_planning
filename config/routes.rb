@@ -6,6 +6,13 @@ RedmineApp::Application.routes.draw do
       get :widget
     end
   end
+
+  resources :planning_preferences do
+    collection do
+      get :save
+    end
+  end
+
   resources :planning_managers do
     collection do
       get :autocomplete_for_manager

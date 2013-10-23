@@ -73,6 +73,10 @@
       = link_to l(:"label_exclude_#{key}"), params.merge( :"exclude_#{key}" => 1)
     = " / " unless key == exclude_filters.last
 
+  = ' / '
+
+  = link_to 'Save', save_planning_preferences_path(params), remote: true
+
 - if @assigned_issues.any?
   %table.list
     %thead
