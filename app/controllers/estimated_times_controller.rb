@@ -211,9 +211,13 @@ class EstimatedTimesController < ApplicationController
     def add_info
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
 
-      # user = User.current
-      # user_preferences = user.planning_preference.preferences || Hash.new
-      # params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
+      Rails.logger.error(params.inspect.red)
+      user = User.current
+      if user.planning_preference.present? && params.keys.none?{|k| k =~ /^exclude/}
+        user_preferences = user.planning_preference.preferences || Hash.new
+        params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
+        Rails.logger.error(params.inspect.red)
+      end
 
       @assigned_issues = Issue.visible.
         actual(@current_date, @current_date+6.days).

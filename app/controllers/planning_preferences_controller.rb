@@ -18,7 +18,8 @@ class PlanningPreferencesController < ApplicationController
 
     # render text: params.keys.inspect
 
-    render :nothing
+    render nothing: true
+
   end
 
 end

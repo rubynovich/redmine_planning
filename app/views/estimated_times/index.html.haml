@@ -75,7 +75,13 @@
 
   = ' / '
 
-  = link_to 'Save', save_planning_preferences_path(params), remote: true
+  = form_tag(save_planning_preferences_path, remote: true) do
+    - exclude_filters.each do |key|
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
+    = submit_tag 'Save'
+
+    = # link_to 'Save', save_planning_preferences_path(params), remote: true
 
 - if @assigned_issues.any?
   %table.list
@@ -178,7 +184,7 @@
   %p
     %i= l(:label_time_balance_disclaimer)
 
-  %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours)
+  %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours, :max => "%.2f" % @month_possible_hours)
   %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min => @today_min_possible_hours, :max => @today_possible_hours)
   %p
     - if @time_delta < 0

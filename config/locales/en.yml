@@ -57,8 +57,8 @@ en:
 
   label_current_month_time_balance: "Time balance for this month"
   label_time_balance_disclaimer: "(Regardless of vacations and holidays.)"
-  label_currently_described: "You described %{described} from %{total} possible spent hours."
-  label_described_today_range: "As for today this value should be in range between %{min} and %{max} hours."
+  label_current_month_min: "In this month you should describe at least %{count} hours (maximum possible amount – %{max})."
+  label_as_for_today: "As for today you described %{count} hours. Today this value should be in range between %{min} and %{max} hours."
   label_you_should_describe: "You should describe at least %{amount} hours else."
   label_you_have_reserve: "You have %{amount} reserved hours."
 
