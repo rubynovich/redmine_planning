@@ -81,7 +81,7 @@
         = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
     = submit_tag l(:label_planning_preferences_save)
 
-    = link_to l(:label_planning_preferences_destroy), drop_planning_preferences_path, remote: true
+    = link_to l(:label_planning_preferences_destroy), drop_planning_preferences_path(params)
 
 - if @assigned_issues.any?
   %table.list
