@@ -64,5 +64,5 @@ en:
 
   label_no_planning_manager_candidates: All active users are already planning managers
 
-  label_planning_preferences_save: Save
-  label_planning_preferences_destroy: Destroy
+  label_planning_preferences_save: save
+  label_planning_preferences_destroy: destroy
