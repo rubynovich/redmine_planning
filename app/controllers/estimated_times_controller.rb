@@ -33,6 +33,8 @@ class EstimatedTimesController < ApplicationController
 
     @users = [User.current] + @planning_manager.active_subordinates
 
+    @planning_preference = User.current.planning_preference
+
     respond_to do |format|
       format.html{ render :action => :index }
       format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
@@ -211,12 +213,10 @@ class EstimatedTimesController < ApplicationController
     def add_info
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
 
-      Rails.logger.error(params.inspect.red)
       user = User.current
       if user.planning_preference.present? && params.keys.none?{|k| k =~ /^exclude/}
         user_preferences = user.planning_preference.preferences || Hash.new
         params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
-        Rails.logger.error(params.inspect.red)
       end
 
       @assigned_issues = Issue.visible.
