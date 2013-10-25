@@ -28,7 +28,7 @@ class PlanningPreferencesController < ApplicationController
 
     end
 
-    redirect_to estimated_times_path(params.keep_if{|k,v| not(k =~ /^exclude/)}.merge(user_preferences.preferences))
+    redirect_to estimated_times_path(params.keep_if{|k,v| not(k =~ /^exclude/)})
 
   end
 
