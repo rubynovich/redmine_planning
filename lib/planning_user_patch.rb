@@ -10,6 +10,8 @@ module PlanningPlugin
       
       base.class_eval do
         unloadable
+
+        has_one :planning_preference, :dependent => :destroy
         
         scope :not_planning_managers, lambda {
           { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
@@ -18,7 +20,6 @@ module PlanningPlugin
         scope :planning_managers, lambda {
           { :conditions => ["#{User.table_name}.id IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }
         }        
-        
        
       end
     end

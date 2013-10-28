@@ -66,12 +66,30 @@
 
   %br
 
-  - exclude_filters.each do |key|
-    - if params[:"exclude_#{key}"].present?
-      = link_to l(:"label_include_#{key}"), params.merge( :"exclude_#{key}" => nil)
-    - else
-      = link_to l(:"label_exclude_#{key}"), params.merge( :"exclude_#{key}" => 1)
-    = " / " unless key == exclude_filters.last
+  - if @planning_preference
+    - exclude_filters.each do |key|
+      - if params[:"exclude_#{key}"].present?
+        %span= l(:"label_include_#{key}")
+      - else
+        %span= l(:"label_exclude_#{key}")
+      = " / " unless key == exclude_filters.last
+  - else
+    - exclude_filters.each do |key|
+      - if params[:"exclude_#{key}"].present?
+        = link_to l(:"label_include_#{key}"), params.merge( :"exclude_#{key}" => nil)
+      - else
+        = link_to l(:"label_exclude_#{key}"), params.merge( :"exclude_#{key}" => 1)
+      = " / " unless key == exclude_filters.last
+
+
+  = form_tag(save_planning_preferences_path) do
+    - exclude_filters.each do |key|
+      - if params[:"exclude_#{key}"].present?
+        = hidden_field_tag :"exclude_#{key}", params[:"exclude_#{key}"]
+    %span{style: 'margin-left: 20px;'}
+      = check_box_tag('planning_preference_submit', @planning_preference ? 'drop' : 'save', @planning_preference ? true : false, onclick: 'this.form.submit()')
+      = l(:label_planning_preferences_save)
+
 
 - if @assigned_issues.any?
   %table.list

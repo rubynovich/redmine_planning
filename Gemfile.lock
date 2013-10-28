@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.3.5)
+    colorize (0.6.0)
     google_calendar (0.3.0)
       addressable (>= 2.2.2)
       nokogiri (>= 1.4.4)
@@ -16,5 +17,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  colorize
   google_calendar
   haml
