@@ -72,7 +72,7 @@ class EstimatedTimesController < ApplicationController
             :username => params[:estimated_time][:google_username],
             :password => params[:estimated_time][:google_password])
           time = params[:estimated_time][:google_start_time].
-            seconds_since_midnight
+            seconds_since_midnight - Time.now.utc_offset
           delta = (@estimated_time.hours*3600).round
           event = cal.create_event do |e|
             e.title = @estimated_time.comments
@@ -278,20 +278,20 @@ class EstimatedTimesController < ApplicationController
 
     def time_entry_month_sum
 
-      hours_per_day = Setting[:plugin_redmine_planning][:work_hours_per_day].to_i  
+      hours_per_day = Setting[:plugin_redmine_planning][:work_hours_per_day].to_i
       min_ratio = Setting[:plugin_redmine_planning][:min_unfilled_percent].to_f / 100
 
       month = Time.now.all_month
       month_start, month_end = month.begin.to_date, month.end.to_date
-    
-      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).sum('hours') 
+
+      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).sum('hours')
 
       @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
       @today_min_possible_hours = @today_possible_hours * min_ratio
 
       @month_possible_hours = (working_days(month_start, month_end + 1.day) * hours_per_day).to_f
       @month_min_possible_hours = @month_possible_hours * min_ratio
-      
+
       @time_delta = (@today_spent_hours - @today_min_possible_hours).to_f
 
 
