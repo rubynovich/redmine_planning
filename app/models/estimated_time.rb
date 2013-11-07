@@ -8,7 +8,7 @@ class EstimatedTime < ActiveRecord::Base
   belongs_to :issue
 
   before_save :add_info
-  before_destroy :validate_before_destroy
+# before_destroy :validate_before_destroy
 
   validates_presence_of :issue_id, :hours, :plan_on, :comments
   validates_numericality_of :hours, allow_nil: true, message: :invalid

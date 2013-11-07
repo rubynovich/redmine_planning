@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class EstimatedTimesController < ApplicationController
   unloadable
 
@@ -8,7 +9,7 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_current_user
   before_filter :get_planning_manager
   before_filter :add_info, :only => [:new, :index, :edit, :update, :weekend, :widget]
-  before_filter :authorized
+  before_filter :authorized # TODO в ApplicationController есть метод :require_login
   before_filter :require_planning_manager
   before_filter :new_estimated_time, :only => [:new, :index, :create]
   before_filter :find_estimated_time, :only => [:edit, :update, :destroy]
@@ -31,6 +32,8 @@ class EstimatedTimesController < ApplicationController
     end
 
     @users = [User.current] + @planning_manager.active_subordinates
+
+    @planning_preference = User.current.planning_preference
 
     respond_to do |format|
       format.html{ render :action => :index }
@@ -209,6 +212,12 @@ class EstimatedTimesController < ApplicationController
 
     def add_info
       @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
+
+      user = User.current
+      if user.planning_preference.present? && params.keys.none?{|k| k =~ /^exclude/}
+        user_preferences = user.planning_preference.preferences || Hash.new
+        params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
+      end
 
       @assigned_issues = Issue.visible.
         actual(@current_date, @current_date+6.days).
