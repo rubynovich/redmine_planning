@@ -110,7 +110,7 @@ module PlanningPlugin
 
       def validate_hours
         return if self.hours.blank?
-        total_sum = TimeEntry.where(:user_id => self.user_id, :issue_id => self.issue_id, :spent_on => self.spent_on).select(&:hours).compact.sum(&:hours)
+        total_sum = TimeEntry.where(user_id: self.user_id, issue_id: self.issue_id, spent_on: self.spent_on).select(&:hours).compact.sum(&:hours)
         if total_sum + self.hours > 24.0
           errors.add :hours, I18n.t(:error_day_has_only_24_hours)
         end
@@ -120,8 +120,14 @@ module PlanningPlugin
       end
 
       def validate_user_id
-        if self.issue && self.issue.assigned_to && ((self.issue.assigned_to.is_a?(Group) && !self.issue.assigned_to.users.include?(User.current)) || self.issue.assigned_to != self.user)
-          errors.add :base, I18n.t(:error_not_assign_labor_of_others_yourself)
+        if self.issue && self.issue.assigned_to
+          if self.issue.assigned_to.is_a?(Group)
+            if !self.issue.assigned_to.users.include?(self.user)
+              errors.add :base, I18n.t(:error_not_member_labor_group)
+            end
+          elsif self.issue.assigned_to != self.user
+            errors.add :base, I18n.t(:error_not_assign_labor_of_others_yourself)
+          end
         end
       end
 
