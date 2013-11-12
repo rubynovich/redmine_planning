@@ -85,7 +85,6 @@ class PlanningManagersController < ApplicationController
 
     def find_subordinate_candidates
       find_planning_manager
-      # fixme (or not). next query returns all users, including blocked ones.
-      @subordinate_candidates = Principal.not_subordinates(@planning_manager).like(params[:q]).all(:order => "lastname, firstname")
+      @subordinate_candidates = Principal.active.sorted.not_subordinates(@planning_manager).like(params[:q]).all(:order => "lastname, firstname")
     end
 end
