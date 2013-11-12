@@ -120,7 +120,7 @@ module PlanningPlugin
       end
 
       def validate_user_id
-        if self.issue && self.issue.assigned_to && (self.issue.assigned_to != self.user || (self.issue.assigned_to.class == Group && !self.issue.assigned_to.users.include?(User.current)))
+        if self.issue && self.issue.assigned_to && ((self.issue.assigned_to.is_a?(Group) && !self.issue.assigned_to.users.include?(User.current)) || self.issue.assigned_to != self.user)
           errors.add :base, I18n.t(:error_not_assign_labor_of_others_yourself)
         end
       end
