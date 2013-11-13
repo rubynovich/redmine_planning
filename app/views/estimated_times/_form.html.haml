@@ -1,16 +1,17 @@
-= error_messages_for @estimated_time
 = hidden_field_tag :current_date, params[:current_date]
 
 - if @estimated_time.errors[:plan_on].include?(l(:taken, scope: 'activerecord.errors.messages'))
   %div{class: "conflict"}
-    = "План на эту дату уже существует. Можно: "
+    = l(:label_estimated_time_for_this_date_exists)
     - issue = @estimated_time.issue
     - es = EstimatedTime.where(user_id: User.current.id, issue_id: issue.try(:id), plan_on: params[:estimated_time].try('[]', :plan_on)).first
     %div{class: "conflict-details"}
       %ul
-        %li= link_to('отредактировать существующий', {:controller => :estimated_times, :action => :edit, :id => es.try(:id) }) if es
-        %li= link_to('перезаписать текущее значение', {:controller => :estimated_times, :action => :update, :id => es.try(:id), :estimated_time => params[:estimated_time]}, :method => :put) if es
-        %li= link_to('перейти в планирование', {:action => :index})
+        %li= link_to(l(:label_edit_existing_estimated_time), {:controller => :estimated_times, :action => :edit, :id => es.try(:id) }) if es
+        %li= link_to(l(:label_overwrite_existing_estimated_time), {:controller => :estimated_times, :action => :update, :id => es.try(:id), :estimated_time => params[:estimated_time]}, :method => :put) if es
+        %li= link_to(l(:label_go_back_to_planning), {:action => :index})
+- else
+  = error_messages_for @estimated_time
 
 .box.tabular
   = f.hidden_field :user_id, :value => User.current.id
