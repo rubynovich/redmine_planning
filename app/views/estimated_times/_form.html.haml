@@ -6,12 +6,9 @@
     = @estimated_time.errors.full_messages
     - issue = @estimated_time.issue
     - es = EstimatedTime.where(user_id: User.current.id, issue_id: issue.try(:id), plan_on: params[:estimated_time].try('[]', :plan_on)).first
-    %br
-    = es.inspect || "no es"
     %div{class: "conflict-details"}
-      = @estimated_time.errors.full_messages.join(' ')
       = link_to('edit', {:controller => :estimated_times, :action => :edit, :id => es.try(:id) }) if es
-      = link_to('update', {:controller => :estimated_times, :action => :update, :id => es.try(:id) }) if es
+      = link_to('update', {:controller => :estimated_times, :action => :update, :id => es.try(:id), :estimated_time => params[:estimated_time]}, :method => :put) if es
 
 .box.tabular
   = f.hidden_field :user_id, :value => User.current.id
