@@ -66,3 +66,9 @@ en:
 
   label_planning_preferences_save: save
   label_planning_preferences_destroy: destroy
+
+  label_estimated_time_for_this_date_exists: "Estimated time for this day already exists. You can:"
+  label_edit_existing_estimated_time: "edit existing estimated time"
+  label_overwrite_existing_estimated_time: "overwrite existing estimated time"
+  label_go_back_to_planning: "go to planning"
+

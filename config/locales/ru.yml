@@ -67,3 +67,9 @@ ru:
 
   label_planning_preferences_save: Сохранить настройки
   label_planning_preferences_destroy: сбросить
+
+  label_estimated_time_for_this_date_exists: "На эту дату у Вас уже запланировано время, вы можете:"
+  label_edit_existing_estimated_time: "Отредактировать запланированное время"
+  label_overwrite_existing_estimated_time: "Перезаписать новым (введенным) значением"
+  label_go_back_to_planning: "Перейти в планирование"
+
