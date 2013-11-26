@@ -140,14 +140,8 @@
           %th{:colspan => 3}
             = l(:label_total)
           - 7.times do |day|
-            %th
-              - sum = sum_hours_plan_on(day)
-              %span{:style => style_for_sum(sum)}
-                = html_hours("%.2f" % sum)
-            %th
-              - sum = sum_hours_spent_on(day)
-              %span{:style => style_for_sum(sum)}
-                = html_hours("%.2f" % sum)
+            %th= link_to_sum_hours_plan_on(day)
+            %th= link_to_sum_hours_spent_on(day)
           %th
           %th
         - if @workplace_times.any?

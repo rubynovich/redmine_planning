@@ -131,7 +131,7 @@ class EstimatedTimesController < ApplicationController
 
     @estimated_times = EstimatedTime.
       for_user(@current_user.id).
-      for_issues(@assigned_issue_ids).
+#      for_issues(@assigned_issue_ids).
       actual(params[:start_date], params[:end_date]).
       for_period(params[:period]).
       all(:order => sort_clause)
@@ -226,8 +226,7 @@ class EstimatedTimesController < ApplicationController
         exclude_overdue(params[:exclude_overdue], @current_date).
         exclude_not_planned(params[:exclude_not_planned], @current_date).
         exclude_not_urgent(params[:exclude_not_urgent], @current_date).
-        find(:all,
-          :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
+        find(:all, :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
           :include => [:status, :project, :tracker, :priority],
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 
@@ -240,17 +239,17 @@ class EstimatedTimesController < ApplicationController
       @assigned_issue_ids = @assigned_issues.map(&:id)
 
       @estimated_times = EstimatedTime.
-        for_issues(@assigned_issue_ids).
+#        for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)
 
       @estimated_time_sum = EstimatedTime.
-        for_issues(@assigned_issue_ids).
+#        for_issues(@assigned_issue_ids).
         for_user(@current_user.id).
         group_by(&:issue_id)
 
       @time_entries = TimeEntry.
-        for_issues(@assigned_issue_ids).
+#        for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)
 

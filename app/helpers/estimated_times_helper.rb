@@ -8,13 +8,57 @@ module EstimatedTimesHelper
   def sum_hours_spent_on(day)
     TimeEntry.
       where(spent_on: @current_date + day.days, user_id: @current_user.id).
-      sum('hours')
+      sum(:hours)
   end
 
   def sum_hours_plan_on(day)
     EstimatedTime.
       where(plan_on: @current_date + day.days, user_id: @current_user.id).
-      sum('hours')
+      sum(:hours)
+  end
+
+  def link_to_sum_hours_spent_on(day)
+    TimeEntry.
+      where(spent_on: @current_date + day.days, user_id: @current_user.id)
+  end
+
+  def link_to_sum_hours_plan_on(day)
+    sum = sum_hours_plan_on(day)
+    style = {style: style_for_sum(sum), title: title_for_sum_hours_plan_on(day)}
+    url = {controller: :estimated_times, action: :list,
+      current_user_id: @current_user.id,
+      start_date: @current_date + day.days,
+      end_date: @current_date + day.days}
+    label = html_hours("%.2f" % sum)
+
+    link_to(label, url, style)
+  end
+
+  def link_to_sum_hours_spent_on(day)
+    sum = sum_hours_spent_on(day)
+    style = {style: style_for_sum(sum), title: title_for_sum_hours_spent_on(day)}
+    url = {controller: :timelog, action: :index,
+      user_id: @current_user.id,
+      spent_on: @current_date + day.days}
+    label = html_hours("%.2f" % sum)
+
+    link_to(label, url, style)
+  end
+
+  def title_for_sum_hours_spent_on(day)
+    TimeEntry.
+      where(spent_on: @current_date + day.days, user_id: @current_user.id).
+      select([:issue_id, :hours]).
+      map{ |i| "##{i.issue_id} - #{'%.2f' % i.hours}"}.
+      join("\r")
+  end
+
+  def title_for_sum_hours_plan_on(day)
+    EstimatedTime.
+      where(plan_on: @current_date + day.days, user_id: @current_user.id).
+      select([:issue_id, :hours]).
+      map{ |i| "##{i.issue_id} - #{'%.2f' % i.hours}"}.
+      join("\r")
   end
 
   def my_planning?
