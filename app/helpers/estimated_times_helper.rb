@@ -8,13 +8,13 @@ module EstimatedTimesHelper
   def sum_hours_spent_on(day)
     TimeEntry.
       where(spent_on: @current_date + day.days, user_id: @current_user.id).
-      pluck(:hours).sum(0.0)
+      sum('hours')
   end
 
   def sum_hours_plan_on(day)
     EstimatedTime.
       where(plan_on: @current_date + day.days, user_id: @current_user.id).
-      pluck(:hours).sum(0.0)
+      sum('hours')
   end
 
   def my_planning?
