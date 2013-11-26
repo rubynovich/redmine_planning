@@ -6,21 +6,15 @@ module EstimatedTimesHelper
   end
 
   def sum_hours_spent_on(day)
-    time_entries = @time_entries.group_by(&:spent_on)[@current_date + day.days]
-    if time_entries.present?
-      time_entries.map{|i| i.hours }.sum(0.0)
-    else
-      0.0
-    end
+    TimeEntry.
+      where(spent_on: @current_date + day.days, user_id: @current_user.id).
+      pluck(:hours).sum(0.0)
   end
 
   def sum_hours_plan_on(day)
-    estimated_times = @estimated_times.group_by(&:plan_on)[@current_date + day.days]
-    if estimated_times.present?
-      estimated_times.map{|i| i.hours }.sum(0.0)
-    else
-      0.0
-    end
+    EstimatedTime.
+      where(plan_on: @current_date + day.days, user_id: @current_user.id).
+      pluck(:hours).sum(0.0)
   end
 
   def my_planning?
