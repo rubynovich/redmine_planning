@@ -114,7 +114,7 @@ class EstimatedTimesController < ApplicationController
                 'issue' => 'issue_id',
                 'hours' => 'hours'
 
-    @assigned_issues = Issue.visible.
+    @assigned_issues = Issue.
       find(:all,
         :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
         :include => [:status, :project, :tracker, :priority],
@@ -122,7 +122,7 @@ class EstimatedTimesController < ApplicationController
 
 
     @assigned_issue_ids = if params[:issue_id].present? &&
-      (issue = Issue.visible.find(params[:issue_id]))
+      (issue = Issue.find(params[:issue_id]))
 
       [issue.id]
     else
@@ -219,7 +219,7 @@ class EstimatedTimesController < ApplicationController
         params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
       end
 
-      @assigned_issues = Issue.visible.
+      @assigned_issues = Issue.
         actual(@current_date, @current_date+6.days).
         in_project(@project).
         exclude_closed(params[:exclude_closed]).
