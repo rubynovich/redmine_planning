@@ -70,7 +70,7 @@ class EstimatedTime < ActiveRecord::Base
       self.tyear = plan_on.year
       self.tmonth = plan_on.month
       self.tweek = plan_on.cweek
-      self.user_id = User.current.id
+      self.user_id = self.user_id || User.current.id
       self.project_id = Issue.find(self.issue_id).project.id
     end
   end
