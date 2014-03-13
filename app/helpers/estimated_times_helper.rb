@@ -142,11 +142,19 @@ module EstimatedTimesHelper
   end
 
   def index_to_csv
+    encoding = l(:general_csv_encoding)
     decimal_separator = l(:general_csv_decimal_separator)
     export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
       # csv header fields
-      csv << [ "#", l(:field_subject), l(:field_deadline)] + (0...7).map{ |day| [(@current_date + day.days).strftime("%d.%m")]*2 }.flatten
-      csv << [ "" ]*3 + [l(:label_plan), l(:label_spent)]*7
+
+      header_fields_1 = [ "#", l(:field_subject), l(:field_deadline)] + (0...7).map{ |day| [(@current_date + day.days).strftime("%d.%m")]*2 }.flatten 
+      header_fields_1.map!{|field| Redmine::CodesetUtil.from_utf8(field, encoding) }
+
+      header_fields_2 = [ "" ]*3 + [l(:label_plan), l(:label_spent)]*7
+      header_fields_2.map!{|field| Redmine::CodesetUtil.from_utf8(field, encoding) }
+
+      csv << header_fields_1
+      csv << header_fields_2
 
       # csv lines
       @assigned_issues.each do |issue|
@@ -159,27 +167,34 @@ module EstimatedTimesHelper
             ("%.2f" % f).gsub('.', decimal_separator)
           end
         end.flatten
-        csv << [ issue.id.to_s, issue.subject + " (#{issue.status})", issue_dates(issue) ] + col_values
+
+        csv_line = [ issue.id.to_s, issue.subject + " (#{issue.status})", issue_dates(issue) ] + col_values
+        csv_line.map!{|field| Redmine::CodesetUtil.from_utf8(field, encoding) }
+
+        csv << csv_line
       end
     end
     export
   end
 
   def list_to_csv
+    encoding = l(:general_csv_encoding)
     decimal_separator = l(:general_csv_decimal_separator)
     export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
       # csv header fields
-      csv << [
-        l(:label_date),
-        l(:label_member),
-        l(:label_project),
-        l(:label_issue),
-        l(:field_comments),
-        l(:field_hours)]
+      header_fields = [
+                       l(:label_date),
+                       l(:label_member),
+                       l(:label_project),
+                       l(:label_issue),
+                       l(:field_comments),
+                       l(:field_hours) ]
+      header_fields.map!{|field| Redmine::CodesetUtil.from_utf8(field, encoding) }
+      csv << header_fields
 
       # csv lines
       @estimated_times.each do |entry|
-        csv << [
+        csv_line = [
           format_date(entry.plan_on),
           entry.user.name,
           entry.project.name,
@@ -187,6 +202,8 @@ module EstimatedTimesHelper
           entry.comments,
           ("%.2f" % entry.hours).gsub('.', decimal_separator)
         ]
+        csv_line.map!{|field| Redmine::CodesetUtil.from_utf8(field, encoding) }
+        csv << csv_line
       end
     end
     export
