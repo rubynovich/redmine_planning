@@ -22,7 +22,7 @@ class EstimatedTimesController < ApplicationController
   helper :estimated_times
   include EstimatedTimesHelper
 
-  accept_api_auth :index, :show, :list, :widget
+  accept_api_auth :index, :show, :list, :widget, :create
 
   def index
     @workplace_times = begin
@@ -90,7 +90,10 @@ class EstimatedTimesController < ApplicationController
           flash[:error] = l(:google_calendar_create_event_error)
         end
       end
-      redirect_back_or_default :action => :index, :current_date => @current_date
+      respond_to do |format|
+        format.html{ redirect_back_or_default :action => :index, :current_date => @current_date }
+        format.json{ render :json => @estimated_time}
+      end
     else
       add_info
       render :action => :new, :current_date => @current_date
