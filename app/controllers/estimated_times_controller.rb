@@ -97,8 +97,16 @@ class EstimatedTimesController < ApplicationController
         format.json{ render :json => @estimated_time}
       end
     else
-      add_info
-      render :action => :new, :current_date => @current_date
+      respond_to do |format|
+        format.html{
+          add_info
+          render :action => :new, :current_date => @current_date
+        }
+        format.json{
+          render_validation_errors(@estimated_time)
+        }
+      end
+
     end
   end
 
