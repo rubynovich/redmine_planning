@@ -69,29 +69,31 @@ class EstimatedTimesController < ApplicationController
   def create
     if @estimated_time.present? && @estimated_time.save
       flash[:notice] = l(:notice_successful_create)
-      if params[:estimated_time][:google_calendar] == "1"
-        begin
-          cal = Google::Calendar.new(
-            :username => params[:estimated_time][:google_username],
-            :password => params[:estimated_time][:google_password])
-          time = params[:estimated_time][:google_start_time].
-            seconds_since_midnight - Time.now.utc_offset
-          delta = (@estimated_time.hours*3600).round
-          event = cal.create_event do |e|
-            e.title = @estimated_time.comments
-            e.content = [@estimated_time.issue.project.name, "##{@estimated_time.issue_id} #{@estimated_time.issue.subject}", @estimated_time.issue.description].join("\n")
-            e.start_time = @estimated_time.plan_on.in(time)
-            e.end_time = @estimated_time.plan_on.in(time + delta)
-          end
-          flash[:warning] = l(:google_calendar_create_event_successful)
-          cookies[:google_username] = params[:estimated_time][:google_username]
-          cookies[:google_password] = params[:estimated_time][:google_password]
-        rescue
-          flash[:error] = l(:google_calendar_create_event_error)
-        end
-      end
       respond_to do |format|
-        format.html{ redirect_back_or_default :action => :index, :current_date => @current_date }
+        format.html{
+          if params[:estimated_time][:google_calendar] == "1"
+            begin
+              cal = Google::Calendar.new(
+                :username => params[:estimated_time][:google_username],
+                :password => params[:estimated_time][:google_password])
+              time = params[:estimated_time][:google_start_time].
+                seconds_since_midnight - Time.now.utc_offset
+              delta = (@estimated_time.hours*3600).round
+              event = cal.create_event do |e|
+                e.title = @estimated_time.comments
+                e.content = [@estimated_time.issue.project.name, "##{@estimated_time.issue_id} #{@estimated_time.issue.subject}", @estimated_time.issue.description].join("\n")
+                e.start_time = @estimated_time.plan_on.in(time)
+                e.end_time = @estimated_time.plan_on.in(time + delta)
+              end
+              flash[:warning] = l(:google_calendar_create_event_successful)
+              cookies[:google_username] = params[:estimated_time][:google_username]
+              cookies[:google_password] = params[:estimated_time][:google_password]
+            rescue
+              flash[:error] = l(:google_calendar_create_event_error)
+            end
+          end
+          redirect_back_or_default :action => :index, :current_date => @current_date
+        }
         format.json{ render :json => @estimated_time}
       end
     else
