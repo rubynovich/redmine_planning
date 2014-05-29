@@ -77,7 +77,7 @@ class EstimatedTimesController < ApplicationController
                 :username => params[:estimated_time][:google_username],
                 :password => params[:estimated_time][:google_password])
               time = params[:estimated_time][:google_start_time].
-                seconds_since_midnight - Time.now.utc_offset
+                seconds_since_midnight - Time.now.utc_offset + (Setting[:plugin_redmine_planning][:google_time_fix].to_i.minutes.to_i)
               delta = (@estimated_time.hours*3600).round
               event = cal.create_event do |e|
                 e.title = @estimated_time.comments
