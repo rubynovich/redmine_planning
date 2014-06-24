@@ -16,6 +16,7 @@ module PlanningPlugin
         validate :validate_hours
         validate :validate_user_id, if: ->{ self.issue.meeting_member.blank? rescue true }
         validate :validate_comments
+        validate :validate_issue_id
         validates_presence_of :comments
 
         if Rails::VERSION::MAJOR >= 3
@@ -140,6 +141,13 @@ module PlanningPlugin
           errors.add :comments, I18n.t(:error_be_creative_in_the_comments)
         end
       end
+
+      def validate_issue_id
+        unless self.issue.leaf? # родительская задача
+          errors.add :issue, I18n.t(:error_parent_issue_has_no_time)
+        end
+      end
+
     end
   end
 end

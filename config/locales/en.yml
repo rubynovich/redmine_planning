@@ -54,6 +54,7 @@ en:
   error_workday_has_only_12_work_hours: "more 12 hours"
   error_not_assign_labor_of_others_yourself: "Not assign labor of others yourself"
   error_be_creative_in_the_comments: "is too monotonous. Be creative in the comments!"
+  error_parent_issue_has_no_time: "is parent, you can't spent time on it"
 
   label_current_month_time_balance: "Time balance for this month"
   label_time_balance_disclaimer: "(Regardless of vacations and holidays.)"

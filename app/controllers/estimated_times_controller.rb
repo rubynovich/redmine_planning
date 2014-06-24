@@ -230,6 +230,17 @@ class EstimatedTimesController < ApplicationController
           :include => [:status, :project, :tracker, :priority],
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 
+      # не выводим родительские задачи
+      unless @assigned_issues.blank?
+        Rails.logger.error("assigned_issues = " + @assigned_issues.count.inspect.red)
+        parent_issues = []
+        @assigned_issues.each do |issue|
+          #Rails.logger.error("assigned_issues = " + @assigned_issues.count.inspect.red)
+          parent_issues << issue unless issue.leaf?
+        end
+        @assigned_issues = @assigned_issues - parent_issues
+      end
+
       @project_issues = if params[:exclude_group_by_project].present?
         [[nil, @assigned_issues]]
       else
@@ -292,7 +303,17 @@ class EstimatedTimesController < ApplicationController
       month = Time.now.all_month
       month_start, month_end = month.begin.to_date, month.end.to_date
 
-      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).sum('hours')
+      # Затраченное время по родительской задаче суммируется по подзадачам, но не относится к назначенному по ней исполнителю
+      issue_ids_for_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).map(&:issue_id)
+      parent_issue_ids = []
+      unless issue_ids_for_spent_hours.blank?
+        issue_ids_for_spent_hours.each do |issue_id|
+          parent_issue_ids << issue_id unless Issue.find(issue_id).leaf?
+        end
+      end
+      issue_ids_for_spent_hours = issue_ids_for_spent_hours - parent_issue_ids
+      
+      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year, issue_id: issue_ids_for_spent_hours).sum('hours')
 
       @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
       @today_min_possible_hours = @today_possible_hours * min_ratio
