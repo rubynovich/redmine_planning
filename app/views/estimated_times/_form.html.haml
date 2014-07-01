@@ -1,5 +1,4 @@
 = hidden_field_tag :current_date, params[:current_date]
-
 - if @estimated_time.errors[:plan_on].include?(l(:taken, scope: 'activerecord.errors.messages'))
   %div{class: "conflict"}
     = l(:label_estimated_time_for_this_date_exists)
@@ -16,7 +15,7 @@
 .box.tabular
   = f.hidden_field :user_id, :value => User.current.id
   %p
-    = f.select :issue_id, @assigned_issues.sort_by(&:id).map{ |i| [h("#{i.tracker.name} ##{i.id}: #{i.subject}"), i.id] }, :include_blank => true, :required => true
+    = f.select :issue_id, @assigned_issues.sort_by(&:id).map{ |i| [h("#{i.tracker.name} ##{i.id}: #{i.subject}"), i.id] }, {:include_blank => true, :required => true}, {:class => 'select2', :style=>'width: 600px;'}
   %p
     = f.text_field :plan_on, :size => 10, :required => true
     = calendar_for('estimated_time_plan_on')

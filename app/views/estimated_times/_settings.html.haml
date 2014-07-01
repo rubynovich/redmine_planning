@@ -5,3 +5,6 @@
 %p
   %label= "Минимальный процент заполнения графы факт"
   = text_field_tag("settings[min_unfilled_percent]", (@settings[:min_unfilled_percent].to_s rescue nil), :style => 'text-align: right;') + '%'
+%p
+  %label= "Сдвиг в минутах для google calendar"
+  = text_field_tag("settings[google_time_fix]", (@settings[:google_time_fix].to_s rescue nil), :style => 'text-align: right;') + 'мин'
