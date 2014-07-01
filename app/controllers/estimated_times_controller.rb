@@ -305,16 +305,17 @@ class EstimatedTimesController < ApplicationController
 
       # Затраченное время по родительской задаче суммируется по подзадачам, но не относится к назначенному по ней исполнителю
       issue_ids_for_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).map(&:issue_id)
-      parent_issue_ids = []
-      unless issue_ids_for_spent_hours.blank?
-        issue_ids_for_spent_hours.each do |issue_id|
-          parent_issue_ids << issue_id unless Issue.find(issue_id).leaf?
-        end
-      end
-      issue_ids_for_spent_hours = issue_ids_for_spent_hours - parent_issue_ids
+      #parent_issue_ids = []
+      #unless issue_ids_for_spent_hours.blank?
+      #  issue_ids_for_spent_hours.each do |issue_id|
+      #    parent_issue_ids << issue_id unless Issue.find(issue_id).leaf?
+      #  end
+      #end
+      #issue_ids_for_spent_hours = issue_ids_for_spent_hours - parent_issue_ids
       
-      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year, issue_id: issue_ids_for_spent_hours).sum('hours')
-
+      #@today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year, issue_id: issue_ids_for_spent_hours).sum('hours')
+      @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).sum('hours')
+      
       @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
       @today_min_possible_hours = @today_possible_hours * min_ratio
 
