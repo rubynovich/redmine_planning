@@ -231,15 +231,14 @@ class EstimatedTimesController < ApplicationController
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 
       # не выводим родительские задачи
-      unless @assigned_issues.blank?
-        Rails.logger.error("assigned_issues = " + @assigned_issues.count.inspect.red)
-        parent_issues = []
-        @assigned_issues.each do |issue|
-          #Rails.logger.error("assigned_issues = " + @assigned_issues.count.inspect.red)
-          parent_issues << issue unless issue.leaf?
-        end
-        @assigned_issues = @assigned_issues - parent_issues
-      end
+      #unless @assigned_issues.blank?
+      #  Rails.logger.error("assigned_issues = " + @assigned_issues.count.inspect.red)
+      #  parent_issues = []
+      #  @assigned_issues.each do |issue|
+      #    parent_issues << issue unless issue.leaf?
+      #  end
+      #  @assigned_issues = @assigned_issues - parent_issues
+      #end
 
       @project_issues = if params[:exclude_group_by_project].present?
         [[nil, @assigned_issues]]

@@ -76,6 +76,15 @@ module PlanningPlugin
     end
 
     module InstanceMethods
+      def user_spent_hours
+        a = @total_spent_hours
+        self_hours = self_and_descendants.sum("#{TimeEntry.table_name}.hours",
+          :joins => "LEFT JOIN #{TimeEntry.table_name} ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").to_f || 0.0
+        self_hours = self_hours - descendants.sum("#{TimeEntry.table_name}.hours",
+          :joins => "LEFT JOIN #{TimeEntry.table_name} ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").to_f || 0.0
+        self_hours
+      end
+
     end
   end
 end

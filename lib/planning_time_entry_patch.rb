@@ -16,7 +16,7 @@ module PlanningPlugin
         validate :validate_hours
         validate :validate_user_id, if: ->{ self.issue.meeting_member.blank? rescue true }
         validate :validate_comments
-        validate :validate_issue_id
+        #validate :validate_issue_id
         validates_presence_of :comments
 
         if Rails::VERSION::MAJOR >= 3
