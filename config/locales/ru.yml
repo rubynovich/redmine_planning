@@ -74,3 +74,6 @@ ru:
   label_overwrite_existing_estimated_time: "Перезаписать новым (введенным) значением"
   label_go_back_to_planning: "Перейти в планирование"
 
+  label_all_spent_time: "Общее затраченное время"
+  label_all_subissues: с учетом подзадач
+
