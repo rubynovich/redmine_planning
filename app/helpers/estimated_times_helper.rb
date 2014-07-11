@@ -5,6 +5,45 @@ module EstimatedTimesHelper
     end
   end
 
+  def has_permissions
+    return true if Project.where(id: Role.where(name: "КГИП")[0].members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).count > 0 ||
+                      Department.where(confirmer_id: User.current.id).count > 0
+    return false
+  end
+
+  def first_day 
+    day = @current_date
+    f_day = day - (day.wday-1)
+    if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
+      f_day = day - (day.mday-1)
+    end
+    f_day
+  end
+
+  def is_confirmer_checked(issue, confirmer_type)
+    f_day = first_day
+    checked = PlanningConfirmation.where(issue_id: issue.id, user_id: @current_user.id, date_start: f_day).map(&confirmer_type)[0]
+    Rails.logger.error("checked = "+ checked.inspect.red)
+    checked
+  end
+
+  def has_confirm_record(issue)
+    f_day = first_day
+    confirm = PlanningConfirmation.where(issue_id: issue.id, user_id: @current_user.id, date_start: f_day)
+    return (confirm.count > 0)
+  end
+
+  def title_name_confirmer(issue, confirmer_id)
+    f_day = first_day
+    confirm_id = PlanningConfirmation.where(issue_id: issue.id, user_id: @current_user.id, date_start: f_day).map(&confirmer_id)[0]
+    Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
+    unless confirm_id.blank?
+      return h(User.find(confirm_id).name)
+    else
+      return ""
+    end
+  end
+
   def sum_hours_spent_on(day)
     TimeEntry.
       where(spent_on: @current_date + day.days, user_id: @current_user.id).
@@ -107,7 +146,7 @@ module EstimatedTimesHelper
     (10.days.ago <= day)&&(day < 1.day.from_now.to_date)
   end
 
-  def link_to_spent(issue, day)
+  def link_to_spent_and_edit(issue, day, can_edit)
     shift_day = @current_date + day.days
     time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}
     if time_entries.any?
@@ -119,12 +158,20 @@ module EstimatedTimesHelper
         sum > 0.0 ? span_for(html_hours("%.2f" % sum), comment) : "-"
       end
     else
-      if can_change_spent?(issue, shift_day) && my_planning?
+      if can_change_spent?(issue, shift_day) && my_planning? && can_edit
         link_to "+", {:controller => 'timelog', :action => 'new', :issue_id => issue, :time_entry => {:spent_on => shift_day}}, :title => t(:title_spent_on_date, :date => format_date(shift_day), :wday => t("date.abbr_day_names")[shift_day.wday])
       else
         "-"
       end
     end
+  end
+
+  def link_to_spent(issue, day)
+    link_to_spent_and_edit(issue, day, true)
+  end
+
+  def link_to_spent_without_edit(issue, day)
+    link_to_spent_and_edit(issue, day, false)
   end
 
   def style_for_sum(sum)
@@ -139,6 +186,10 @@ module EstimatedTimesHelper
 
   def exclude_filters
     %w{overdue closed not_planned not_urgent group_by_project}
+  end
+
+  def confirm_filters
+    %w{group_by_project group_by_user confirmed_time}
   end
 
   def index_to_csv

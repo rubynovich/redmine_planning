@@ -75,3 +75,10 @@ en:
 
   label_all_spent_time: "All spent time"
   label_all_subissues: with subissues
+
+  label_confirm_time_period: Period to confirm the time spent
+  label_confirm_time_week: week
+  label_confirm_time_month: month
+
+  label_planning_KGIP: KGIP
+  label_planning_head: Head

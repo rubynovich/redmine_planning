@@ -8,3 +8,7 @@
 %p
   %label= "Сдвиг в минутах для google calendar"
   = text_field_tag("settings[google_time_fix]", (@settings[:google_time_fix].to_s rescue nil), :style => 'text-align: right;') + 'мин'
+
+%p
+  %label= l(:label_confirm_time_period)    
+  = select_tag("settings[confirm_time_period]", options_for_select(PlanningConfirmation.confirm_time_period, (@settings[:confirm_time_period] || nil) ), :prompt => t(:prompt_please_select), :multiple => false)

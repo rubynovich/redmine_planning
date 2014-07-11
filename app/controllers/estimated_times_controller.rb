@@ -8,12 +8,13 @@ class EstimatedTimesController < ApplicationController
   before_filter :get_project
   before_filter :get_current_user
   before_filter :get_planning_manager
-  before_filter :add_info, :only => [:new, :index, :edit, :update, :weekend, :widget]
+  before_filter :add_info, :only => [:new, :index, :confirm_time, :edit, :update, :weekend, :widget]
+  before_filter :add_confirm_info, :only => [:confirm_time]
   before_filter :authorized # TODO в ApplicationController есть метод :require_login
   before_filter :require_planning_manager
   before_filter :new_estimated_time, :only => [:new, :index, :create]
   before_filter :find_estimated_time, :only => [:edit, :update, :destroy]
-  before_filter :time_entry_month_sum, :only => [:index]
+  before_filter :time_entry_month_sum, :only => [:index, :confirm_time]
 
   helper :timelog
   include TimelogHelper
@@ -37,6 +38,28 @@ class EstimatedTimesController < ApplicationController
 
     respond_to do |format|
       format.html{ render :action => :index }
+      format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
+      format.json{ render :json => @estimated_times, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
+          :project => {:only => [:id, :name]},
+          :issue => {:only => [:id, :subject, :start_date, :due_date]}
+        }
+      }
+    end
+  end
+
+  def confirm_time
+    @workplace_times = begin
+      WorkplaceTime.where(:user_id => @current_user.id).where("workday BETWEEN ? AND ?", @current_date, @current_date+7.days).group_by(&:workday)
+    rescue
+      {}
+    end
+
+    @users = [User.current] + @planning_manager.active_subordinates
+
+    @planning_preference = User.current.planning_preference
+
+    respond_to do |format|
+      format.html{ render :action => :confirm_time }
       format.csv{ send_data(index_to_csv, :type => 'text/csv; header=present', :filename => @current_date.strftime("planning_table_%Y-%m-%d_#{@current_user.login}.csv"))}
       format.json{ render :json => @estimated_times, :except => [:issue_id, :project_id, :tmonth, :tyear, :tweek, :created_on, :updated_on], :include => {
           :project => {:only => [:id, :name]},
@@ -277,6 +300,70 @@ class EstimatedTimesController < ApplicationController
         for_user(@current_user.id)
 
       @assigned_projects = Member.where(user_id: @current_user.id).includes(:project).select(&:project).map(&:project).sort_by(&:name)
+    end
+
+    def add_confirm_info
+      @current_dates = [@current_date-2.week, @current_date-1.week, @current_date, @current_date+1.week, @current_date+2.week]
+
+      user = User.current
+      #if user.planning_preference.present? && params.keys.none?{|k| k =~ /^exclude/}
+      #  user_preferences = user.planning_preference.preferences || Hash.new
+      #  params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
+      #end
+
+      if Project.where(id: Role.where(name: "КГИП")[0].members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).count > 0
+        @confirm_role = 0 
+      else
+        @confirm_role = 1
+      end
+
+      @assigned_issues = Issue.
+        actual(@current_date, @current_date+6.days).
+        in_project(@project).
+        find(:all, :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
+          :include => [:status, :project, :tracker, :priority],
+          :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
+
+      #Rails.logger.error("issue nums = " + @assigned_issues.map(&:id).inspect.red)  
+      if @confirm_role == 0
+        need_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), KGIP_id: User.current.id).map(&:issue_id)) 
+        #Rails.logger.error("need_issues nums = " + need_issues.map(&:id).inspect.red)  
+      else
+        need_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), head_id: User.current.id).map(&:issue_id)) 
+      end
+      @assigned_issues = need_issues
+
+      if params[:confirm_confirmed_time].present? && !@assigned_issues.blank?
+        confirmed_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), user_id: @current_user.id, date_start: @current_date,
+                                                      KGIP_confirmation: true, head_confirmation: true).map(&:issue_id))  
+        @assigned_issues = @assigned_issues - confirmed_issues
+      end
+
+      @project_issues = if params[:confirm_group_by_project].present?
+        [[nil, @assigned_issues]]
+      else
+        @assigned_issues.group_by(&:project).sort_by{|p,i| p.name }
+      end
+
+      @assigned_issue_ids = @assigned_issues.map(&:id)
+
+      @estimated_times = EstimatedTime.
+#        for_issues(@assigned_issue_ids).
+        actual(@current_date, @current_date+6.days).
+        for_user(@current_user.id)
+
+      @estimated_time_sum = EstimatedTime.
+#        for_issues(@assigned_issue_ids).
+        for_user(@current_user.id).
+        group_by(&:issue_id)
+
+      @time_entries = TimeEntry.
+#        for_issues(@assigned_issue_ids).
+        actual(@current_date, @current_date+6.days).
+        for_user(@current_user.id)
+
+      @assigned_projects = Member.where(user_id: @current_user.id).includes(:project).select(&:project).map(&:project).sort_by(&:name)
+
     end
 
     def authorized

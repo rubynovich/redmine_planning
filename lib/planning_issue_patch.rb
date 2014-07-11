@@ -69,6 +69,7 @@ module PlanningPlugin
           end
         }
 
+        after_create :create_planning
       end
     end
 
@@ -83,6 +84,11 @@ module PlanningPlugin
         self_hours = self_hours - descendants.sum("#{TimeEntry.table_name}.hours",
           :joins => "LEFT JOIN #{TimeEntry.table_name} ON #{TimeEntry.table_name}.issue_id = #{Issue.table_name}.id").to_f || 0.0
         self_hours
+      end
+
+      def create_planning
+        Rails.logger.error(("create_planning1: " + self.inspect).red)
+        PlanningConfirmation.create_planning(self)
       end
 
     end

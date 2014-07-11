@@ -4,6 +4,7 @@ RedmineApp::Application.routes.draw do
       get :list
       get :weekend
       get :widget
+      get :confirm_time
     end
   end
 
@@ -22,4 +23,11 @@ RedmineApp::Application.routes.draw do
       get :autocomplete_for_subordinate
     end
   end
+
+  resources :planning_confirmations do
+    member do
+      put :update_confirmer, defaults: {format: 'js'}
+    end
+  end
+
 end
