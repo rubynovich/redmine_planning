@@ -134,7 +134,7 @@ class PlanningConfirmation < ActiveRecord::Base
             :head_id => head_id
           }
         }
-      })
+      }.flatten)
 
 
   	else
