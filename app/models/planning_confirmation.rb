@@ -102,6 +102,46 @@ class PlanningConfirmation < ActiveRecord::Base
   	
   end
 
+  def change_kgip_planning(member_id) # смена КГИПа
+  	PlanningConfirmation.update_all({:KGIP_id => Member.find(member_id).user_id}, {:issue_id => Member.find(member_id).project.issues.map(&:id)})
+  end
+
+  def change_head_planning(params) # смена руководителя
+  	PlanningConfirmation.update_all({:head_id => params.confirmer_id}, {:user_id => Person.where(department_id: params.id).map(&:id)})
+  end
+
+  def create_or_change_planning(person)
+  	if person.time_confirm.to_i == 1
+
+  		# подтверждение для задач, назначенных на юзера сейчас и тех, которые были назначены раньше, но переназначены на другого
+
+      iss_ids = JournalDetail.joins(:journal).
+      where("#{Journal.table_name}.created_on >= '2014-06-01'").
+      where(%{#{JournalDetail.table_name}.prop_key = 'assigned_to_id'}).
+      where([%{#{JournalDetail.table_name}.old_value = ?}, person.id]).
+      where(%{#{Journal.table_name}.journalized_type = 'Issue'}).pluck(:journalized_id).uniq
+
+      assigned_ids = Issue.where("due_date >= ? AND assigned_to_id = ?", '2014-06-01', person.id).pluck(:id).uniq
+      head_id = get_head_id(person.id)
+      PlanningConfirmation.create( Issue.where(id: (iss_ids+assigned_ids).uniq).map{|issue| 
+        issue_from_date = issue.start_date < '2014-06-02'.to_date ? '2014-06-02'.to_date : issue.start_date.to_date
+        (issue_from_date..issue.due_date.to_date).map{|date| date.beginning_of_week}.uniq.map{|day|
+          {
+            :user_id => person.id,
+            :issue_id => issue.id,
+            :date_start => day, 
+            :KGIP_id => get_kgip_id(issue.project_id),
+            :head_id => head_id
+          }
+        }
+      })
+
+
+  	else
+  		PlanningConfirmation.delete_all("user_id = ?", params.id)
+  	end
+  end
+
   private  
   def no_time_planned(issue_id, date_start)
   	spent_times = TimeEntry.where("issue_id = ? AND spent_on BETWEEN ? AND ?", issue_id, date_start, date_start + planning_duration(date_start))

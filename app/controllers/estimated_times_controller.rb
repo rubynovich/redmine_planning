@@ -311,6 +311,7 @@ class EstimatedTimesController < ApplicationController
       #  params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
       #end
 
+      # С какой ролью заходит подтверждающий
       if Project.where(id: Role.where(name: "КГИП")[0].members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).count > 0
         @confirm_role = 0 
       else
@@ -324,17 +325,16 @@ class EstimatedTimesController < ApplicationController
           :include => [:status, :project, :tracker, :priority],
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 
-      #Rails.logger.error("issue nums = " + @assigned_issues.map(&:id).inspect.red)  
       if @confirm_role == 0
         need_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), KGIP_id: User.current.id).map(&:issue_id)) 
-        #Rails.logger.error("need_issues nums = " + need_issues.map(&:id).inspect.red)  
       else
         need_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), head_id: User.current.id).map(&:issue_id)) 
       end
       @assigned_issues = need_issues
 
       if params[:confirm_confirmed_time].present? && !@assigned_issues.blank?
-        confirmed_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), user_id: @current_user.id, date_start: @current_date,
+        confirmed_issues = Issue.where(id: PlanningConfirmation.where(issue_id: @assigned_issues.map(&:id), 
+                                                      user_id: @current_user.id, date_start: @current_date,
                                                       KGIP_confirmation: true, head_confirmation: true).map(&:issue_id))  
         @assigned_issues = @assigned_issues - confirmed_issues
       end
