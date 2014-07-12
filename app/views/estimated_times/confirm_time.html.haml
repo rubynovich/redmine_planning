@@ -4,141 +4,167 @@
           type: 'PUT',
           dataType: 'script'})
   }
+.confirm_time
+  .contextual
+    = link_to t(:label_week_ago), params.merge(:current_date => @current_date - 1.week)
+    = " | "
+    = form_tag '', :method => :get, turboform: true do
+      = hidden_field_tag :current_user_id, @current_user.try(:id)
+      = hidden_field_tag :confirm_role, @confirm_role
+      - confirm_filters.each do |key|
+        - if params[:"confirm_#{key}"].present?
+          = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
+      - if @project.present?
+        = hidden_field_tag :project_id, @project.identifier
+      %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
+        - @current_dates.each do |cur_date|
+          - if @current_date == cur_date
+            %option{:value => cur_date, :selected => "selected"}
+              = format_date(cur_date)
+          - else
+            %option{:value => cur_date}
+              = format_date(cur_date)
+    = %{ | #{ link_to t(:label_next_week), params.merge(current_date: @current_date + 1.week)}}.html_safe if (@current_date + 2.week) <= Date.today
 
-.contextual
-  = link_to t(:label_week_ago), params.merge(:current_date => @current_date - 1.week)
-  = " | "
-  %form{:method => :get}
-    = hidden_field_tag :current_user_id, @current_user.id
-    - confirm_filters.each do |key|
-      - if params[:"confirm_#{key}"].present?
-        = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
-    - if @project.present?
-      = hidden_field_tag :project_id, @project.identifier
-    %select{:id => :current_date, :name => :current_date, :class => "small", :onchange => "this.form.submit(); return false;"}
-      - @current_dates.each do |cur_date|
-        - if @current_date == cur_date
-          %option{:value => cur_date, :selected => "selected"}
-            = format_date(cur_date)
-        - else
-          %option{:value => cur_date}
-            = format_date(cur_date)
-  = " | "
-  = link_to t(:label_next_week), params.merge(current_date: @current_date + 1.week)
 
+  %h2=l(:label_confirm_spent_time)
+  - if @can_change_role
+    %fieldset
+      %legend= l(:label_filter_change_role)
+      = form_tag '', :method => :get, turboform: true do
+        = hidden_field_tag :current_date, @current_date
+        - if @project.present?
+          = hidden_field_tag :project_id, @project.identifier
+          = hidden_field_tag :current_user_id, @current_user.try(:id)
+        - confirm_filters.each do |key|
+          - if params[:"confirm_#{key}"].present?
+            = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
+        %p
+          = radio_button_tag :confirm_role, 1, @confirm_role == 1, :onchange => "this.form.submit(); return false;"
+          Сотрудники подразделения
+        %p
+          = radio_button_tag :confirm_role, 0, @confirm_role == 0, :onchange => "this.form.submit(); return false;"
+          Участники проекта
 
-%h2=l(:label_confirm_spent_time)
-
-%fieldset
-  %legend= l(:label_filter_plural)
-  %form{:method => :get}
-    = hidden_field_tag :current_date, @current_date
-    - confirm_filters.each do |key|
-      - if params[:"confirm_#{key}"].present?
-        = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
-    - if @planning_manager.active_subordinates.any?
+  %fieldset
+    %legend= l(:label_filter_plural)
+    = form_tag '', :method => :get, turboform: true do
+      = hidden_field_tag :current_date, @current_date
+      = hidden_field_tag :confirm_role, @confirm_role
+      - if @project.present?
+        = hidden_field_tag :project_id, @project.identifier
+      - confirm_filters.each do |key|
+        - if params[:"confirm_#{key}"].present?
+          = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
+        %option{:value => nil, :selected => @current_user.nil? ? "selected" : nil}
+          <Все>
         - @users.each do |user|
-          - if @current_user.id == user.id
+          - if @current_user.try(:id) == user.id
             %option{:value => user.id, :selected => "selected"}
               = user.name
           - else
             %option{:value => user.id}
               = user.name
 
-  %form{:method => :get}
-    = hidden_field_tag :current_date, @current_date
-    = hidden_field_tag :current_user_id, @current_user.id
-    - confirm_filters.each do |key|
-      - if params[:"confirm_#{key}"].present?
-        = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
-    %label{:for=>'project_id'}= l(:field_project) + ":"
-    %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
-      %option{:value => ""}
-        = l(:label_project_all)
-      - @assigned_projects.each do |project|
-        - if params[:project_id] == project.identifier
-          %option{:value => project.identifier, :selected => "selected"}
-            = project.name
+    = form_tag '', :method => :get, turboform: true do
+      = hidden_field_tag :current_date, @current_date
+      = hidden_field_tag :current_user_id, @current_user.try(:id)
+      = hidden_field_tag :confirm_role, @confirm_role
+      - confirm_filters.each do |key|
+        - if params[:"confirm_#{key}"].present?
+          = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
+      %label{:for=>'project_id'}= l(:field_project) + ":"
+      %select{:id => 'project_id', :name => 'project_id', :class => "small", :onchange => "this.form.submit(); return false;"}
+        %option{:value => ""}
+          = l(:label_project_all)
+        - @project_lists.each do |project|
+          - if params[:project_id] == project.identifier
+            %option{:value => project.identifier, :selected => "selected"}
+              = project.name
+          - else
+            %option{:value => project.identifier}
+              = project.name
+    %br
+
+    - if @planning_preference
+      - confirm_filters.each do |key|
+        - if params[:"confirm_#{key}"].present?
+          %span= l(:"label_confirm_#{key}")
         - else
-          %option{:value => project.identifier}
-            = project.name
-  - if @project.present?
-    = link_to l(:label_issue_new), {:controller => :issues, :project_id => @project.identifier, :action => :new}, :class => 'icon icon-add'
+          %span= l(:"label_not_confirm_#{key}")
+        = " / " unless key == confirm_filters.last
+    - else
+      - confirm_filters.each do |key|
+        - if params[:"confirm_#{key}"].present?
+          = link_to l(:"label_confirm_#{key}"), params.merge( :"confirm_#{key}" => nil)
+        - else
+          = link_to l(:"label_not_confirm_#{key}"), params.merge( :"confirm_#{key}" => 1)
+        = " / " unless key == confirm_filters.last
 
-  %br
 
-  - if @planning_preference
-    - confirm_filters.each do |key|
-      - if params[:"confirm_#{key}"].present?
-        %span= l(:"label_confirm_#{key}")
-      - else
-        %span= l(:"label_not_confirm_#{key}")
-      = " / " unless key == confirm_filters.last
+
+
+  - if @assigned_confirmations.any?
+    %table.list
+      %tbody
+        - @user_confirmations.each do |user, project_confirmations|
+          - if user.present?
+            %tr.user_head
+              %th{:colspan => 14, :align => :center}
+                = link_to_function user.name, "$(this).removeClass('closed'); $(this).addClass('opened');  $('.user_#{user.try(:id)}_issues').show();", class: 'closed'
+          - project_confirmations.each do |project, confirmations|
+            - if project.present?
+              %tr{class: "user_#{user.try(:id)}_issues users_issues"}
+                %th{:colspan => 14, :align => :center}
+                  = link_to project.name, {:controller => :projects, action: :show, :id => project.identifier}
+            %tr.head{class: "user_#{user.try(:id)}_issues users_issues"}
+              %th="#"
+              %th= l(:field_subject)
+              %th= l(:field_assigned_to)
+              %th= l(:field_deadline)
+              - 7.times do |day|
+                %th= (@current_date + day.days).strftime("%d.%m")
+              %th= l(:label_total)
+              %th= l(:label_planning_KGIP)
+              %th= l(:label_planning_head)
+            - confirmations.each do |confirmation|
+              - issue = confirmation.issue
+              %tr.even{:class => "user_#{user.try(:id)}_issues users_issues #{issue.css_classes}"}
+                %td.id
+                  = link_to issue.id, issue_path(issue), :title => issue.subject
+                %td.subject
+                  = link_to issue.subject, issue_path(issue), :title => issue.project
+                  = "(#{issue.status})"
+                %td.author
+                  = link_to_user issue.assigned_to
+                %td.deadline{:align => :center}
+                  = issue_dates(issue)
+                - hours = 0.0
+                - 7.times do |day|
+                  - hours += strip_tags(link_to_spent_without_edit(issue, day)).to_f
+                  %td{:align=>:center, :style => "border-right-width:3px;"}
+                    = link_to_spent_without_edit(issue, day)
+                %td
+                  - if hours > 0.0
+                    = link_to html_hours("%.2f" % hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => confirmation.user.try(:id)}, :title => @time_entries.where("spent_on BETWEEN ? AND ?", @current_date, @current_date+7.days).select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
+                  - else
+                    = "-"
+                %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
+                  - if issue.project.is_external && has_confirm_record(confirmation) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+                    = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation), :title=> title_name_confirmer(confirmation, :KGIP_id), :disabled => (@confirm_role == 0) ? false : true, :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :type => "0", :id => confirmation.try(:id), :format => 'js'})}')"
+                  - else
+                    = "-"
+                %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
+                  - if has_confirm_record(confirmation) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+                    = check_box_tag :head_check, "1", is_confirmer_checked(confirmation, :head_confirmation), :title=> title_name_confirmer(confirmation, :head_id), :disabled => (@confirm_role == 1) ? false : true, :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => confirmation.id, :type => "1", :format => 'js'})}')"
+                  - else
+                    = "-"
+
   - else
-    - confirm_filters.each do |key|
-      - if params[:"confirm_#{key}"].present?
-        = link_to l(:"label_confirm_#{key}"), params.merge( :"confirm_#{key}" => nil)
-      - else
-        = link_to l(:"label_not_confirm_#{key}"), params.merge( :"confirm_#{key}" => 1)
-      = " / " unless key == confirm_filters.last
-
-
-
-
-- if @assigned_issues.any?
-  %table.list
-    %thead
-      %tr
-        %th="#"
-        %th= l(:field_subject)
-        %th= l(:field_assigned_to)
-        %th= l(:field_deadline)
-        - 7.times do |day|
-          %th= (@current_date + day.days).strftime("%d.%m")
-        %th= l(:label_total)
-        %th= l(:label_planning_KGIP)
-        %th= l(:label_planning_head)
-    %tbody
-      - @project_issues.each do |project, issues|
-        %tr
-          - if project.present?
-            %th{:colspan => 14, :align => :center}
-              = link_to project.name, {:controller => :issues, :project_id => project.identifier, :action => :new}, :class => 'icon icon-add'
-        - issues.each do |issue|
-          %tr.even{:class => issue.css_classes}
-            %td.id
-              = link_to issue.id, issue_path(issue), :title => issue.subject
-            %td.subject
-              = link_to issue.subject, issue_path(issue), :title => issue.project
-              = "(#{issue.status})"
-            %td.author
-              = link_to_user issue.assigned_to
-            %td.deadline{:align => :center}
-              = issue_dates(issue)
-            - 7.times do |day|
-              %td{:align=>:center, :style => "border-right-width:3px;"}
-                = link_to_spent_without_edit(issue, day)
-            %td
-              - if issue.total_spent_hours > 0.0
-                = link_to html_hours("%.2f" % issue.user_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
-              - else
-                = "-"
-            %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
-              - if issue.project.is_external && has_confirm_record(issue) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
-                = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation), :title=> title_name_confirmer(issue, :KGIP_id), :disabled => (@confirm_role == 0) ? false : true, :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => issue.id, :type => "0", :user_id => @current_user.id, :start_date => @current_date, :format => 'js'})}')"
-              - else  
-                = "-"
-            %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
-              - if has_confirm_record(issue) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
-                = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation), :title=> title_name_confirmer(issue, :head_id), :disabled => (@confirm_role == 1) ? false : true, :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => issue.id, :type => "1", :user_id => @current_user.id, :start_date => @current_date, :format => 'js'})}')"
-              - else
-                = "-"
-
-- else
-  %p.nodata
-    = l(:label_no_data)
+    %p.nodata
+      = l(:label_no_data)
 
 
 

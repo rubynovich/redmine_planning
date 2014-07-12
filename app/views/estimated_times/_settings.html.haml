@@ -12,3 +12,6 @@
 %p
   %label= l(:label_confirm_time_period)    
   = select_tag("settings[confirm_time_period]", options_for_select(PlanningConfirmation.confirm_time_period, (@settings[:confirm_time_period] || nil) ), :prompt => t(:prompt_please_select), :multiple => false)
+%p
+  %label= l(:label_kgip_role)
+  = select_tag("settings[kgip_role_id]", options_for_select(Role.all.map{|role| [role.name, role.id]}, (@settings[:kgip_role_id] || nil) ), :prompt => t(:prompt_please_select), :multiple => false)

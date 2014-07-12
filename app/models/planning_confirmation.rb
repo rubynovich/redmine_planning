@@ -5,6 +5,13 @@ class PlanningConfirmation < ActiveRecord::Base
   belongs_to :issue
   belongs_to :kgip, class_name: 'Person', foreign_key: 'KGIP_id'
   belongs_to :leader, class_name: 'Person', foreign_key: 'head_id'
+  has_one :project, :through => :issue
+
+
+  def planned_in?
+    ! PlanningConfirmation.no_time_planned(self.issue_id, self.date_start)
+  end
+
 
   class << self
   def confirm_time_period
@@ -118,7 +125,7 @@ class PlanningConfirmation < ActiveRecord::Base
       iss_ids = JournalDetail.joins(:journal).
       where("#{Journal.table_name}.created_on >= '2014-06-01'").
       where(%{#{JournalDetail.table_name}.prop_key = 'assigned_to_id'}).
-      where([%{#{JournalDetail.table_name}.old_value = ?}, person.id]).
+      where([%{#{JournalDetail.table_name}.old_value = ?}, person.id.to_s]).
       where(%{#{Journal.table_name}.journalized_type = 'Issue'}).pluck(:journalized_id).uniq
 
       assigned_ids = Issue.where("due_date >= ? AND assigned_to_id = ?", '2014-06-01', person.id).pluck(:id).uniq
@@ -135,19 +142,20 @@ class PlanningConfirmation < ActiveRecord::Base
           }
         }
       }.flatten)
-
-
   	else
   		PlanningConfirmation.delete_all("user_id = ?", params.id)
   	end
   end
 
-  private  
+
+
   def no_time_planned(issue_id, date_start)
   	spent_times = TimeEntry.where("issue_id = ? AND spent_on BETWEEN ? AND ?", issue_id, date_start, date_start + planning_duration(date_start))
   	#Rails.logger.error("spent_times = " + spent_times.inspect.red)
   	return spent_times.blank?
   end
+
+  private
   
   def month_length(date)
   	case date.mon

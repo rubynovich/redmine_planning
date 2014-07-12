@@ -25,6 +25,17 @@ module PlanningPlugin
         PlanningConfirmation.change_head_planning(self)
       end
 
+      def all_children
+        all = []
+        self.children.each do |category|
+          all << category
+          root_children = category.all_children.flatten
+          all << root_children unless root_children.empty?
+        end
+        return all.flatten
+      end
+
+
     end
   end
 end

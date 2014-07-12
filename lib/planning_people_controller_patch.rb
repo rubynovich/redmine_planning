@@ -1,7 +1,7 @@
 require_dependency 'department'
 
 module PlanningPlugin
-  module PersonPatch
+  module PeopleControllerPatch
     def self.included(base)
       base.extend(ClassMethods)
 
@@ -9,10 +9,7 @@ module PlanningPlugin
 
       base.class_eval do
         unloadable
-
-
-        after_update :create_or_change_planning
-        after_create :create_or_change_planning
+        after_filter :create_or_change_planning, :only=>[:update, :create]
       end
     end
 
@@ -20,10 +17,11 @@ module PlanningPlugin
     end
 
     module InstanceMethods
+
       def create_or_change_planning
-      	Rails.logger.error(("create_or_change_planning: " + self.inspect).red)
-        PlanningConfirmation.create_or_change_planning(self)
+        PlanningConfirmation.create_or_change_planning(@person)
       end
+      private :create_or_change_planning
 
     end
   end

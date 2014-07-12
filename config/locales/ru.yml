@@ -92,3 +92,5 @@ ru:
   label_confirm_group_by_project: "добавить группировку по проектам"
   label_confirm_group_by_user: "добавить  группировку по сотрудникам"
   label_confirm_confirmed_time: "добавить подтвержденнное время"
+  label_kgip_role: 'Роль КГИП'
+  label_filter_change_role: 'Подтверждать как'

@@ -20,23 +20,17 @@ module EstimatedTimesHelper
     f_day
   end
 
-  def is_confirmer_checked(issue, confirmer_type)
-    f_day = first_day
-    checked = PlanningConfirmation.where(issue_id: issue.id, user_id: @current_user.id, date_start: f_day).map(&confirmer_type)[0]
-    Rails.logger.error("checked = "+ checked.inspect.red)
-    checked
+  def is_confirmer_checked(confirmation, confirmer_type)
+    PlanningConfirmation.where(id: confirmation.id).map(&confirmer_type)[0]
   end
 
-  def has_confirm_record(issue)
-    f_day = first_day
-    confirm = PlanningConfirmation.where(issue_id: issue.id, user_id: @current_user.id, date_start: f_day)
-    return (confirm.count > 0)
+  def has_confirm_record(confirmation)
+    return PlanningConfirmation.where(id: confirmation.id).first.present?
   end
 
-  def title_name_confirmer(issue, confirmer_id)
-    f_day = first_day
-    confirm_id = PlanningConfirmation.where(issue_id: issue.id, user_id: @current_user.id, date_start: f_day).map(&confirmer_id)[0]
-    Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
+  def title_name_confirmer(confirmation, confirmer_id)
+    confirm_id = PlanningConfirmation.where(id: confirmation.id).map(&confirmer_id)[0]
+    #Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
     unless confirm_id.blank?
       return h(User.find(confirm_id).name)
     else

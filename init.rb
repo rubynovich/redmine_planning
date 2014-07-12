@@ -43,15 +43,17 @@ Redmine::Plugin.register :redmine_planning do
 end
 
 Rails.configuration.to_prepare do
-  [:issue, :issues_controller, :member_role, :person, :department, :user, :principal, :time_entry, :timelog_helper].each do |cl|
+  [:issue, :issues_controller, :member_role, :people_controller, :department, :user, :principal, :time_entry, :timelog_helper, :project, :role].each do |cl|
     require "planning_#{cl}_patch"
   end
 
   [
    [Issue, PlanningPlugin::IssuePatch],
+   [Project, PlanningPlugin::ProjectPatch],
    [IssuesController, PlanningPlugin::IssuesControllerPatch],
    [User, PlanningPlugin::UserPatch],
-   [Person, PlanningPlugin::PersonPatch],
+   [Role, PlanningPlugin::RolePatch],
+   [PeopleController, PlanningPlugin::PeopleControllerPatch],
    [MemberRole, PlanningPlugin::MemberRolePatch],
    [Department, PlanningPlugin::DepartmentPatch],
    [Principal, PlanningPlugin::PrincipalPatch],
