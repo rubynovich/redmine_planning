@@ -132,7 +132,8 @@
             %tr.head{class: "user_#{user.try(:id)}_issues #{'users_issues' if user.present?}"}
               %th="#"
               %th= l(:field_subject)
-              %th= l(:field_assigned_to)
+              - unless user
+                %th= l(:field_assigned_to)
               %th= l(:field_deadline)
               - 7.times do |day|
                 %th= (@current_date + day.days).strftime("%d.%m")
@@ -147,8 +148,9 @@
                 %td.subject
                   = link_to issue.subject, issue_path(issue), :title => issue.project
                   = "(#{issue.status})"
-                %td.author
-                  = link_to_user confirmation.user
+                - unless user
+                  %td.author
+                    = link_to_user confirmation.user
                 %td.deadline{:align => :center}
                   = issue_dates(issue)
                 - hours = 0.0
