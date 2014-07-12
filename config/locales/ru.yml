@@ -94,3 +94,12 @@ ru:
   label_confirm_confirmed_time: "добавить подтвержденнное время"
   label_kgip_role: 'Роль КГИП'
   label_filter_change_role: 'Подтверждать как'
+  activerecord:
+    errors:
+      models:
+        time_entry:
+          attributes:
+            base:
+              time_error_both_confirmation: 'Затраченное время подтверждено КГИПом и Руководителем'
+              time_error_kgip_confirmation: 'Затраченное время подтверждено КГИПом'
+              time_error_head_confirmation: 'Затраченное время подтверждено Руководителем'

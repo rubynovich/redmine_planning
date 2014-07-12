@@ -16,8 +16,18 @@ module PlanningPlugin
         validate :validate_hours
         validate :validate_user_id, if: ->{ self.issue.meeting_member.blank? rescue true }
         validate :validate_comments
-        #validate :validate_issue_id
+
+        validate :validate_time_confirmed
+
         validates_presence_of :comments
+
+        #validate :validate
+
+
+        alias_method :editable_by_without_planning_plugin, :editable_by?
+        alias_method :editable_by?, :editable_by_with_planning_plugin
+
+        #alias_method_chain :editable_by?, :planning_plugin
 
         if Rails::VERSION::MAJOR >= 3
           scope :for_issues, lambda{ |issue_ids|
@@ -101,6 +111,30 @@ module PlanningPlugin
     end
 
     module InstanceMethods
+
+      def editable_by_with_planning_plugin(usr)
+        if editable_by_without_planning_plugin(usr)
+          #check plannig
+          PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'KGIP_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first.nil?
+        else
+          false
+        end
+      end
+
+
+      def validate_time_confirmed
+        if pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'KGIP_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first
+          if pc.KGIP_confirmation && pc.head_confirmation
+            errors.add :base, :time_error_both_confirmation
+          elsif pc.KGIP_confirmation
+            errors.add :base, :time_error_kgip_confirmation
+          elsif pc.head_confirmation
+            errors.add :base, :time_error_head_confirmation
+          end
+          return false
+        end
+      end
+
       def validate_spent_on
         issue = self.issue
         day = self.spent_on

@@ -128,7 +128,7 @@ class PlanningConfirmation < ActiveRecord::Base
       where([%{#{JournalDetail.table_name}.old_value = ?}, person.id.to_s]).
       where(%{#{Journal.table_name}.journalized_type = 'Issue'}).pluck(:journalized_id).uniq
 
-      assigned_ids = Issue.where("due_date >= ? AND assigned_to_id = ?", '2014-06-01', person.id).pluck(:id).uniq
+      assigned_ids = Issue.where(["due_date >= ? AND assigned_to_id = ?", '2014-06-01', person.id]).pluck(:id).uniq
       head_id = get_head_id(person.id)
       PlanningConfirmation.create( Issue.where(id: (iss_ids+assigned_ids).uniq).map{|issue| 
         issue_from_date = issue.start_date < '2014-06-02'.to_date ? '2014-06-02'.to_date : issue.start_date.to_date
@@ -143,7 +143,7 @@ class PlanningConfirmation < ActiveRecord::Base
         }
       }.flatten)
   	else
-  		PlanningConfirmation.delete_all("user_id = ?", params.id)
+  		PlanningConfirmation.delete_all(["user_id = ?", person.id])
   	end
   end
 

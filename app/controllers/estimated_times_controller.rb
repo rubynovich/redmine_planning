@@ -4,7 +4,7 @@ class EstimatedTimesController < ApplicationController
 
   include Redmine::Utils::DateCalculation
 
-  before_filter :get_current_date
+  before_filter :get_current_date, except: [:confirm_time]
   before_filter :get_project
   before_filter :get_current_user, except: [:confirm_time]
   before_filter :get_planning_manager
@@ -48,7 +48,7 @@ class EstimatedTimesController < ApplicationController
   end
 
   def confirm_time
-
+    @current_date = @current_date.beginning_of_week
 
     @workplace_times = begin
       WorkplaceTime.where("workday BETWEEN ? AND ?", @current_date, @current_date+7.days).group_by(&:workday)
@@ -305,6 +305,11 @@ class EstimatedTimesController < ApplicationController
     end
 
     def add_confirm_info
+      @current_date = if params[:current_date].blank?
+                        (Date.today - 1.week)
+                      else
+                        Date.parse(params[:current_date])
+                      end
 
       if (@current_date+1.week) > Date.today
         render_403;
@@ -371,7 +376,7 @@ class EstimatedTimesController < ApplicationController
       end
 
       @assigned_confirmations = @assigned_confirmations.where(id: @assigned_confirmations.map{|confirmation| confirmation.id if confirmation.planned_in?}.compact)
-
+      @assigned_issue_ids = @assigned_confirmations.map(&:issue_id)
       @users = @assigned_confirmations.joins(:user).order("users.lastname asc, users.firstname asc").map(&:user).uniq.sort
 
       project_confirmations = if params[:confirm_group_by_project].present?
@@ -410,7 +415,7 @@ class EstimatedTimesController < ApplicationController
 #        group_by(&:issue_id)
 
       @time_entries = TimeEntry.
-#        for_issues(@assigned_issue_ids).
+       for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days)#.
 #        for_user(@current_user.id)
 
