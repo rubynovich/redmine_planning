@@ -9,6 +9,8 @@ module PlanningPlugin
 
       base.class_eval do
         unloadable
+
+        before_filter :set_old_time_confirm, :only=>[:update]
         after_filter :create_or_change_planning, :only=>[:update, :create]
       end
     end
@@ -18,10 +20,15 @@ module PlanningPlugin
 
     module InstanceMethods
 
-      def create_or_change_planning
-        PlanningConfirmation.create_or_change_planning(@person)
+      private
+
+      def set_old_time_confirm
+        @old_time_confirm = Person.where(id: params[:id]).first.try(:time_confirm)
       end
-      private :create_or_change_planning
+
+      def create_or_change_planning
+        PlanningConfirmation.create_or_change_planning(@person) if @old_time_confirm != @person.time_confirm
+      end
 
     end
   end

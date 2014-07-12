@@ -118,6 +118,7 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def create_or_change_planning(person)
+    PlanningConfirmation.delete_all(["user_id = ?", person.id])
   	if person.time_confirm.to_i == 1
 
   		# подтверждение для задач, назначенных на юзера сейчас и тех, которые были назначены раньше, но переназначены на другого
@@ -130,7 +131,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
       assigned_ids = Issue.where(["due_date >= ? AND assigned_to_id = ?", '2014-06-01', person.id]).pluck(:id).uniq
       head_id = get_head_id(person.id)
-      PlanningConfirmation.create( Issue.where(id: (iss_ids+assigned_ids).uniq).map{|issue| 
+      PlanningConfirmation.create( Issue.where(id: (iss_ids+assigned_ids).uniq).map{|issue|
         issue_from_date = issue.start_date < '2014-06-02'.to_date ? '2014-06-02'.to_date : issue.start_date.to_date
         (issue_from_date..issue.due_date.to_date).map{|date| date.beginning_of_week}.uniq.map{|day|
           {
@@ -142,8 +143,6 @@ class PlanningConfirmation < ActiveRecord::Base
           }
         }
       }.flatten)
-  	else
-  		PlanningConfirmation.delete_all(["user_id = ?", person.id])
   	end
   end
 
