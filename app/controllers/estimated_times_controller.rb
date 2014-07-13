@@ -306,9 +306,9 @@ class EstimatedTimesController < ApplicationController
 
     def add_confirm_info
       @current_date = if params[:current_date].blank?
-                        (Date.today - 1.week)
+                        (Date.today - 1.week).beginning_of_week
                       else
-                        Date.parse(params[:current_date])
+                        Date.parse(params[:current_date]).beginning_of_week
                       end
 
       if (@current_date+1.week) > Date.today
