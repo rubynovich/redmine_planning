@@ -5,10 +5,9 @@ module EstimatedTimesHelper
     end
   end
 
-  def has_permissions
-    return true if Project.where(id: Role.where(name: "КГИП")[0].members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).count > 0 ||
-                      Department.where(confirmer_id: User.current.id).count > 0
-    return false
+  def can_confirm_time_entries?
+    Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).any? ||
+                      Department.where(confirmer_id: User.current.id).any?
   end
 
   def first_day 
@@ -20,16 +19,22 @@ module EstimatedTimesHelper
     f_day
   end
 
-  def is_confirmer_checked(confirmation, confirmer_type)
+  def is_confirmer_checked(issue, confirmer_type, user, date)
+    PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).map(&confirmer_type)[0]
+  end
+
+  def is_confirmer_checked_conf(confirmation, confirmer_type)
     PlanningConfirmation.where(id: confirmation.id).map(&confirmer_type)[0]
   end
 
-  def has_confirm_record(confirmation)
-    return PlanningConfirmation.where(id: confirmation.id).first.present?
+
+  def has_confirm_record(issue, user = nil)
+    user ||= User.current
+    return PlanningConfirmation.where(issue_id: issue.id, user_id: user.id).first.present?
   end
 
   def title_name_confirmer(confirmation, confirmer_id)
-    confirm_id = PlanningConfirmation.where(id: confirmation.id).map(&confirmer_id)[0]
+    confirm_id = PlanningConfirmation.where(id: confirmation.id).map(&confirmer_id).first
     #Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
     unless confirm_id.blank?
       return h(User.find(confirm_id).name)

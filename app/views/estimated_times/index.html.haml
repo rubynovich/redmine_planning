@@ -22,7 +22,7 @@
   = link_to t(:label_request_for_weekend), {current_date: @current_date, action: 'weekend'}
   = " | "
   = link_to l(:label_current_users_workload), controller: 'gantts', action: 'show', set_filter: 1, assigned_to_id: @current_user.id, months: 12, month: @current_date.month, year: @current_date.year, sort: 'priority:desc,updated_on:desc'
-  - if has_permissions
+  - if can_confirm_time_entries?
     = " | "
     = link_to l(:label_confirm_spent_time_caps), action: 'confirm_time'
 
@@ -126,29 +126,33 @@
               = "(#{issue.status})"
             %td.deadline{:align => :center}
               = issue_dates(issue)
+            - hours = 0.0
+            - planned_hours = 0.0
             - 7.times do |day|
               %td{:align=>:center, :style => "border-left-width:3px;", :class => ("odd" if day >= 5)}
+                - planned_hours += strip_tags(link_to_plan(issue, day)).to_f
                 = link_to_plan(issue, day)
               %td{:align=>:center, :style => "border-right-width:3px;", :class => ("odd" if day >= 5)}
+                - hours += strip_tags(link_to_spent(issue, day)).to_f
                 = link_to_spent(issue, day)
             %td{:align=>:center}
-              - if estimated_time_sum = @estimated_time_sum[issue.id]
-                = link_to html_hours("%.2f" % estimated_time_sum.map(&:hours).sum(0.0)), {:action => :list, :issue_id => issue.id, :current_user_id => @current_user.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
+              - if planned_hours > 0.0
+                = link_to html_hours("%.2f" % planned_hours), {:action => :list, :issue_id => issue.id, :current_user_id => @current_user.id}, :title => @estimated_times.select{ |et| et.issue_id == issue.id }.sort_by(&:plan_on).map(&:comments).join("\r")
               - else
                 = "-"
             %td
               - if issue.total_spent_hours > 0.0
-                = link_to html_hours("%.2f" % issue.user_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
+                = link_to html_hours("%.2f" % hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
               - else
                 = "-"
             %td{:align=>:center, :style => "border-left-width:3px;"}
-              - if issue.project.is_external && has_confirm_record(issue) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+              - if issue.project.is_external && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
                 = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation), :disabled => true, :title=> title_name_confirmer(issue, :KGIP_id)
               - else  
                 = "-"
             %td{:align=>:center, :style => "border-left-width:3px;"}
-              - if has_confirm_record(issue,) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
-                = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation), :disabled => true, :title=> title_name_confirmer(issue, :head_id)
+              - if has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+                = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_confirmer(issue, :head_id)
               - else
                 = "-"
 

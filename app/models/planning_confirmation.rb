@@ -84,10 +84,12 @@ class PlanningConfirmation < ActiveRecord::Base
 	confirms = (PlanningConfirmation.where(issue_id: params[:id], KGIP_confirmation: [nil, false]) + 
 				PlanningConfirmation.where(issue_id: params[:id], head_confirmation: [nil, false])).uniq
 
-	f_day = Date.today - (Date.today.wday-1)
-	if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
-		f_day = Date.today - (Date.today.mday-1)
-	end
+  f_day = (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (Date.today.beginning_of_month + 5.days).beginning_of_week : Date.today.beginning_of_week
+
+	#f_day = Date.today - (Date.today.wday-1)
+	#if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
+	#	f_day = Date.today - (Date.today.mday-1)
+	#end
 	confirms.each do |confirm|
 		if confirm.date_start.to_date > f_day
 			#confirm.issue_id = params[:id]
@@ -185,16 +187,11 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def get_kgip_id(project_id)
-	role = Role.where(name: "КГИП")[0].members.where(project_id: project_id)[0]
-	kgip_id = role.blank? ? nil : role.user_id  	
+	  Role.kgip_role.members.where(project_id: project_id).first.try(:user_id)
   end
 
   def first_date(start_date)
-  	first_d = start_date.to_date - (start_date.to_date.wday-1)
-	if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
-		first_d = start_date.to_date - (start_date.to_date.mday-1)
-	end
-	first_d
+    (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (start_date.beginning_of_month + 5.days).beginning_of_week : start_date.beginning_of_week
   end
 
   def create_planning_for_period(first_d, due_date, a_id, i_id, kgip_id, head_id)
