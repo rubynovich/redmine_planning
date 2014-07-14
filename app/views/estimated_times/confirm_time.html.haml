@@ -68,7 +68,7 @@
           = hidden_field_tag :"confirm_#{key}", params[:"confirm_#{key}"]
       %label{:for=>'current_user_id'}= l(:field_user) + ":"
       %select{:id => 'current_user_id', :name => 'current_user_id', :class => "small", :onchange => "this.form.submit(); return false;"}
-        %option{:value => nil, :selected => @current_user.nil? ? "selected" : nil}
+        %option{:value => "", :selected => @current_user.nil? ? "selected" : nil}
           <Все>
         - @users.each do |user|
           - if @current_user.try(:id) == user.id
