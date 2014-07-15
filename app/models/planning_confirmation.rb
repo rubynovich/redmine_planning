@@ -120,7 +120,7 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def create_or_change_planning(person)
-    PlanningConfirmation.delete_all(["user_id = ?", person.id])
+
   	if person.time_confirm.to_i == 1
 
   		# подтверждение для задач, назначенных на юзера сейчас и тех, которые были назначены раньше, но переназначены на другого
@@ -133,19 +133,46 @@ class PlanningConfirmation < ActiveRecord::Base
 
       assigned_ids = Issue.where(["due_date >= ? AND assigned_to_id = ?", '2014-06-01', person.id]).pluck(:id).uniq
       head_id = get_head_id(person.id)
-      PlanningConfirmation.create( Issue.where(id: (iss_ids+assigned_ids).uniq).map{|issue|
+
+      pcs_attrs = Issue.where(id: (iss_ids+assigned_ids).uniq).map{|issue|
         issue_from_date = issue.start_date < '2014-06-02'.to_date ? '2014-06-02'.to_date : issue.start_date.to_date
         (issue_from_date..issue.due_date.to_date).map{|date| date.beginning_of_week}.uniq.map{|day|
           {
-            :user_id => person.id,
-            :issue_id => issue.id,
-            :date_start => day, 
-            :KGIP_id => get_kgip_id(issue.project_id),
-            :head_id => head_id
+              :user_id => person.id,
+              :issue_id => issue.id,
+              :date_start => day
+              #:KGIP_id => get_kgip_id(issue.project_id),
+              #:head_id => head_id
           }
         }
-      }.flatten)
-  	end
+      }.flatten
+      #puts pcs_attrs.inspect
+
+
+      issue_ids = []
+      gsql_query = '('+pcs_attrs.map{|item|
+        issue_ids << item[:issue_id]
+        PlanningConfirmation.send(:sanitize_conditions, item)
+        #Issue.where(id: )
+      }.join(%{) OR (})+')'
+
+      kgips_hash = {}
+      Issue.where(id: issue_ids).each{|i| kgips_hash.merge!(i.id => get_kgip_id(i.project_id)) if i.project.is_external?}
+
+
+
+      pcs_ex = PlanningConfirmation.where(gsql_query).map{|i| i.attributes.symbolize_keys.select{|k,v| [:user_id, :issue_id, :date_start].include?(k)}}
+      create_hash = (pcs_attrs - pcs_ex).map{|itm| itm.merge({
+                                                                 :KGIP_id => get_kgip_id(Issue.find(itm[:issue_id]).try(:project_id)),
+                                                                 :head_id => head_id
+                                                             }) }
+      #puts create_hash.inspect
+      objects = PlanningConfirmation.create(create_hash)
+      objects
+    else
+      PlanningConfirmation.delete_all(["user_id = ?", person.id])
+      return []
+    end
   end
 
 

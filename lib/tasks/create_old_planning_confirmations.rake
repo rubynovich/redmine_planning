@@ -4,8 +4,7 @@ namespace :redmine do
     task :create_old_planning_confirmations => :environment do
       Person.active.each do |person|
         if TimeEntry.where(:user_id => person.id).any?
-          PlanningConfirmation.create_or_change_planning(person)
-          puts person.name
+          puts PlanningConfirmation.create_or_change_planning(person).inspect
         end
       end
     end
