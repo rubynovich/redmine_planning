@@ -167,11 +167,9 @@ class PlanningConfirmation < ActiveRecord::Base
                                                                  :head_id => head_id
                                                              }) }
       #puts create_hash.inspect
-      objects = PlanningConfirmation.create(create_hash)
-      objects
+      PlanningConfirmation.create(create_hash)
     else
       PlanningConfirmation.delete_all(["user_id = ?", person.id])
-      return []
     end
   end
 
