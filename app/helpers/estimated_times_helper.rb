@@ -63,10 +63,10 @@ module EstimatedTimesHelper
       sum(:hours)
   end
 
-  def link_to_sum_hours_spent_on(day)
-    TimeEntry.
-      where(spent_on: @current_date + day.days, user_id: @current_user.id)
-  end
+  #def link_to_sum_hours_spent_on(day)
+  #  TimeEntry.
+  #    where(spent_on: @current_date + day.days, user_id: @current_user.id)
+  #end
 
   def link_to_sum_hours_plan_on(day)
     sum = sum_hours_plan_on(day)
