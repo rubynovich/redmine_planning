@@ -90,7 +90,7 @@ class PlanningConfirmation < ActiveRecord::Base
       end
     end
 
-    return true if User.where(issue_params[:assigned_to_id]).first.try(:department_id).nil?
+    return true if Person.where(id: issue_params[:assigned_to_id]).first.try(:department_id).nil?
 
     if first_date(old_issue.try(:start_date)) <= f_day
       create_planning_for_period(f_day, f_day+ planning_duration(f_day), issue_params[:assigned_to_id],
