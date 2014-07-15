@@ -45,8 +45,8 @@ class PlanningConfirmation < ActiveRecord::Base
 
 
 
-    confirms = (PlanningConfirmation.where(issue_id: id, KGIP_confirmation: [nil, false]) +
-          PlanningConfirmation.where(issue_id: id, head_confirmation: [nil, false])).uniq
+    confirms = (PlanningConfirmation.where(issue_id: old_issue.id, KGIP_confirmation: [nil, false]) +
+          PlanningConfirmation.where(issue_id: old_issue.id, head_confirmation: [nil, false])).uniq
 
     confirms.each do |confirm|
       if ((confirm.date_start.to_date + planning_duration(confirm.date_start)) < issue_params[:start_date].try(:to_date)) || (confirm.date_start.to_date > issue_params[:due_date].try(:to_date))
