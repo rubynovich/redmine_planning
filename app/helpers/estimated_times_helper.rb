@@ -34,7 +34,7 @@ module EstimatedTimesHelper
   end
 
   def title_name_kgip(issue)
-    h(issue.project.kgips.first.try(:name) || l(:label_confirmer_undefined)).to_s)
+    h((issue.project.kgips.first.try(:name) || l(:label_confirmer_undefined)).to_s)
   end
 
   def title_name_confirmer(user_id)
