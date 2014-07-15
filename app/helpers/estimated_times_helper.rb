@@ -38,7 +38,7 @@ module EstimatedTimesHelper
   end
 
   def title_name_confirmer(user_id)
-    h(User.find(user_id).try(:name) || l(:label_confirmer_undefined))
+    h(User.where(id: user_id).first.try(:name) || l(:label_confirmer_undefined))
   end
 
   # def title_name_confirmer(confirmation, confirmer_id)
