@@ -75,8 +75,8 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def change_assigned_to_planning(issue_params, old_issue) # смена сроков
 
-    confirms = (PlanningConfirmation.where(issue_id: id, KGIP_confirmation: [nil, false]) +
-          PlanningConfirmation.where(issue_id: id, head_confirmation: [nil, false])).uniq
+    confirms = (PlanningConfirmation.where(issue_id: old_issue.id, KGIP_confirmation: [nil, false]) +
+          PlanningConfirmation.where(issue_id: old_issue.id, head_confirmation: [nil, false])).uniq
 
     f_day = (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (Date.today.beginning_of_month + 5.days).beginning_of_week : Date.today.beginning_of_week
 
