@@ -22,15 +22,20 @@ module PlanningPlugin
 
     module InstanceMethods
 
+      private
+
       def update_planning
-		    old_issue = Issue.where(id: params[:id]).first
-        if params[:issue]
-          if params[:issue][:assigned_to_id].to_s != old_issue.assigned_to_id.to_s
-            #PlanningConfirmation.change_assigned_to_planning(params)
+        safe_params = {}
+        [:start_date, :due_date, :assigned_to_id].each {|k| safe_params.merge!({k => params[:issue][k]}) if @issue.safe_attribute?("#{k}")} if params[:issue]
+        #raise safe_params.inspect
+		    if @issue.try(:id)
+          issue_params = @issue.attributes.symbolize_keys.merge(safe_params) #mega HARD CODE!!!
+          if issue_params[:assigned_to_id].to_s != @issue.assigned_to_id.to_s
+            PlanningConfirmation.change_assigned_to_planning(issue_params, @issue)
           end
 
-          if (params[:issue][:due_date].try(:to_date) != old_issue.due_date.try(:to_date)) || (params[:issue][:start_date].try(:to_date) != old_issue.start_date.try(:to_date))
-            #PlanningConfirmation.change_dates_planning(params)
+          if (issue_params[:due_date].try(:to_date) != @issue.due_date.try(:to_date)) || (issue_params[:start_date].try(:to_date) != @issue.start_date.try(:to_date))
+            PlanningConfirmation.change_dates_planning(issue_params, @issue)
           end
         end
       end

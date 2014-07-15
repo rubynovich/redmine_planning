@@ -41,74 +41,62 @@ class PlanningConfirmation < ActiveRecord::Base
 	#Rails.logger.error("create_planning created".red)
   end
   
-  def change_dates_planning(params) # смена сроков 
-    #Rails.logger.error(("change_dates_planning: " + params.inspect).red)
-    issue = params[:issue]
-    old_issue = Issue.find(params[:id])
+  def change_dates_planning(issue_params, old_issue) # смена сроков
 
-	confirms = (PlanningConfirmation.where(issue_id: params[:id], KGIP_confirmation: [nil, false]) + 
-				PlanningConfirmation.where(issue_id: params[:id], head_confirmation: [nil, false])).uniq
 
-	confirms.each do |confirm|		
-		if ((confirm.date_start.to_date + planning_duration(confirm.date_start)) < issue[:start_date].to_date) || (confirm.date_start.to_date > issue[:due_date].to_date)
-			#Rails.logger.error("uhhu! " + confirm.date_start.inspect.red)
-			confirm.destroy if no_time_planned(old_issue.id, confirm.date_start)
-		end
-	end
 
-    return true if User.find(issue[:assigned_to_id]).department_id.nil? 
-    head_id = get_head_id(issue[:assigned_to_id])
-	kgip_id = get_kgip_id(issue[:project_id])
+    confirms = (PlanningConfirmation.where(issue_id: id, KGIP_confirmation: [nil, false]) +
+          PlanningConfirmation.where(issue_id: id, head_confirmation: [nil, false])).uniq
 
-	if (issue[:start_date].to_date < old_issue.start_date.to_date) && (first_date(issue[:start_date].to_date) != first_date(old_issue.start_date.to_date))
-		due_d = (issue[:due_date].to_date < old_issue.start_date.to_date) ? issue[:due_date].to_date : first_date(old_issue.start_date.to_date)-1
-		#Rails.logger.error("change start ".red+first_date(due_d).inspect.red)
-		
-		create_planning_for_period(first_date(issue[:start_date]), first_date(due_d), issue[:assigned_to_id], old_issue.id, kgip_id, head_id)
-	end
+    confirms.each do |confirm|
+      if ((confirm.date_start.to_date + planning_duration(confirm.date_start)) < issue_params[:start_date].try(:to_date)) || (confirm.date_start.to_date > issue_params[:due_date].try(:to_date))
+        #Rails.logger.error("uhhu! " + confirm.date_start.inspect.red)
+        confirm.destroy if no_time_planned(old_issue.id, confirm.date_start)
+      end
+    end
 
-	if (issue[:due_date].to_date > old_issue.due_date.to_date) && (first_date(issue[:due_date].to_date) != first_date(old_issue.due_date.to_date))
-		start_d = (issue[:start_date].to_date > old_issue.due_date.to_date) ? issue[:start_date].to_date : first_date(old_issue.due_date.to_date) + planning_duration(first_date(old_issue.due_date.to_date))
-		#Rails.logger.error("change end".red)
-		create_planning_for_period(first_date(start_d), issue[:due_date], issue[:assigned_to_id], old_issue.id, kgip_id, head_id)
-	end
+    return true if User.where(issue_params[:assigned_to_id]).first.try(:department_id).nil?
+    head_id = get_head_id(issue_params[:assigned_to_id])
+    kgip_id = get_kgip_id(issue_params[:project_id])
 
-	#Rails.logger.error("change_dates_planning updated".red)
+    if (issue_params[:start_date].try(:to_date) < old_issue.start_date.to_date) && (first_date(issue_params[:start_date].try(:to_date)) != first_date(old_issue.start_date.to_date))
+      due_d = (issue[:due_date].to_date < old_issue.start_date.to_date) ? issue[:due_date].to_date : first_date(old_issue.start_date.to_date)-1
+      #Rails.logger.error("change start ".red+first_date(due_d).inspect.red)
+      create_planning_for_period(first_date(issue_params[:start_date]), first_date(due_d), issue_params[:assigned_to_id], old_issue.id, kgip_id, head_id)
+    end
+
+    if (issue_params[:due_date].to_date > old_issue.due_date.to_date) && (first_date(issue_params[:due_date].to_date) != first_date(old_issue.due_date.to_date))
+      start_d = (issue_params[:start_date].to_date > old_issue.due_date.to_date) ? issue_params[:start_date].to_date : first_date(old_issue.due_date.to_date) + planning_duration(first_date(old_issue.due_date.to_date))
+      #Rails.logger.error("change end".red)
+      create_planning_for_period(first_date(start_d), issue_params[:due_date], issue_params[:assigned_to_id], old_issue.id, kgip_id, head_id)
+    end
   	
   end
 
-  def change_assigned_to_planning(params) # смена сроков 
-    #Rails.logger.error(("change_assigned_to_planning: " + params.inspect).red)
-    issue = params[:issue]
+  def change_assigned_to_planning(issue_params, old_issue) # смена сроков
 
-	confirms = (PlanningConfirmation.where(issue_id: params[:id], KGIP_confirmation: [nil, false]) + 
-				PlanningConfirmation.where(issue_id: params[:id], head_confirmation: [nil, false])).uniq
+    confirms = (PlanningConfirmation.where(issue_id: id, KGIP_confirmation: [nil, false]) +
+          PlanningConfirmation.where(issue_id: id, head_confirmation: [nil, false])).uniq
 
-  f_day = (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (Date.today.beginning_of_month + 5.days).beginning_of_week : Date.today.beginning_of_week
+    f_day = (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (Date.today.beginning_of_month + 5.days).beginning_of_week : Date.today.beginning_of_week
 
-	#f_day = Date.today - (Date.today.wday-1)
-	#if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
-	#	f_day = Date.today - (Date.today.mday-1)
-	#end
-	confirms.each do |confirm|
-		if confirm.date_start.to_date > f_day
-			#confirm.issue_id = params[:id]
-			#confirm.date_start = Date.today 
-			#confirm.KGIP_id = kgip_id
-			#confirm.head_id = head_id
-			confirm.update_column(:user_id, issue[:assigned_to_id])
-		end
-	end
+    #f_day = Date.today - (Date.today.wday-1)
+    #if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
+    #	f_day = Date.today - (Date.today.mday-1)
+    #end
+    confirms.each do |confirm|
+      if confirm.date_start.to_date > f_day
+        confirm.update_column(:user_id, issue_params[:assigned_to_id])
+      end
+    end
 
-    return true if User.find(issue[:assigned_to_id]).department_id.nil? 
+    return true if User.where(issue_params[:assigned_to_id]).first.try(:department_id).nil?
 
-    if first_date(Issue.find(params[:id]).start_date) <= f_day 
-		create_planning_for_period(f_day, f_day+ planning_duration(f_day), issue[:assigned_to_id], 
-			params[:id], get_kgip_id(issue[:project_id]), get_head_id(issue[:assigned_to_id]))
-	end
+    if first_date(old_issue.try(:start_date)) <= f_day
+      create_planning_for_period(f_day, f_day+ planning_duration(f_day), issue_params[:assigned_to_id],
+        old_issue.id, get_kgip_id(issue_params[:project_id]), get_head_id(issue_params[:assigned_to_id]))
+    end
 
-	#Rails.logger.error("change_assigned_to_planning updated".red)
-  	
   end
 
   def change_kgip_planning(member_id) # смена КГИПа
@@ -177,7 +165,6 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def no_time_planned(issue_id, date_start)
   	spent_times = TimeEntry.where("issue_id = ? AND spent_on BETWEEN ? AND ?", issue_id, date_start, date_start + planning_duration(date_start))
-  	#Rails.logger.error("spent_times = " + spent_times.inspect.red)
   	return spent_times.blank?
   end
 
@@ -207,7 +194,7 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def get_head_id(assigned_to_id)
-    department = Department.find(User.find(assigned_to_id).department_id)
+    department = Department.where(User.find(assigned_to_id).department_id).first
     head_id = department.confirmer_id.blank? ? department.head_id : department.confirmer_id
   end
 
@@ -221,7 +208,6 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def create_planning_for_period(first_d, due_date, a_id, i_id, kgip_id, head_id)
   	while first_d.to_date <= due_date.to_date
-  		#Rails.logger.error("first_d = "+ first_d.inspect.green + ", planning_duration first_d = "+ planning_duration(first_d).inspect.green)
 
   		unless PlanningConfirmation.where(:user_id => a_id,
 			                        :issue_id => i_id,

@@ -87,7 +87,6 @@ module PlanningPlugin
       end
 
       def create_planning
-        #Rails.logger.error(("create_planning1: " + self.inspect).red)
         PlanningConfirmation.create_planning(self)
       end
 

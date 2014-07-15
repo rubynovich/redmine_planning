@@ -21,7 +21,6 @@ module PlanningPlugin
 
     module InstanceMethods
       def change_head_planning
-      	#Rails.logger.error(("change_head_planning: " + self.inspect).red)
         PlanningConfirmation.change_head_planning(self)
       end
 
