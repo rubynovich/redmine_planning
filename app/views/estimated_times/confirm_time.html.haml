@@ -168,7 +168,7 @@
                     - else
                       = "-"
                   %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
-                    - if issue.project.is_external && issue.project.kgip_members.any? && has_confirm_record(confirmation) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+                    - if issue.project.is_external && issue.project.kgip_members.any? && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
                       = check_box_tag :kgip_check, "1", is_confirmer_checked_conf(confirmation, :KGIP_confirmation), :title=> title_name_confirmer(confirmation, :KGIP_id), :disabled => (@confirm_role == 0) ? false : true, :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :type => "0", :id => confirmation.try(:id), hours: hours, :format => 'js'})}')"
                     - else
                       = "-"

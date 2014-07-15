@@ -33,6 +33,8 @@ module EstimatedTimesHelper
     return PlanningConfirmation.where(issue_id: issue.id, user_id: user.id).first.present?
   end
 
+
+
   def title_name_confirmer(confirmation, confirmer_id)
     confirm_id = PlanningConfirmation.where(id: confirmation.id).map(&confirmer_id).first
     #Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
