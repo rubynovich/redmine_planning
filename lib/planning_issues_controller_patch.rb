@@ -24,11 +24,14 @@ module PlanningPlugin
 
       def update_planning
 		    old_issue = Issue.where(id: params[:id]).first
-        if params[:issue][:assigned_to_id].to_s != old_issue.assigned_to_id.to_s
-          PlanningConfirmation.change_assigned_to_planning(params)
-        end
-            if (params[:issue][:due_date].to_date != old_issue.due_date.to_date) || (params[:issue][:start_date].to_date != old_issue.start_date.to_date)
-          PlanningConfirmation.change_dates_planning(params)
+        if params[:issue]
+          if params[:issue][:assigned_to_id].to_s != old_issue.assigned_to_id.to_s
+            #PlanningConfirmation.change_assigned_to_planning(params)
+          end
+
+          if (params[:issue][:due_date].try(:to_date) != old_issue.due_date.try(:to_date)) || (params[:issue][:start_date].try(:to_date) != old_issue.start_date.try(:to_date))
+            #PlanningConfirmation.change_dates_planning(params)
+          end
         end
       end
 
