@@ -150,7 +150,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
 
       issue_ids = []
-      gsql_query = '('+pcs_attrs.map{|item|
+      gsql_query = '(false OR '+pcs_attrs.map{|item|
         issue_ids << item[:issue_id]
         PlanningConfirmation.send(:sanitize_conditions, item)
         #Issue.where(id: )
