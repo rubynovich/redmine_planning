@@ -147,12 +147,12 @@
                 = "-"
             %td{:align=>:center, :style => "border-left-width:3px;"}
               - if (hours > 0.0) && issue.project.is_external && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
-                = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_confirmer(issue, :KGIP_id)
+                = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation, @current_user, @current_date), :disabled => true, :title=> :title=> title_name_kgip(issue)
               - else  
                 = "-"
             %td{:align=>:center, :style => "border-left-width:3px;"}
               - if (hours > 0.0) && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
-                = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_confirmer(issue, :head_id)
+                = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_confirmer(@current_user.becomes(Person).department.confirmer)
               - else
                 = "-"
 

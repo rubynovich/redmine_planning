@@ -33,17 +33,23 @@ module EstimatedTimesHelper
     return PlanningConfirmation.where(issue_id: issue.id, user_id: user.id).first.present?
   end
 
-
-
-  def title_name_confirmer(confirmation, confirmer_id)
-    confirm_id = PlanningConfirmation.where(id: confirmation.id).map(&confirmer_id).first
-    #Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
-    unless confirm_id.blank?
-      return h(User.find(confirm_id).name)
-    else
-      return ""
-    end
+  def title_name_kgip(issue)
+    h(issue.project.kgips.first.try(:name).to_s)
   end
+
+  def title_name_confirmer(user_id)
+    h(User.find(user_id).try(:name))
+  end
+
+  # def title_name_confirmer(confirmation, confirmer_id)
+  #   confirm_id = PlanningConfirmation.where(id: confirmation.id).map(&confirmer_id).first
+  #   #Rails.logger.error((issue.id.inspect + " " + f_day.inspect + " " + confirm_id.inspect).red)
+  #   unless confirm_id.blank?
+  #     return h(User.find(confirm_id).name)
+  #   else
+  #     return ""
+  #   end
+  # end
 
   def sum_hours_spent_on(day)
     TimeEntry.
