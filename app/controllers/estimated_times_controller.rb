@@ -375,13 +375,14 @@ class EstimatedTimesController < ApplicationController
         @assigned_confirmations = @assigned_confirmations.where(KGIP_confirmation: [nil,false], head_confirmation: [nil,false])
       end
 
+
+      @assigned_confirmations = @assigned_confirmations.where(id: @assigned_confirmations.map{|confirmation| confirmation.id if confirmation.planned_in?}.compact)
+      @users = @assigned_confirmations.joins(:user).order("users.lastname asc, users.firstname asc").map(&:user).uniq.sort
       if params[:current_user_id].present?  && @assigned_confirmations.any?
         @assigned_confirmations = @assigned_confirmations.where(user_id: params[:current_user_id].to_i)
       end
-
-      @assigned_confirmations = @assigned_confirmations.where(id: @assigned_confirmations.map{|confirmation| confirmation.id if confirmation.planned_in?}.compact)
       @assigned_issue_ids = @assigned_confirmations.map(&:issue_id)
-      @users = @assigned_confirmations.joins(:user).order("users.lastname asc, users.firstname asc").map(&:user).uniq.sort
+
 
       project_confirmations = if params[:confirm_group_by_project].present?
                                 [[nil, @assigned_confirmations]]
