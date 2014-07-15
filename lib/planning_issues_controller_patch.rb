@@ -23,7 +23,7 @@ module PlanningPlugin
     module InstanceMethods
 
       def update_planning
-		    old_issue = Issue.where(params[:id]).first
+		    old_issue = Issue.where(id: params[:id]).first
         if params[:issue][:assigned_to_id].to_s != old_issue.assigned_to_id.to_s
           PlanningConfirmation.change_assigned_to_planning(params)
         end
