@@ -93,6 +93,7 @@ ru:
   label_confirm_group_by_user: "добавить  группировку по сотрудникам"
   label_confirm_confirmed_time: "добавить подтвержденнное время"
   label_kgip_role: 'Роль КГИП'
+  label_confirmer_undefined: 'не определен'
   label_filter_change_role: 'Подтверждать как'
   activerecord:
     errors:
