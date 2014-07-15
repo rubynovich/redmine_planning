@@ -195,7 +195,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def get_head_id(assigned_to_id)
     department = Person.where(id: assigned_to_id).first.try(:department)
-    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id
+    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
   end
 
   def get_kgip_id(project_id)
