@@ -55,7 +55,7 @@ class PlanningConfirmation < ActiveRecord::Base
       end
     end
 
-    return true if User.where(issue_params[:assigned_to_id]).first.try(:department_id).nil?
+    return true if Person.where(id: issue_params[:assigned_to_id]).first.try(:department_id).nil?
     head_id = get_head_id(issue_params[:assigned_to_id])
     kgip_id = get_kgip_id(issue_params[:project_id])
 
