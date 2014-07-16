@@ -26,7 +26,7 @@ module PlanningPlugin
 
       def update_planning
         safe_params = {}
-        [:start_date, :due_date, :assigned_to_id].each {|k| safe_params.merge!({k => params[:issue][k]}) if @issue.safe_attribute?("#{k}")} if params[:issue]
+        [:start_date, :due_date, :assigned_to_id].each {|k| safe_params.merge!({k => params[:issue][k]}) if @issue.safe_attribute?("#{k}") && params[:issue][k].present?} if params[:issue]
         #raise safe_params.inspect
 		    if @issue.try(:id)
           issue_params = @issue.attributes.symbolize_keys.merge(safe_params) #mega HARD CODE!!!
