@@ -18,7 +18,8 @@ module PlanningPlugin
 
     module InstanceMethods
       def kgip_members
-        self.members.map{|member| member if member.roles.include?(Role.kgip_role)}.compact
+        #self.members.map{|member| member if member.roles.include?(Role.kgip_role)}.compact
+        self.members.joins(:roles).where(["roles.id = ?", Role.kgip_role.try(:id)])
       end
       def kgips
         self.kgip_members.map(&:user)
