@@ -60,7 +60,7 @@ class PlanningConfirmation < ActiveRecord::Base
     kgip_id = get_kgip_id(issue_params[:project_id])
 
     if (issue_params[:start_date].try(:to_date) < old_issue.start_date.to_date) && (first_date(issue_params[:start_date].try(:to_date)) != first_date(old_issue.start_date.to_date))
-      due_d = (issue[:due_date].to_date < old_issue.start_date.to_date) ? issue[:due_date].to_date : first_date(old_issue.start_date.to_date)-1
+      due_d = (issue_params[:due_date].to_date < old_issue.start_date.to_date) ? issue_params[:due_date].to_date : first_date(old_issue.start_date.to_date)-1
       #Rails.logger.error("change start ".red+first_date(due_d).inspect.red)
       create_planning_for_period(first_date(issue_params[:start_date]), first_date(due_d), issue_params[:assigned_to_id], old_issue.id, kgip_id, head_id)
     end
