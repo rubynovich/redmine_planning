@@ -203,6 +203,7 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def first_date(start_date)
+    start_date = start_date.try(:to_date) || Date.today
     (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (start_date.beginning_of_month + 5.days).beginning_of_week : start_date.beginning_of_week
   end
 
