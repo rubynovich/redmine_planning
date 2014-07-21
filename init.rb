@@ -43,6 +43,10 @@ Redmine::Plugin.register :redmine_planning do
 end
 
 Rails.configuration.to_prepare do
+
+  Sidekiq.hook_rails!
+  Sidekiq.remove_delay!
+
   [:issue, :issues_controller, :member_role, :people_controller, :department, :user, :principal, :time_entry, :timelog_helper, :project, :role].each do |cl|
     require "planning_#{cl}_patch"
   end
