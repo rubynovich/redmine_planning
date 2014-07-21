@@ -44,6 +44,9 @@ end
 
 Rails.configuration.to_prepare do
 
+
+  require_dependency '../app/models/planning_confirmation'
+
   begin
     Sidekiq.hook_rails!
 
