@@ -21,7 +21,7 @@ module PlanningPlugin
 
     module InstanceMethods
       def change_head_planning
-        PlanningConfirmation.change_head_planning(self)
+        PlanningConfirmation.sidekiq_delay.change_head_planning(self)
       end
 
       def all_children

@@ -27,7 +27,7 @@ module PlanningPlugin
       end
 
       def create_or_change_planning
-        PlanningConfirmation.create_or_change_planning(@person) if @old_time_confirm != @person.time_confirm
+        PlanningConfirmation.sidekiq_delay.create_or_change_planning(@person) if @old_time_confirm != @person.time_confirm
       end
 
     end

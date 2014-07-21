@@ -87,7 +87,7 @@ module PlanningPlugin
       end
 
       def create_planning
-        PlanningConfirmation.create_planning(self)
+        PlanningConfirmation.sidekiq_delay.create_planning(self)
       end
 
     end
