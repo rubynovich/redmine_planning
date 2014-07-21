@@ -8,7 +8,14 @@ class PlanningConfirmation < ActiveRecord::Base
   has_one :project, :through => :issue
 
 
-  def planned_in?
+  scope :not_any_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?) OR (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
+  scope :kgip_not_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?)", false])
+  scope :head_not_confirmed, where(["(planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false])
+  scope :not_full_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
+
+
+
+      def planned_in?
     ! PlanningConfirmation.no_time_planned(self.issue_id, self.date_start)
   end
 
@@ -73,22 +80,35 @@ class PlanningConfirmation < ActiveRecord::Base
   	
   end
 
+  def today_confirm_day
+    (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (Date.today.beginning_of_month + 5.days).beginning_of_week : Date.today.beginning_of_week
+  end
+
   def change_assigned_to_planning(issue_params, old_issue) # смена сроков
 
-    confirms = (PlanningConfirmation.where(issue_id: old_issue.id, KGIP_confirmation: [nil, false]) +
-          PlanningConfirmation.where(issue_id: old_issue.id, head_confirmation: [nil, false])).uniq
+    #confirms = (PlanningConfirmation.where(issue_id: old_issue.id, KGIP_confirmation: [nil, false]) +
+    #      PlanningConfirmation.where(issue_id: old_issue.id, head_confirmation: [nil, false])).uniq
 
-    f_day = (Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1") ? (Date.today.beginning_of_month + 5.days).beginning_of_week : Date.today.beginning_of_week
+
+    #confirms = PlanningConfirmation.where(issue_id: old_issue.id).where(["('planning_confirmations.KGIP_confirmation' IN (?)) OR (planning_confirmations.head_confirmation IN (?))", [nil, false], [nil, false]])
+
+    f_day = today_confirm_day
+
+    PlanningConfirmation.
+        where(issue_id: old_issue.id).not_any_confirmed.
+        where(["planning_confirmations.date_start > ?", f_day]).update_all(user_id: issue_params[:assigned_to_id])
+
+
 
     #f_day = Date.today - (Date.today.wday-1)
     #if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "1" # месяц
     #	f_day = Date.today - (Date.today.mday-1)
     #end
-    confirms.each do |confirm|
-      if confirm.date_start.to_date > f_day
-        confirm.update_column(:user_id, issue_params[:assigned_to_id])
-      end
-    end
+    #confirms.each do |confirm|
+    #  if confirm.date_start.to_date > f_day
+    #    confirm.update_column(:user_id, issue_params[:assigned_to_id])
+    #  end
+    #end
 
     return true if Person.where(id: issue_params[:assigned_to_id]).first.try(:department_id).nil?
 
@@ -100,11 +120,12 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def change_kgip_planning(member_id) # смена КГИПа
-  	PlanningConfirmation.update_all({:KGIP_id => Member.find(member_id).user_id}, {:issue_id => Member.find(member_id).project.issues.map(&:id)})
+    #where(["date_start >= ?", today_confirm_day])
+  	PlanningConfirmation.kgip_not_confirmed.update_all({:KGIP_id => Member.find(member_id).user_id}, {:issue_id => Member.find(member_id).project.issues.map(&:id)})
   end
 
   def change_head_planning(params) # смена руководителя
-  	PlanningConfirmation.update_all({:head_id => params.confirmer_id}, {:user_id => Person.where(department_id: params.id).map(&:id)})
+  	PlanningConfirmation.head_not_confirmed.update_all({:head_id => params.confirmer_id}, {:user_id => Person.where(department_id: params.id).map(&:id)})
   end
 
   def create_or_change_planning(person)

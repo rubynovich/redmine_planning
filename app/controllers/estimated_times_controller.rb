@@ -351,7 +351,7 @@ class EstimatedTimesController < ApplicationController
 
 
       @assigned_confirmations = @assigned_confirmations.where(id: @assigned_confirmations.map{|confirmation| confirmation.id if confirmation.planned_in?}.compact)
-      @users = @assigned_confirmations.joins(:user).order("users.lastname asc, users.firstname asc").map(&:user).uniq.sort
+      @users = @assigned_confirmations.joins(:user).select('distinct users.id, users.*, planning_confirmations.user_id').order("users.lastname asc, users.firstname asc").map(&:user).sort
       if params[:current_user_id].present?  && @assigned_confirmations.any?
         @assigned_confirmations = @assigned_confirmations.where(user_id: params[:current_user_id].to_i)
       end
