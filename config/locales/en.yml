@@ -73,9 +73,6 @@ en:
   label_overwrite_existing_estimated_time: "overwrite existing estimated time"
   label_go_back_to_planning: "go to planning"
 
-  label_all_spent_time: "All spent time"
-  label_all_subissues: with subissues
-
   label_confirm_time_period: Period to confirm the time spent
   label_confirm_time_week: week
   label_confirm_time_month: month

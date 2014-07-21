@@ -216,7 +216,7 @@ class EstimatedTimesController < ApplicationController
   def weekend
     sat = @current_date + 5.days
     sun = @current_date + 6.days
-    @weekend_users = EstimatedTime.find(:all, :conditions => ["plan_on = ? OR plan_on = ?", sun, sat]).map(&:user).uniq
+    @weekend_users = EstimatedTime.where(["plan_on = ? OR plan_on = ?", sun, sat]).select('DISTINCT user_id').map(&:user)
   end
 
   private
@@ -268,15 +268,6 @@ class EstimatedTimesController < ApplicationController
           :include => [:status, :project, :tracker, :priority],
           :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
 
-      # не выводим родительские задачи
-      #unless @assigned_issues.blank?
-      #  Rails.logger.error("assigned_issues = " + @assigned_issues.count.inspect.red)
-      #  parent_issues = []
-      #  @assigned_issues.each do |issue|
-      #    parent_issues << issue unless issue.leaf?
-      #  end
-      #  @assigned_issues = @assigned_issues - parent_issues
-      #end
 
       @project_issues = if params[:exclude_group_by_project].present?
         [[nil, @assigned_issues]]
@@ -287,17 +278,14 @@ class EstimatedTimesController < ApplicationController
       @assigned_issue_ids = @assigned_issues.map(&:id)
 
       @estimated_times = EstimatedTime.
-#        for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)
 
       @estimated_time_sum = EstimatedTime.
-#        for_issues(@assigned_issue_ids).
         for_user(@current_user.id).
         group_by(&:issue_id)
 
       @time_entries = TimeEntry.
-#        for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days).
         for_user(@current_user.id)
 
@@ -321,15 +309,9 @@ class EstimatedTimesController < ApplicationController
         @current_dates << @current_date+c_week.week if (@current_date+c_week.week+1.week) <= Date.today
       end
 
-
-      #user = User.current
-      #if user.planning_preference.present? && params.keys.none?{|k| k =~ /^exclude/}
-      #  user_preferences = user.planning_preference.preferences || Hash.new
-      #  params.merge!(user_preferences){|key, params_value, preferences_value| params_value}
-      #end
-
       # С какой ролью заходит подтверждающий
-      @assigned_projects = Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true)
+      @assigned_projects = User.current.projects.where(is_external: true).keep_if{|p| p.kgip_ids.include?(User.current.id)}
+      #@assigned_projects = Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true)
       if @assigned_projects.count > 0
         @confirm_role = 0
         #as kgip
@@ -340,8 +322,9 @@ class EstimatedTimesController < ApplicationController
         @can_change_role = (@confirm_role == 0)
       end
       if departments.any? && ((params[:confirm_role].to_i == 1) || @confirm_role.nil?)
-
-        @assigned_projects = departments.map{|department| department.people}.flatten.map{|person| person.projects}.flatten.uniq
+        #@assigned_projects = departments.map{|department| department.people}.flatten.map{|person| person.projects}.flatten.uniq
+        #@assigned_projects = Project.where(id: departments.joins(:people => {:members => :project}).select('DISTINCT projects.id as project_id').map(&:project_id))
+        @assigned_projects = Project.where("id in (#{departments.joins(:people => {:members => :project}).select('DISTINCT projects.id as project_id').to_sql})")
         @confirm_role = 1
       elsif @confirm_role.nil?
         render_403;
@@ -355,14 +338,6 @@ class EstimatedTimesController < ApplicationController
       end
 
 
-      #@assigned_issues = Issue.
-      #  actual(@current_date, @current_date+6.days).
-      #  in_project(@project)
-
-      #  find(:all, :conditions => {:assigned_to_id => ([@current_user.id] + @current_user.group_ids)},
-      #    :include => [:status, :project, :tracker, :priority],
-      #    :order => "#{IssuePriority.table_name}.position DESC, #{Issue.table_name}.due_date")
-
       if @confirm_role == 0
         need_confirmations = PlanningConfirmation.joins(:project).where(date_start: @current_date, KGIP_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
       else
@@ -371,7 +346,6 @@ class EstimatedTimesController < ApplicationController
       @assigned_confirmations = need_confirmations
 
       if params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?
-        #confirmed_confirmations = confirmed_confirmations.where(user_id: @current_user.id) if @current_user
         @assigned_confirmations = @assigned_confirmations.where(KGIP_confirmation: [nil,false], head_confirmation: [nil,false])
       end
 
@@ -404,28 +378,13 @@ class EstimatedTimesController < ApplicationController
                                 end
                               end
 
-      #@assigned_issue_ids = @assigned_confirmations.map(&:issue_id)
-
-      #@estimated_times = EstimatedTime.
-      #where(project_id: @assigned_projects.map(&:id)).
-#     #   for_issues(@assigned_issue_ids).
-      #  actual(@current_date, @current_date+6.days)#.
-      #  #for_user(@current_user.id)
 
       @current_user = params[:current_user_id].nil? ? nil : User.where(id: params[:current_user_id]).first
       @current_user = nil unless @users.map(&:id).include?(@current_user.id) if @current_user
-#      @estimated_time_sum = EstimatedTime.
-#        for_issues(@assigned_issue_ids).
-#        for_user(@current_user.id).
-#        group_by(&:issue_id)
 
       @time_entries = TimeEntry.
        for_issues(@assigned_issue_ids).
-        actual(@current_date, @current_date+6.days)#.
-#        for_user(@current_user.id)
-
-      #@assigned_projects = @projects || Member.where(user_id: @current_user.id).includes(:project).select(&:project).map(&:project).sort_by(&:name)
-
+        actual(@current_date, @current_date+6.days)
     end
 
     def authorized
@@ -464,17 +423,6 @@ class EstimatedTimesController < ApplicationController
       month = Time.now.all_month
       month_start, month_end = month.begin.to_date, month.end.to_date
 
-      # Затраченное время по родительской задаче суммируется по подзадачам, но не относится к назначенному по ней исполнителю
-      issue_ids_for_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).map(&:issue_id)
-      #parent_issue_ids = []
-      #unless issue_ids_for_spent_hours.blank?
-      #  issue_ids_for_spent_hours.each do |issue_id|
-      #    parent_issue_ids << issue_id unless Issue.find(issue_id).leaf?
-      #  end
-      #end
-      #issue_ids_for_spent_hours = issue_ids_for_spent_hours - parent_issue_ids
-      
-      #@today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year, issue_id: issue_ids_for_spent_hours).sum('hours')
       @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).sum('hours')
       
       @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
