@@ -1,6 +1,6 @@
 - date = Date.today + 1.day
 - user = User.current
-- issues = EstimatedTime.actual(date, date).for_user(user.id).includes(:issue).map(&:issue)
+- issues = EstimatedTime.actual(date, date).for_user(user.id).includes(:issue).map(&:issue).compact
 - issues -= TimeEntry.for_issues(issues.map(&:id)).actual(date, date).for_user(user.id).includes(:issue).map(&:issue)
 - planned_issues = issues.sort_by{ |i| [i.priority.position, i.updated_on]}.reverse
 
