@@ -194,15 +194,15 @@ class EstimatedTimesController < ApplicationController
             :project => project.name,
             :issues => est_times.map{ |est_time|
               {
-                :issue => {:id => est_time.issue_id, :name => est_time.issue.try(:subject).to_s, :due_date => est_time.issue.due_date},
+                :issue => {:id => est_time.issue_id, :name => est_time.issue.subject, :due_date => est_time.issue.due_date},
                 :estimated_time => {:hours => est_time.hours},
                 :time_entry => {
                   :hours => @time_entries.select{ |time_entry|
                     (time_entry.spent_on == date) && (est_time.issue_id == time_entry.issue_id)
                   }.map(&:hours).sum(0.0)
                 }
-              }
-            }
+              } unless est_time.issue.nil?
+            }.compact
           }
         }
       }
