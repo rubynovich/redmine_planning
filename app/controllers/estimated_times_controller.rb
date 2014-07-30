@@ -361,18 +361,18 @@ class EstimatedTimesController < ApplicationController
       project_confirmations = if params[:confirm_group_by_project].present?
                                 [[nil, @assigned_confirmations]]
                               else
-                                @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.name }
+                                @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }
                               end
 
       @user_confirmations = if params[:confirm_group_by_user].present?
                                 [[nil, project_confirmations]]
                             else
                                 unless params[:confirm_group_by_project].present?
-                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) }.map{|user, confirmations|
+                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
                                     [user , confirmations.group_by(&:project).sort_by{|p,i| p.try(:name)}]
                                   }
                                 else
-                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) }.map{|user, confirmations|
+                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
                                     [user , [[nil, confirmations]]]
                                   }
                                 end
