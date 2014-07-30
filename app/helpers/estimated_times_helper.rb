@@ -176,7 +176,7 @@ module EstimatedTimesHelper
 
   def show_spent_for_user(issue, day, user)
     shift_day = @current_date + day.days
-    time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)&&(te.user_id == user.id)}
+    time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.try(:id))&&(te.user_id == user.try(:id))}
     if time_entries.any?
       sum = time_entries.map{|i| i.hours }.sum(0.0)
       comment = time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
