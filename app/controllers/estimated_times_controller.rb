@@ -358,15 +358,17 @@ class EstimatedTimesController < ApplicationController
       @assigned_issue_ids = @assigned_confirmations.map(&:issue_id)
 
 
-      project_confirmations = if params[:confirm_group_by_project].present?
-                                [[nil, @assigned_confirmations]]
-                              else
-                                @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }
-                              end
 
-      @user_confirmations = if params[:confirm_group_by_user].present?
+      if @confirm_role == 1
+        project_confirmations = if params[:confirm_group_by_project].present?
+                                  [[nil, @assigned_confirmations]]
+                                else
+                                  @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }
+                                end
+
+        @user_confirmations = if params[:confirm_group_by_user].present?
                                 [[nil, project_confirmations]]
-                            else
+                              else
                                 unless params[:confirm_group_by_project].present?
                                   @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
                                     [user , confirmations.group_by(&:project).sort_by{|p,i| p.try(:name)}]
@@ -377,6 +379,27 @@ class EstimatedTimesController < ApplicationController
                                   }
                                 end
                               end
+      else
+        user_confirmations = if params[:confirm_group_by_user].present?
+                                  [[nil, @assigned_confirmations]]
+                                else
+                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }
+                                end
+
+        @project_confirmations = if params[:confirm_group_by_project].present?
+                                  [[nil, user_confirmations]]
+                              else
+                                  unless params[:confirm_group_by_user].present?
+                                    @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
+                                      [project , confirmations.group_by(&:user).sort_by{|p,i| p.try(:name)}]
+                                    }
+                                  else
+                                    @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
+                                      [project , [[nil, confirmations]]]
+                                    }
+                                  end
+                                end
+      end
 
 
       @current_user = params[:current_user_id].nil? ? nil : User.where(id: params[:current_user_id]).first
