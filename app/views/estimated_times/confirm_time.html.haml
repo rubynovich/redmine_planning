@@ -1,6 +1,7 @@
 :javascript
   function update_confirmer(elem,url){
       $.ajax({url: url,
+          data: { status: elem.checked ? '1' : '0' },
           type: 'PUT',
           dataType: 'script'})
   }
