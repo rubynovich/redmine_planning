@@ -19,10 +19,9 @@ namespace :redmine do
         end
       end
 
-      PlanningConfirmation.where(user_id: user_ids).each do |conf|
-        if conf.user_id && (conf.user_id == conf.user.becomes(Person).department.try(:find_head).try(:id))
-          conf.update_column(:head_id, conf.get_head_id) if conf.user_id.present?
-        end
+      user_ids.each do |user_id|
+        new_head_id = PlanningConfirmation.get_head_id(user_id)
+        PlanningConfirmation.where(user_id: user_id).update_all(:head_id: new_head_id)
       end
     end
 
