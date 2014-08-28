@@ -83,6 +83,7 @@ ru:
   label_confirm_spent_time_caps: ПОДТВЕРЖДЕНИЕ ЗАТРАЧЕННОГО ВРЕМЕНИ
   label_confirm_spent_time: Подтверждение затраченного времени
 
+  label_observer: местоположение сотрудиков
   label_not_confirm_group_by_project: "убрать группировку по проектам"
   label_not_confirm_group_by_user: "убрать группировку по сотрудникам"
   label_not_confirm_confirmed_time: "скрыть подтвержденнное время"

@@ -25,7 +25,9 @@
   - if can_confirm_time_entries?
     = " | "
     = link_to l(:label_confirm_spent_time_caps), action: 'confirm_time'
-
+  -# unless SkynetObserver.where(user_id: User.current.id).empty?
+  = " | "
+  = link_to l(:label_observer), {controller: 'skynet', action: 'index'}, {target: "_blank"}
 
 %h2=l(:label_estimated_time_plural)
 
