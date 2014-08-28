@@ -15,10 +15,17 @@ class PlanningConfirmation < ActiveRecord::Base
 
 
 
-      def planned_in?
+  def planned_in?
     ! PlanningConfirmation.no_time_planned(self.issue_id, self.date_start)
   end
 
+  def get_head_id(assigned_to_id)
+    department = Person.where(id: assigned_to_id).first.try(:department)
+    if department.find_head.try(:id) == assigned_to_id
+      department = department.parent.try(:find_head).try(:department)
+    end
+    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
+  end
 
   class << self
   def confirm_time_period
@@ -192,13 +199,7 @@ class PlanningConfirmation < ActiveRecord::Base
   	return spent_times.blank?
   end
 
-  def get_head_id(assigned_to_id)
-    department = Person.where(id: assigned_to_id).first.try(:department)
-    if department.find_head.try(:id) == assigned_to_id
-      department = department.parent.try(:find_head).try(:department)
-    end
-    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
-  end
+
 
   private
   
