@@ -21,7 +21,7 @@ namespace :redmine do
 
       user_ids.each do |user_id|
         new_head_id = PlanningConfirmation.get_head_id(user_id)
-        PlanningConfirmation.where(user_id: user_id).update_all(:head_id, new_head_id)
+        PlanningConfirmation.where(user_id: user_id).update_all(:head_id => new_head_id)
       end
     end
 
