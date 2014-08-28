@@ -13,8 +13,8 @@ namespace :redmine do
     desc 'rehead confirmation'
     task :rehead => :environment do
       PlanningConfirmation.all.each do |conf|
-        if conf.user_id == conf.user.becomes(Person).department.parent.try(:find_head).try(:id)
-          conf.update_column(:head_id, conf.get_head_id)
+        if conf.user_id == conf.user.becomes(Person).department.try(:parent).try(:find_head).try(:id)
+          conf.update_column(:head_id, conf.get_head_id) if conf.user_id.present?
         end
       end
     end
