@@ -13,19 +13,15 @@ class PlanningConfirmation < ActiveRecord::Base
   scope :head_not_confirmed, where(["(planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false])
   scope :not_full_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
 
-
+  def get_head_id
+    self.class.get_head_id(self.user_id)
+  end
 
   def planned_in?
     ! PlanningConfirmation.no_time_planned(self.issue_id, self.date_start)
   end
 
-  def get_head_id(assigned_to_id)
-    department = Person.where(id: assigned_to_id).first.try(:department)
-    if department.find_head.try(:id) == assigned_to_id
-      department = department.parent.try(:find_head).try(:department)
-    end
-    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
-  end
+
 
   class << self
   def confirm_time_period
@@ -199,6 +195,13 @@ class PlanningConfirmation < ActiveRecord::Base
   	return spent_times.blank?
   end
 
+  def get_head_id(assigned_to_id)
+    department = Person.where(id: assigned_to_id).first.try(:department)
+    if department.find_head.try(:id) == assigned_to_id
+      department = department.parent.try(:find_head).try(:department)
+    end
+    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
+  end
 
 
   private
