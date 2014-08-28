@@ -192,6 +192,14 @@ class PlanningConfirmation < ActiveRecord::Base
   	return spent_times.blank?
   end
 
+  def get_head_id(assigned_to_id)
+    department = Person.where(id: assigned_to_id).first.try(:department)
+    if department.find_head.try(:id) == assigned_to_id
+      department = department.find_head.department
+    end
+    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
+  end
+
   private
   
   def month_length(date)
@@ -217,10 +225,7 @@ class PlanningConfirmation < ActiveRecord::Base
 	end
   end
 
-  def get_head_id(assigned_to_id)
-    department = Person.where(id: assigned_to_id).first.try(:department)
-    department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
-  end
+
 
   def get_kgip_id(project_id)
 	  Role.kgip_role.members.where(project_id: project_id).first.try(:user_id)

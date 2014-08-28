@@ -9,5 +9,15 @@ namespace :redmine do
         end
       end
     end
+
+    desc 'rehead confirmation'
+    task :rehead => :environment do
+      PlanningConfirmation.all.each do |conf|
+        if conf.user_id == conf.user.becomes(Person).department.find_head.try(:id)
+          conf.update_column(:head_id, conf.get_head_id)
+        end
+      end
+    end
+
   end
 end
