@@ -195,7 +195,7 @@ class PlanningConfirmation < ActiveRecord::Base
   def get_head_id(assigned_to_id)
     department = Person.where(id: assigned_to_id).first.try(:department)
     if department.find_head.try(:id) == assigned_to_id
-      department = department.find_head.department
+      department = department.parent.try(:find_head).try(:department)
     end
     department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
   end
