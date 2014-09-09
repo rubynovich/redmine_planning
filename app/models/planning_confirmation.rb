@@ -130,8 +130,10 @@ class PlanningConfirmation < ActiveRecord::Base
   	PlanningConfirmation.kgip_not_confirmed.update_all({:KGIP_id => Member.find(member_id).user_id}, {:issue_id => Member.find(member_id).project.issues.map(&:id)})
   end
 
-  def change_head_planning(params) # смена руководителя
-  	PlanningConfirmation.head_not_confirmed.update_all({:head_id => params.confirmer_id}, {:user_id => Person.where(department_id: params.id).map(&:id)})
+  def change_head_planning(department) # смена руководителя
+    department_head = department.find_head.try(:id)
+    PlanningConfirmation.head_not_confirmed.where(["user_id <> ?", department_head]).update_all({:head_id => (department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id)}, {:user_id => Person.where(department_id: department.id).map(&:id)})
+    PlanningConfirmation.head_not_confirmed.where(user_id: department_head).update_all({:head_id => (department.parent.nil? ? department.head_id : department.parent.try(:find_head).try(:id)) }, {:user_id => Person.where(department_id: department.id).map(&:id)})
   end
 
   def create_or_change_planning(person)
@@ -194,6 +196,7 @@ class PlanningConfirmation < ActiveRecord::Base
   	spent_times = TimeEntry.where("issue_id = ? AND spent_on BETWEEN ? AND ?", issue_id, date_start, date_start + planning_duration(date_start))
   	return spent_times.blank?
   end
+
 
   def get_head_id(assigned_to_id)
     department = Person.where(id: assigned_to_id).first.try(:department)

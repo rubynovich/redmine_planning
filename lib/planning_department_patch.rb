@@ -11,6 +11,10 @@ module PlanningPlugin
         unloadable
 
 
+        before_update :set_old_attributes
+        before_create :reset_old_attributes
+
+
         after_update :change_head_planning
         after_create :change_head_planning
       end
@@ -20,8 +24,17 @@ module PlanningPlugin
     end
 
     module InstanceMethods
+
+      def set_old_head_id
+        @old_attributes = self.attributes
+      end
+
+      def reset_old_attributes
+        @old_attributes = {}
+      end
+
       def change_head_planning
-        PlanningConfirmation.sidekiq_delay.change_head_planning(self)
+        PlanningConfirmation.sidekiq_delay.change_head_planning(self) if (!@old_attributes) || (@old_attributes["confirmer_id"] != self.confirmer_id) || (@old_attributes["head_id"] != self.head_id)
       end
 
       def all_children
