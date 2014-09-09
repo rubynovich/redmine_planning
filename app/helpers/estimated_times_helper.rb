@@ -33,11 +33,18 @@ module EstimatedTimesHelper
     return PlanningConfirmation.where(issue_id: issue.id, user_id: user.id).first.present?
   end
 
+
+
+
   def title_name_kgip(issue)
     h((issue.project.kgips.first.try(:name) || l(:label_confirmer_undefined)).to_s)
   end
 
   def title_name_confirmer(user_id)
+    h(User.where(id: PlanningConfirmation.get_head_id(user_id)).first.try(:name) || l(:label_confirmer_undefined))
+  end
+
+  def title_name_head(user_id)
     h(User.where(id: user_id).first.try(:name) || l(:label_confirmer_undefined))
   end
 

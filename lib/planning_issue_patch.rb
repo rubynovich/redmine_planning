@@ -68,7 +68,6 @@ module PlanningPlugin
             }
           end
         }
-
         after_create :create_planning
       end
     end

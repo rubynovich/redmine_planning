@@ -53,6 +53,6 @@
                   = "-"
               %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
                 - if (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
-                  = check_box_tag :head_check, "1", is_confirmer_checked_conf(confirmation, :head_confirmation), :title=> title_name_confirmer(confirmation.user.becomes(Person).try(:department).try(:confirmer)), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => confirmation.id, :type => "1", hours: hours, :format => 'js'})}')"
+                  = check_box_tag :head_check, "1", is_confirmer_checked_conf(confirmation, :head_confirmation), :title=> title_name_head(confirmation.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer(this,'#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => confirmation.id, :type => "1", hours: hours, :format => 'js'})}')"
                 - else
                   = "-"
