@@ -69,6 +69,25 @@ module PlanningPlugin
           end
         }
         after_create :create_planning
+
+        before_update do |issue|
+          @old_issue_status_id = Issue.where(id:  issue.id).first.try(:status_id)
+        end
+
+        after_update do |issue|
+          group_ids = Group.all.map(&:id)
+          settings = Setting[:plugin_redmine_planning]
+          if (group_ids.include?(issue.assigned_to_id)) && (@old_issue_status_id == settings[:new_issue_status].to_i) && (issue.status_id != @old_issue_status_id)
+            journal = issue.journals.joins(:details).where(["journal_details.prop_key = 'status_id' and journal_details.old_value = ? and journal_details.value = ?",settings[:new_issue_status].to_s, issue.status_id.to_s ]).first
+            if journal.present?
+              JournalDetail.skip_callback(:create)
+              JournalDetail.create(journal_id: journal.id, property: 'attr', prop_key: 'assigned_to_id', old_value: issue.assigned_to_id, value: journal.user_id)
+              JournalDetail.set_callback(:create)
+              issue.update_column(:assigned_to_id, journal.user_id)
+            end
+          end
+        end
+
       end
     end
 

@@ -15,3 +15,12 @@
 %p
   %label= l(:label_kgip_role)
   = select_tag("settings[kgip_role_id]", options_for_select(Role.all.map{|role| [role.name, role.id]}, (@settings[:kgip_role_id] || nil) ), :prompt => t(:prompt_please_select), :multiple => false)
+%p
+  = content_tag(:label, l(:label_no_time_issue_statuses))
+  = select_tag("settings[issue_statuses]", options_from_collection_for_select(IssueStatus.all, :id, :name, @settings[:issue_statuses] && @settings[:issue_statuses].to_a || [IssueStatus.default]), :multiple => true)
+%p
+  = content_tag(:label, l(:label_new_issue_status))
+  = select_tag("settings[new_issue_status]", options_from_collection_for_select(IssueStatus.all, :id, :name, @settings[:new_issue_status] && @settings[:new_issue_status].to_i || IssueStatus.default), :prompt => t(:prompt_please_select), :multiple => false)
+%p
+  = content_tag(:label, l(:label_in_work_issue_status))
+  = select_tag("settings[in_work_issue_status]", options_from_collection_for_select(IssueStatus.all, :id, :name, @settings[:in_work_issue_status] && @settings[:in_work_issue_status].to_i || IssueStatus.default), :prompt => t(:prompt_please_select), :multiple => false)

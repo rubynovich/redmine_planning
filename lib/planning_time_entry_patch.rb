@@ -17,6 +17,7 @@ module PlanningPlugin
         validate :validate_user_id, if: ->{ self.issue.meeting_member.blank? rescue true }
         validate :validate_comments
 
+
         validate :validate_time_confirmed
 
         validates_presence_of :comments

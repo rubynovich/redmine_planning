@@ -25,5 +25,19 @@ namespace :redmine do
       end
     end
 
+    desc 'reassign issues'
+    task :reassign => :environment do
+      settings = Setting[:plugin_redmine_planning]
+      Issue.where(["issues.due_date >= ?",'2014-06-01'.to_date]).where(assigned_to_id: Group.all.map(&:id)).each do |issue|
+        journal = issue.journals.joins(:details).where(["journal_details.prop_key = 'status_id' and journal_details.old_value = ? and journal_details.value = ?",settings[:new_issue_status].to_s, settings[:in_work_issue_status].to_s ]).first
+        if journal.present?
+          JournalDetail.skip_callback(:create)
+          JournalDetail.create(journal_id: journal.id, property: 'attr', prop_key: 'assigned_to_id', old_value: issue.assigned_to_id, value: journal.user_id)
+          JournalDetail.set_callback(:create)
+          issue.update_column(:assigned_to_id, journal.user_id)
+        end
+      end
+    end
+
   end
 end

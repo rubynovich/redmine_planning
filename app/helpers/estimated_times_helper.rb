@@ -157,7 +157,8 @@ module EstimatedTimesHelper
     issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    (10.days.ago <= day)&&(day < 1.day.from_now.to_date)
+    (10.days.ago <= day)&&(day < 1.day.from_now.to_date)&&
+    (!(Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i))
   end
 
   def link_to_spent_and_edit(issue, day, can_edit)
