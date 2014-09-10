@@ -25,7 +25,7 @@ module PlanningPlugin
 
     module InstanceMethods
 
-      def set_old_head_id
+      def set_old_attributes
         @old_attributes = self.attributes
       end
 
