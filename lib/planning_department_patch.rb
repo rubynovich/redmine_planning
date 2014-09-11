@@ -26,7 +26,7 @@ module PlanningPlugin
     module InstanceMethods
 
       def set_old_attributes
-        @old_attributes = self.attributes
+        @old_attributes = Department.where(id: self.id).first.try(:attributes)
       end
 
       def reset_old_attributes
