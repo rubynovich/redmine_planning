@@ -6,6 +6,7 @@ class PlanningConfirmation < ActiveRecord::Base
   belongs_to :kgip, class_name: 'Person', foreign_key: 'KGIP_id'
   belongs_to :leader, class_name: 'Person', foreign_key: 'head_id'
   has_one :project, :through => :issue
+  has_many :planning_confirmation_comments
 
 
   scope :not_any_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?) OR (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
@@ -190,8 +191,6 @@ class PlanningConfirmation < ActiveRecord::Base
     end
   end
 
-
-
   def no_time_planned(issue_id, date_start)
   	spent_times = TimeEntry.where("issue_id = ? AND spent_on BETWEEN ? AND ?", issue_id, date_start, date_start + planning_duration(date_start))
   	return spent_times.blank?
@@ -206,7 +205,6 @@ class PlanningConfirmation < ActiveRecord::Base
     end
     department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
   end
-
 
   private
   

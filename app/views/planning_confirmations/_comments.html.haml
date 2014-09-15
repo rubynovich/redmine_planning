@@ -1,0 +1,8 @@
+- if comments.any?
+  = link_to_function l(:show_comments_history), "$('#comment-ctype#{ctype}-id#{confirm.id}').show(); $(this).hide();"
+  %div{style: 'display: none;', id: "comment-ctype#{ctype}-id#{confirm.id}"}
+    - comments.find_each do |comment|
+      %p{style: 'text-align: left;'}
+        = (comment.is_confirmation ? '<span title="подтверждение" style="color: green; font-weight: bold;">+</span>' : '<span style="color: red; font-weight: bold;" title="отмена подтверждения">-</span>').html_safe
+        = comment.created_at.strftime('%d-%m-%Y')
+        = link_to comment.comment, "/people/#{comment.user.id}", title: comment.user.name

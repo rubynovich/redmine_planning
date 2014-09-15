@@ -1,0 +1,3 @@
+hideModal('ajax-modal');
+//update this comments
+$("#comments-box-ctype<%= @ctype %>-id<%= @confirm.id %>").html('<%= escape_javascript(render partial: 'planning_confirmations/comments', locals: {ctype: @ctype, confirm: @confirm, comments: @ctype == 0 ? @confirm.planning_confirmation_comments.kgips : @confirm.planning_confirmation_comments.heads}) %>');

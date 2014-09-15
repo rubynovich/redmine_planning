@@ -1,0 +1,9 @@
+%h3.title=l(:label_for_comment_confirmation)
+= form_for @comment, url: create_comment_planning_confirmation_path(@confirm), remote: true do |f|
+  = f.text_area :comment, style: 'width: 100%;'
+  = hidden_field_tag "planning_confirmation_comment[confirmation_type]",  @ctype
+  = hidden_field_tag "planning_confirmation_comment[user_id]", User.current.id
+  = hidden_field_tag "planning_confirmation_comment[is_confirmation]", @is_confirmation
+  %p.buttons
+    = submit_tag l(:button_add), :name => nil, :onclick => "hideModal(this);"
+    = submit_tag l(:button_cancel), :name => nil, :onclick => "hideModal(this);", :type => 'button'

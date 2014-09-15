@@ -27,6 +27,7 @@ RedmineApp::Application.routes.draw do
   resources :planning_confirmations do
     member do
       put :update_confirmer, defaults: {format: 'js'}
+      post :create_comment, defaults: {format: 'js'}
     end
   end
 

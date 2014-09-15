@@ -1,0 +1,7 @@
+if (! $( "#ajax-modal-<%= @confirm.id %>" ).length ) {
+    $('#ajax-modal').append('<div id="ajax-modal-<%= @confirm.id %>" style="display:none;"></div>');
+    $('#ajax-modal-<%= @confirm.id %>').copyCSS('#ajax-modal');
+    $('#ajax-modal-<%= @confirm.id %>').html('<%= escape_javascript(render :partial => 'planning_confirmations/new_comment') %>');
+};
+//showModal('ajax-modal', '400px');
+$("#add_comment_<%= @ctype == 0 ? 'kgip' : 'head'%>_confirmation_<%= @confirm.id %>").html('<%= escape_javascript(render :partial => 'planning_confirmations/add_link') %>');

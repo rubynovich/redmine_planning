@@ -194,6 +194,34 @@ module EstimatedTimesHelper
     end
   end
 
+  def sum_spent_for_user_issue(issue, user)
+    time_entries = TimeEntry.where(issue_id: issue.try(:id), user_id: user.try(:id))
+    if time_entries.any?
+      time_entries.map{|i| i.hours }.sum(0.0).to_f
+    else
+      0.0
+    end
+  end
+
+  def comments_spent_for_user_issue(issue, user)
+    time_entries = TimeEntry.where(issue_id: issue.try(:id), user_id: user.try(:id))
+    if time_entries.any?
+      time_entries.map{ |i| i.comments }.reject{ |i| i.blank? }.join("\r")
+    else
+      nil
+    end
+  end
+
+
+  def sum_spent_for_issue(issue)
+    time_entries = TimeEntry.where(issue_id: issue.try(:id))
+    if time_entries.any?
+      time_entries.sum(:hours).to_f
+    else
+      0.0
+    end
+  end
+
   def link_to_spent(issue, day)
     link_to_spent_and_edit(issue, day, true)
   end
