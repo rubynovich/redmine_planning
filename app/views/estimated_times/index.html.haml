@@ -150,17 +150,25 @@
               - else
                 = "-"
             - if Date.today.beginning_of_week > @current_date
+              - confirmation = get_issue_confirmation(issue, @current_user, @current_date)
               %td{:align=>:center, :style => "border-left-width:3px;"}
                 - if (hours > 0.0) && issue.project.is_external && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5))
                   = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_kgip(issue)
+                  - if confirmation
+                    %span{id: "add_comment_kgip_confirmation_#{confirmation.id}"}
+                    %div{id: "comments-box-ctype0-id#{confirmation.id}"}
+                      = render partial: 'planning_confirmations/comments', locals: {ctype: 0, confirm: confirmation, comments: confirmation.planning_confirmation_comments.kgips}
                 - else
                   = "-"
               %td{:align=>:center, :style => "border-left-width:3px;"}
                 - if (hours > 0.0) && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5))
                   = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_confirmer(@current_user)
+                  - if confirmation
+                    %span{id: "add_comment_kgip_confirmation_#{confirmation.id}"}
+                    %div{id: "comments-box-ctype1-id#{confirmation.id}"}
+                      = render partial: 'planning_confirmations/comments', locals: {ctype: 1, confirm: confirmation, comments: confirmation.planning_confirmation_comments.heads}
                 - else
                   = "-"
-
       %tfoot
         %tr
           %th{:colspan => 3}

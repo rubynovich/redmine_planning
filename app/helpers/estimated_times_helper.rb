@@ -20,11 +20,15 @@ module EstimatedTimesHelper
   end
 
   def is_confirmer_checked(issue, confirmer_type, user, date)
-    PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).map(&confirmer_type)[0]
+    PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).map(&confirmer_type).first
+  end
+
+  def get_issue_confirmation(issue, user, date)
+    PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).first
   end
 
   def is_confirmer_checked_conf(confirmation, confirmer_type)
-    PlanningConfirmation.where(id: confirmation.id).map(&confirmer_type)[0]
+    PlanningConfirmation.where(id: confirmation.id).map(&confirmer_type).first
   end
 
 
