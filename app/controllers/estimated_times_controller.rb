@@ -317,7 +317,7 @@ class EstimatedTimesController < ApplicationController
         #as kgip
       end
 
-      departments = Department.where(confirmer_id: User.current.id)
+      departments = Department.where(["(departments.confirmer_id = ?) OR (departments.confirmer_id is null and departments.head_id = ?)", User.current.id, User.current.id])
       if departments.any?
         @can_change_role = (@confirm_role == 0)
       end
