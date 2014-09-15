@@ -41,10 +41,11 @@ namespace :redmine do
 
     desc 'remove planning_confirmations duplicates'
     task :remove_planning_confirmations_duplicates => :environment do
-      pc_ids = PlanningConfirmation.find_by_sql("SELECT id FROM planning_confirmations t1 where (select count(*) from planning_confirmations t2 where t1.user_id = t2.user_id and t1.issue_id = t2.issue_id and t1.date_start = t2.date_start) > 1").map(&:id)
-      PlanningConfirmation.find_by_sql(["SELECT MAX(id), user_id, issue_id, date_start FROM planning_confirmations WHERE id IN (?) GROUP BY user_id, issue_id, date_start", pc_ids])
-      del_pc_ids = PlanningConfirmation.find_by_sql(["SELECT MAX(id) as id, user_id, issue_id, date_start FROM planning_confirmations WHERE id IN (?) GROUP BY user_id, issue_id, date_start", pc_ids]).map(&:id)
-      PlanningConfirmation.where(id: del_pc_ids).delete_all
+      count = PlanningConfirmation.find_by_sql("SELECT count(id) as cnt, user_id, issue_id, date_start FROM planning_confirmations GROUP BY user_id, issue_id, date_start HAVING COUNT(id) > 1").map(&:cnt).max.to_i
+      count.times.each do
+        del_pc_ids = PlanningConfirmation.find_by_sql("SELECT max(id) as id, user_id, issue_id, date_start FROM planning_confirmations GROUP BY user_id, issue_id, date_start HAVING COUNT(id) > 1").map(&:id)
+        PlanningConfirmation.where(id: del_pc_ids).delete_all
+      end
     end
 
   end
