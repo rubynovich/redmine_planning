@@ -105,13 +105,14 @@
         %th{:rowspan => 2}= l(:field_deadline)
         - 7.times do |day|
           %th{:colspan => 2}= (@current_date + day.days).strftime("%d.%m")
-        %th{:colspan => 2}= l(:label_total)
+        %th{:colspan => 3}= l(:label_total)
         - if Date.today.beginning_of_week > @current_date
           %th{:colspan => 2}= l(:label_confirmation)
       %tr
         - 8.times do
           %th= l(:label_plan)
-          %th= l(:label_spent)      
+          %th= l(:label_spent)
+        %th= l(:label_estimated_hours)
         - if Date.today.beginning_of_week > @current_date
           %th= l(:label_planning_KGIP)
           %th= l(:label_planning_head)
@@ -119,7 +120,7 @@
       - @project_issues.each do |project, issues|
         %tr
           - if project.present?
-            %th{:colspan => ((Date.today.beginning_of_week > @current_date) ? 21 : 19), :align => :center}
+            %th{:colspan => ((Date.today.beginning_of_week > @current_date) ? 22 : 20), :align => :center}
               = link_to project.name, {:controller => :issues, :project_id => project.identifier, :action => :new}, :class => 'icon icon-add'
         - issues.each do |issue|
           %tr.even{:class => issue.css_classes}
@@ -149,6 +150,11 @@
                 = link_to html_hours("%.2f" % hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
               - else
                 = "-"
+            %td
+              - if issue.estimated_hours.to_f > 0.0
+                = link_to html_hours("%.2f" % issue.estimated_hours), "/issues/#{issue.id}"
+              - else
+                = "-"
             - if Date.today.beginning_of_week > @current_date
               - confirmation = get_issue_confirmation(issue, @current_user, @current_date)
               %td{:align=>:center, :style => "border-left-width:3px;"}
@@ -176,6 +182,7 @@
           - 7.times do |day|
             %th= link_to_sum_hours_plan_on(day)
             %th= link_to_sum_hours_spent_on(day)
+          %th
           %th
           %th
           - if Date.today.beginning_of_week > @current_date

@@ -19,6 +19,7 @@
           - 7.times do |day|
             %th= (@current_date + day.days).strftime("%d.%m")
           %th= l(:label_total)
+          %th= l(:label_estimated_hours)
           %th= l(:label_planning_KGIP)
           %th= l(:label_planning_head)
         - confirmations.each do |confirmation|
@@ -48,6 +49,11 @@
                   (
                   = link_to html_hours("%.2f" % sum_spent_for_user_issue(issue, confirmation.user)), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => confirmation.user.try(:id)}, :title => comments_spent_for_user_issue(issue, confirmation.user)
                   )
+                - else
+                  = "-"
+              %td
+                - if issue.estimated_hours.to_f > 0.0
+                  = link_to html_hours("%.2f" % issue.estimated_hours), "/issues/#{issue.id}"
                 - else
                   = "-"
               %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
