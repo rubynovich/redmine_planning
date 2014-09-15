@@ -19,6 +19,8 @@ ru:
   label_planning: "Планирование"
   label_estimated_time_plural: "Планирование"
   label_plan: "План"
+  label_yes: 'да'
+  label_no: 'нет'
   label_spent: "Факт"
   label_plan_time: "Запланированное время"
   label_select_project_for_new_issue: "Выберите проект, в котором хотите создать задачу..."

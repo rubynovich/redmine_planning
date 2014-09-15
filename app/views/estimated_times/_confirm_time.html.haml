@@ -1,0 +1,58 @@
+- confirmations.each do |confirmation|
+  - issue = confirmation.issue
+  - hours = 0.0
+  - 7.times do |day|
+    - hours += strip_tags(show_spent_for_user(issue, day, confirmation.user)).to_f
+  - if hours > 0.0
+    %tr.even{:class => "user_#{user.try(:id)}_issues #{'users_issues' if user.present?} #{issue.css_classes}"}
+      %td.id
+        = link_to issue.id, issue_path(issue), :title => issue.subject
+      %td.subject
+        = link_to issue.subject, issue_path(issue), :title => issue.project
+        = "(#{issue.status})"
+      - unless user
+        %td.author
+          = link_to_user confirmation.user
+      %td.deadline{:align => :center}
+        = issue_dates(issue)
+      - 7.times do |day|
+        %td{:align=>:center, :style => "border-right-width:3px;"}
+          = show_spent_for_user(issue, day, confirmation.user)
+      %td
+        - if hours > 0.0
+          = link_to html_hours("%.2f" % sum_spent_for_issue(issue)), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => confirmation.user.try(:id)}
+          %br
+          (
+          = link_to html_hours("%.2f" % sum_spent_for_user_issue(issue, confirmation.user)), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => confirmation.user.try(:id)}, :title => comments_spent_for_user_issue(issue, confirmation.user)
+          )
+        - else
+          = "-"
+      %td
+        - if issue.estimated_hours.to_f > 0.0
+          = link_to html_hours("%.2f" % issue.estimated_hours), "/issues/#{issue.id}"
+        - else
+          = "-"
+      %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
+        - if issue.project.is_external && (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+          %div
+            = radio_button_tag "kgip_check#{confirmation.id}", "1", is_confirmer_checked_conf(confirmation, :KGIP_confirmation), :title=> title_name_kgip(confirmation.issue), :disabled => (@confirm_role == 1) || issue.project.kgip_members.empty? , :onclick =>"update_confirmer('1','#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :type => "0", :id => confirmation.try(:id), hours: hours, :format => 'js'})}')"
+            = l(:label_yes)
+            = radio_button_tag "kgip_check#{confirmation.id}", "0", is_confirmer_checked_conf(confirmation, :KGIP_confirmation), :title=> title_name_kgip(confirmation.issue), :disabled => (@confirm_role == 1) || issue.project.kgip_members.empty? , :onclick =>"update_confirmer('0','#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :type => "0", :id => confirmation.try(:id), hours: hours, :format => 'js'})}')"
+            = l(:label_no)
+          %div{id: "add_comment_kgip_confirmation_#{confirmation.id}"}
+          %div{id: "comments-box-ctype0-id#{confirmation.id}"}
+            = render partial: 'planning_confirmations/comments', locals: {ctype: 0, confirm: confirmation, comments: confirmation.planning_confirmation_comments.kgips}
+        - else
+          = "-"
+      %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
+        - if (issue.start_date <= (@current_date + 5)) && (issue.due_date >= @current_date)
+          %div
+            = radio_button_tag "head_check#{confirmation.id}", "1", is_confirmer_checked_conf(confirmation, :head_confirmation), :title=> title_name_head(confirmation.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer('1','#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => confirmation.id, :type => "1", hours: hours, :format => 'js'})}')"
+            = l(:label_yes)
+            = radio_button_tag "head_check#{confirmation.id}", "0", is_confirmer_checked_conf(confirmation, :head_confirmation), :title=> title_name_head(confirmation.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer('0','#{url_for({:controller => :planning_confirmations, :action => :update_confirmer, :id => confirmation.id, :type => "1", hours: hours, :format => 'js'})}')"
+            = l(:label_no)
+          %div{id: "add_comment_head_confirmation_#{confirmation.id}"}
+          %div{id: "comments-box-ctype1-id#{confirmation.id}"}
+            = render partial: 'planning_confirmations/comments', locals: {ctype: 1, confirm: confirmation, comments: confirmation.planning_confirmation_comments.heads}
+        - else
+          = "-"
