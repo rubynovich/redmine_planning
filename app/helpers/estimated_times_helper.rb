@@ -23,6 +23,12 @@ module EstimatedTimesHelper
     PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).map(&confirmer_type).first
   end
 
+  def is_confirmer_checked_for_user(issue, confirmer_type, user, date)
+    pcs = PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date)
+    return -1 unless pcs.any?
+    pcs.map(&confirmer_type).first
+  end
+
   def get_issue_confirmation(issue, user, date)
     PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).first
   end

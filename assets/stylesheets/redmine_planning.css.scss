@@ -1,3 +1,18 @@
+.wait-confirm{
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: asset-data-url('redmine_planning/images/clock.png');
+}
+.yes-confirm{
+  color: green;
+  font-weight: bold;
+}
+.no-confirm{
+  color: red;
+  font-weight: bold;
+}
+
 .confirm_time{
   table.list{
     border: none;

@@ -168,7 +168,13 @@
                   = "-"
               %td{:align=>:center, :style => "border-left-width:3px;"}
                 - if (hours > 0.0) && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5))
-                  = check_box_tag :head_check, "1", is_confirmer_checked(issue, :head_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_confirmer(@current_user)
+                  - confirm_checked = is_confirmer_checked(issue, :head_confirmation, @current_user, @current_date)
+                  - if confirm_checked == true
+                    %span.yes-confirm{title:'Подтверждено: ' + title_name_confirmer(@current_user)} Да
+                  - elsif confirm_checked == false
+                    %span.no-confirm{title:'Не подтверждено: '+title_name_confirmer(@current_user)} Нет
+                  - elsif confirm_checked.nil?
+                    %span.wait-confirm{title:'Ожидает подтверждения: '+title_name_confirmer(@current_user)}
                   - if confirmation
                     %span{id: "add_comment_kgip_confirmation_#{confirmation.id}"}
                     %div{id: "comments-box-ctype1-id#{confirmation.id}"}
