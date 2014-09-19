@@ -22,4 +22,4 @@
           %th= l(:label_estimated_hours)
           %th= l(:label_planning_KGIP)
           %th= l(:label_planning_head)
-        = render partial: 'estimated_times/confirm_time', locals: {confirmations: confirmations}
+        = render partial: 'estimated_times/confirm_time', locals: {confirmations: confirmations, user: user, project: project}
