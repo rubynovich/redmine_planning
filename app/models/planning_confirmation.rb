@@ -3,16 +3,16 @@ class PlanningConfirmation < ActiveRecord::Base
 
   belongs_to :user, class_name: 'Person', foreign_key: 'user_id'
   belongs_to :issue
-  belongs_to :kgip, class_name: 'Person', foreign_key: 'KGIP_id'
+  belongs_to :kgip, class_name: 'Person', foreign_key: 'kgip_id'
   belongs_to :leader, class_name: 'Person', foreign_key: 'head_id'
   has_one :project, :through => :issue
   has_many :planning_confirmation_comments
 
 
-  scope :not_any_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?) OR (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
-  scope :kgip_not_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?)", false])
+  scope :not_any_confirmed, where(["('planning_confirmations.kgip_confirmation' IS NULL OR 'planning_confirmations.kgip_confirmation' = ?) OR (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
+  scope :kgip_not_confirmed, where(["('planning_confirmations.kgip_confirmation' IS NULL OR 'planning_confirmations.kgip_confirmation' = ?)", false])
   scope :head_not_confirmed, where(["(planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false])
-  scope :not_full_confirmed, where(["('planning_confirmations.KGIP_confirmation' IS NULL OR 'planning_confirmations.KGIP_confirmation' = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
+  scope :not_full_confirmed, where(["('planning_confirmations.kgip_confirmation' IS NULL OR 'planning_confirmations.kgip_confirmation' = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
 
   def get_head_id
     self.class.get_head_id(self.user_id)
@@ -56,7 +56,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
 
 
-    #confirms = (PlanningConfirmation.where(issue_id: old_issue.id, KGIP_confirmation: [nil, false]) +
+    #confirms = (PlanningConfirmation.where(issue_id: old_issue.id, kgip_confirmation: [nil, false]) +
     #      PlanningConfirmation.where(issue_id: old_issue.id, head_confirmation: [nil, false])).uniq
 
     confirms = PlanningConfirmation.
@@ -93,11 +93,11 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def change_assigned_to_planning(issue_params, old_issue) # смена сроков
 
-    #confirms = (PlanningConfirmation.where(issue_id: old_issue.id, KGIP_confirmation: [nil, false]) +
+    #confirms = (PlanningConfirmation.where(issue_id: old_issue.id, kgip_confirmation: [nil, false]) +
     #      PlanningConfirmation.where(issue_id: old_issue.id, head_confirmation: [nil, false])).uniq
 
 
-    #confirms = PlanningConfirmation.where(issue_id: old_issue.id).where(["('planning_confirmations.KGIP_confirmation' IN (?)) OR (planning_confirmations.head_confirmation IN (?))", [nil, false], [nil, false]])
+    #confirms = PlanningConfirmation.where(issue_id: old_issue.id).where(["('planning_confirmations.kgip_confirmation' IN (?)) OR (planning_confirmations.head_confirmation IN (?))", [nil, false], [nil, false]])
 
     f_day = today_confirm_day
 
@@ -128,7 +128,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def change_kgip_planning(member_id) # смена КГИПа
     #where(["date_start >= ?", today_confirm_day])
-  	PlanningConfirmation.kgip_not_confirmed.update_all({:KGIP_id => Member.find(member_id).user_id}, {:issue_id => Member.find(member_id).project.issues.map(&:id)})
+  	PlanningConfirmation.kgip_not_confirmed.update_all({:kgip_id => Member.find(member_id).user_id}, {:issue_id => Member.find(member_id).project.issues.map(&:id)})
   end
 
   def change_head_planning(department) # смена руководителя
@@ -159,7 +159,7 @@ class PlanningConfirmation < ActiveRecord::Base
               :user_id => person.id,
               :issue_id => issue.id,
               :date_start => day
-              #:KGIP_id => get_kgip_id(issue.project_id),
+              #:kgip_id => get_kgip_id(issue.project_id),
               #:head_id => head_id
           }
         }
@@ -181,7 +181,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
       pcs_ex = PlanningConfirmation.where(gsql_query).map{|i| i.attributes.symbolize_keys.select{|k,v| [:user_id, :issue_id, :date_start].include?(k)}}
       create_hash = (pcs_attrs - pcs_ex).map{|itm| itm.merge({
-                                                                 :KGIP_id => get_kgip_id(Issue.find(itm[:issue_id]).try(:project_id)),
+                                                                 :kgip_id => get_kgip_id(Issue.find(itm[:issue_id]).try(:project_id)),
                                                                  :head_id => head_id
                                                              }) }
       #puts create_hash.inspect
@@ -248,12 +248,12 @@ class PlanningConfirmation < ActiveRecord::Base
   		unless PlanningConfirmation.where(:user_id => a_id,
 			                        :issue_id => i_id,
 			                        :date_start => first_d, 
-			                        :KGIP_id => kgip_id,
+			                        :kgip_id => kgip_id,
 			                        :head_id => head_id).count > 0
 			PlanningConfirmation.create(:user_id => a_id,
 				                        :issue_id => i_id,
 				                        :date_start => first_d, 
-				                        :KGIP_id => kgip_id,
+				                        :kgip_id => kgip_id,
 				                        :head_id => head_id)
 		end
 		first_d = first_d + planning_duration(first_d)

@@ -339,14 +339,14 @@ class EstimatedTimesController < ApplicationController
 
 
       if @confirm_role == 0
-        need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, KGIP_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
+        need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, kgip_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
       else
         need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, head_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
       end
       @assigned_confirmations = need_confirmations
 
       if params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?
-        @assigned_confirmations = @assigned_confirmations.where(KGIP_confirmation: [nil,false], head_confirmation: [nil,false])
+        @assigned_confirmations = @assigned_confirmations.where(kgip_confirmation: [nil,false], head_confirmation: [nil,false])
       end
 
 

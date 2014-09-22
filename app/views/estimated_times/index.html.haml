@@ -114,7 +114,7 @@
           %th= l(:label_spent)
         %th= l(:label_estimated_hours)
         - if Date.today.beginning_of_week > @current_date
-          %th= l(:label_planning_KGIP)
+          %th= l(:label_planning_kgip)
           %th= l(:label_planning_head)
     %tbody
       - @project_issues.each do |project, issues|
@@ -159,7 +159,7 @@
               - confirmation = get_issue_confirmation(issue, @current_user, @current_date)
               %td{:align=>:center, :style => "border-left-width:3px;"}
                 - if (hours > 0.0) && issue.project.is_external && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5))
-                  = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_kgip(issue)
+                  = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :kgip_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_kgip(issue)
                   - if confirmation
                     %span{id: "add_comment_kgip_confirmation_#{confirmation.id}"}
                     %div{id: "comments-box-ctype0-id#{confirmation.id}"}

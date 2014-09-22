@@ -116,7 +116,7 @@ module PlanningPlugin
       def editable_by_with_planning_plugin(usr)
         if editable_by_without_planning_plugin(usr)
           #check plannig
-          PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'KGIP_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first.nil?
+          PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'kgip_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first.nil?
         else
           false
         end
@@ -124,10 +124,10 @@ module PlanningPlugin
 
 
       def validate_time_confirmed
-        if pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'KGIP_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first
-          if pc.KGIP_confirmation && pc.head_confirmation
+        if pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'kgip_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first
+          if pc.kgip_confirmation && pc.head_confirmation
             errors.add :base, :time_error_both_confirmation
-          elsif pc.KGIP_confirmation
+          elsif pc.kgip_confirmation
             errors.add :base, :time_error_kgip_confirmation
           elsif pc.head_confirmation
             errors.add :base, :time_error_head_confirmation
