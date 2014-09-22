@@ -14,6 +14,13 @@ class PlanningConfirmation < ActiveRecord::Base
   scope :head_not_confirmed, where(["(planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false])
   scope :not_full_confirmed, where(["('planning_confirmations.kgip_confirmation' IS NULL OR 'planning_confirmations.kgip_confirmation' = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
 
+  after_create :update_planning_confirmation_id
+
+
+  def update_planning_confirmation_id
+    TimeEntry.where(["spent_on between ? and ?", self.date_start, self.date_start.end_of_week]).where(user_id: self.user_id, issue_id: self.issue_id).update_all(planning_confirmation_id: self.id) if self.user_id && self.date_start && self.issue_id
+  end
+
   def get_head_id
     self.class.get_head_id(self.user_id)
   end
