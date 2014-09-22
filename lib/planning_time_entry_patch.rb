@@ -22,6 +22,8 @@ module PlanningPlugin
 
         validates_presence_of :comments
 
+        belongs_to :planning_confirmation
+
         #validate :validate
 
 

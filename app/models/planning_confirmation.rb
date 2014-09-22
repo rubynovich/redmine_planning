@@ -15,6 +15,7 @@ class PlanningConfirmation < ActiveRecord::Base
   scope :not_full_confirmed, where(["('planning_confirmations.kgip_confirmation' IS NULL OR 'planning_confirmations.kgip_confirmation' = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
 
   after_create :update_planning_confirmation_id
+  has_many :time_entries
 
 
   def update_planning_confirmation_id
