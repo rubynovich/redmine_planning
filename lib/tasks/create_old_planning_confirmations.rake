@@ -48,5 +48,19 @@ namespace :redmine do
       end
     end
 
+    desc 'fix head_id'
+    task :fix_head_id => :environment do
+      PlanningConfirmation.select("distinct user_id").map(&:user_id).each do |user_id|
+        if @user = User.where(id: user_id).first && @user.present? && @user.becomes(Person).department.present?
+          head_id = @user.becomes(Person).department.parent.nil? ? @user.becomes(Person).department.find_head : PlanningConfirmation.get_head_id(user_id)
+          errs = PlanningConfirmation.where(["(user_id = ?) and (head_id <> ?)", user_id, head_id])
+          puts "user_id: #{user_id} name: #{@user.name}\n--------------" if errs.count > 0
+          ids = errs.map{|pc| pc.id}
+          errs.update_all(head_id: head_id)
+          puts ids.inspect if errs.count > 0
+        end
+      end
+    end
+
   end
 end
