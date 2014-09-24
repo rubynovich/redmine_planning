@@ -54,10 +54,11 @@ namespace :redmine do
         if (@user = User.where(id: user_id).first) && @user.present? && @user.becomes(Person).department.present?
           head_id = @user.becomes(Person).department.parent.nil? ? @user.becomes(Person).department.find_head : PlanningConfirmation.get_head_id(user_id)
           errs = PlanningConfirmation.where(["(user_id = ?) and (head_id <> ?)", user_id, head_id])
-          puts "user_id: #{user_id} name: #{@user.name}\n--------------" if errs.count > 0
-          ids = errs.map{|pc| pc.id}
-          errs.update_all(head_id: head_id)
+          ids = errs.map(&:id)
           puts ids.inspect if errs.count > 0
+          puts "user_id: #{user_id} name: #{@user.name}\n--------------" if errs.count > 0
+          errs.update_all(head_id: head_id)
+
         end
       end
     end
