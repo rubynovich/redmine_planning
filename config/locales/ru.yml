@@ -91,6 +91,7 @@ ru:
   label_planning_head: "Руководитель"
   label_confirm_spent_time_caps: ПОДТВЕРЖДЕНИЕ ЗАТРАЧЕННОГО ВРЕМЕНИ
   label_confirm_spent_time: Подтверждение затраченного времени
+  error_for_status_issue: Нельзя заполнить поле фактическое время, если задача в статусе "%s"
 
   label_observer: "статистика перемещений"
   label_not_confirm_group_by_project: "убрать группировку по проектам"

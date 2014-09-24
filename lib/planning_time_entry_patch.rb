@@ -142,7 +142,12 @@ module PlanningPlugin
         issue = self.issue
         day = self.spent_on
         unless can_change_spent?(issue, day)
-          errors.add :spent_on, :invalid
+          if (Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i)
+            errors.add :base, l(:error_for_status_issue) % issue.status.name
+            return false
+          else
+            errors.add :spent_on, :invalid
+          end
         end
       end
 
