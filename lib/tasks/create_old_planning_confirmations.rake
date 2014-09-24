@@ -64,7 +64,7 @@ namespace :redmine do
     end
 
     desc 'fix kgip confirmations'
-    task :fix_kgip confirmations => :environment do
+    task :fix_kgip_confirmations => :environment do
       Project.where(:is_external => true).find_each do |project|
         project.issues.joins(:planning_confirmations).each do |issue|
           puts "update issue: ##{issue.id}"
