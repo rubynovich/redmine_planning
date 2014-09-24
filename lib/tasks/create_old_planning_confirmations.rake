@@ -67,11 +67,9 @@ namespace :redmine do
     task :fix_kgip_confirmations => :environment do
       Project.where(:is_external => true).find_each do |project|
         kgip_id = project.kgips.first.try(:id)
-        project.issues.joins(:planning_confirmations).each do |issue|
-          planning_confirmations = issue.planning_confirmations.kgip_not_confirmed.where(["kgip_id <> ?", kgip_id])
-          puts "update for issue: ##{issue.id} - #{planning_confirmations.count} updates" if planning_confirmations.any?
-          planning_confirmations.update_all(kgip_id: kgip_id)
-        end
+        planning_confirmation_ids = project.issues.joins(:planning_confirmations).map(&:id)
+        PlanningConfirmation.where(issue_id: planning_confirmation_ids).kgip_not_confirmed.where(["kgip_id <> ?", kgip_id]).update_all(kgip_id: kgip_id)
+        puts "update for project#{project.id}"
       end
     end
 
