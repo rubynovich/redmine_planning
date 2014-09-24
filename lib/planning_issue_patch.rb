@@ -11,6 +11,8 @@ module PlanningPlugin
       base.class_eval do
         unloadable
 
+        has_many :planning_confirmations
+
         scope :in_project, lambda { |project|
           if project.present?
             { :conditions =>

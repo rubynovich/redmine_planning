@@ -18,6 +18,7 @@ class PlanningConfirmation < ActiveRecord::Base
   has_many :time_entries
 
 
+
   def update_planning_confirmation_id
     TimeEntry.where(["spent_on between ? and ?", self.date_start, self.date_start.end_of_week]).where(user_id: self.user_id, issue_id: self.issue_id).update_all(planning_confirmation_id: self.id) if self.user_id && self.date_start && self.issue_id
   end
