@@ -12,6 +12,7 @@ module PlanningPlugin
         unloadable
 
         has_one :planning_preference, :dependent => :destroy
+
         
         scope :not_planning_managers, lambda {
           { :conditions => ["#{User.table_name}.id NOT IN (SELECT #{PlanningManager.table_name}.user_id FROM #{PlanningManager.table_name})"] }

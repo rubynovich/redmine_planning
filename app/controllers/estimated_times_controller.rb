@@ -317,8 +317,8 @@ class EstimatedTimesController < ApplicationController
         #as kgip
       end
 
-      departments = Department.where(["(departments.confirmer_id = ?) OR (departments.confirmer_id is null and departments.head_id = ?)", User.current.id, User.current.id])
-      if departments.any?
+      departments = Department.where(["(departments.confirmer_id = ?) OR (departments.head_id = ?)", User.current.id, User.current.id])
+      if departments.any? && PlanningConfirmation.where(head_id: User.current.id).first.present?
         @can_change_role = (@confirm_role == 0)
       end
       if departments.any? && ((params[:confirm_role].to_i == 1) || @confirm_role.nil?)
