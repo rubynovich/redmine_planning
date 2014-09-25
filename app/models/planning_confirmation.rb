@@ -13,6 +13,7 @@ class PlanningConfirmation < ActiveRecord::Base
   scope :kgip_not_confirmed, where(["(planning_confirmations.kgip_confirmation IS NULL OR planning_confirmations.kgip_confirmation = ?)", false])
   scope :head_not_confirmed, where(["(planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false])
   scope :not_full_confirmed, where(["(planning_confirmations.kgip_confirmation IS NULL OR planning_confirmations.kgip_confirmation = ?) AND (planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?)", false, false])
+  scope :full_confirmed, where(["(planning_confirmations.kgip_id IS NULL OR planning_confirmations.kgip_confirmation = ?) AND (planning_confirmations.head_id IS NULL OR planning_confirmations.head_confirmation = ?)", true, true])
 
   after_create :update_planning_confirmation_id
   has_many :time_entries
