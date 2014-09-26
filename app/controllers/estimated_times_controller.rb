@@ -453,6 +453,18 @@ class EstimatedTimesController < ApplicationController
         #Calendar
         @today_possible_hours = Calendar.between_possible_hours(month_start, Date.today)
         @month_possible_hours = Calendar.month_possible_hours(month_start)
+        if Redmine::Plugin.all.map(&:id).include?(:redmine_vacation)
+          VacationRange.where(user_id: @current_user.id).where(["(start_date <= ?) and (end_date >= ?)",month_end, month_start]).each do |range|
+            if range.start_date.present? && range.end_date.present?
+              start_date = range.start_date.dup
+              end_date = range.end_date.dup
+              start_date = (start_date < month_start ? month_start : start_date )
+              end_date = (end_date > month_start ? month_end : end_date )
+              @month_possible_hours -= Calendar.between_possible_hours(start_date, end_date)
+              @today_possible_hours -= Calendar.between_possible_hours(start_date, (end_date > Date.today ? Date.today : end_date))
+            end
+          end
+        end
       else
         @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
         @month_possible_hours = (working_days(month_start, month_end + 1.day) * hours_per_day).to_f

@@ -225,19 +225,15 @@
 
 - if my_planning? && @assigned_issues.any?
   %h2= l(:label_plan_time)
-  - form = labelled_form_for @estimated_time do |f|
+  = labelled_form_for @estimated_time do |f|
     = render :partial => 'form', :locals => {:f => f}
     = render :partial => 'google_calendar', :locals => {:f => f}
     = submit_tag l(:button_save), :disabled => false
-  = form if Rails::VERSION::MAJOR >= 3
 
 %h2= l(:label_current_month_time_balance)
 .box
-  %p
-    %i= l(:label_time_balance_disclaimer)
-
   %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours, :max => "%.2f" % @month_possible_hours)
-  %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min => @today_min_possible_hours, :max => @today_possible_hours)
+  %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min =>"%.2f" % @today_min_possible_hours, :max =>"%.2f" % @today_possible_hours)
   %p
     - if @time_delta < 0
       = l(:label_you_should_describe, :amount => "%.2f" % @time_delta.abs)
