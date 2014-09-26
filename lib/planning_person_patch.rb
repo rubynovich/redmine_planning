@@ -1,5 +1,5 @@
 require_dependency 'principal'
-require_dependency 'user'
+require_dependency 'person'
 
 module PlanningPlugin
   module PersonPatch
@@ -11,7 +11,7 @@ module PlanningPlugin
       base.class_eval do
         unloadable
 
-
+        has_many :planning_confirmations, foreign_key: 'user_id'
 
       end
     end
