@@ -121,7 +121,7 @@ module PlanningPlugin
       def set_planning_confirmation_id
         if self.planning_confirmation.nil? || (! (self.planning_confirmation.date_start..self.planning_confirmation.date_start.end_of_week).include?(self.spent_on))
           pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id, date_start: self.spent_on.beginning_of_week).first
-          self.update_column(:plannnig_confirmation_id, pc.id) if pc.present? && pc.head_confirmation.nil? && pc.kgip_confirmation.nil?
+          self.update_column(:planning_confirmation_id, pc.id) if pc.present? && pc.head_confirmation.nil? && pc.kgip_confirmation.nil?
         end
       end
 
