@@ -30,6 +30,9 @@ module PlanningPlugin
         alias_method :editable_by_without_planning_plugin, :editable_by?
         alias_method :editable_by?, :editable_by_with_planning_plugin
 
+
+        after_save :set_planning_confirmation_id
+
         #alias_method_chain :editable_by?, :planning_plugin
 
         if Rails::VERSION::MAJOR >= 3
@@ -114,6 +117,13 @@ module PlanningPlugin
     end
 
     module InstanceMethods
+
+      def set_planning_confirmation_id
+        if self.planning_confirmation.nil? || (! (self.planning_confirmation.date_start..self.planning_confirmation.date_start.end_of_week).include?(self.spent_on))
+          pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id, date_start: self.spent_on.beginning_of_week).first
+          self.update_column(:plannnig_confirmation_id, pc.id) if pc.present? && pc.head_confirmation.nil? && pc.kgip_confirmation.nil?
+        end
+      end
 
       def editable_by_with_planning_plugin(usr)
         if editable_by_without_planning_plugin(usr)

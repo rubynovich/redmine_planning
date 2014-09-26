@@ -12,6 +12,7 @@ module PlanningPlugin
         unloadable
 
         has_one :planning_preference, :dependent => :destroy
+        has_many :planning_confirmations, foreign_key: 'user_id'
 
         
         scope :not_planning_managers, lambda {
