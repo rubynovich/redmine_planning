@@ -459,7 +459,7 @@ class EstimatedTimesController < ApplicationController
               start_date = range.start_date.dup
               end_date = range.end_date.dup
               start_date = (start_date < month_start ? month_start : start_date )
-              end_date = (end_date > month_start ? month_end : end_date )
+              end_date = (end_date > month_end ? month_end : end_date )
               @month_possible_hours -= Calendar.between_possible_hours(start_date, end_date)
               @today_possible_hours -= Calendar.between_possible_hours(start_date, (end_date > Date.today ? Date.today : end_date))
             end
