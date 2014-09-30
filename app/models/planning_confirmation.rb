@@ -111,7 +111,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
     f_day = today_confirm_day
 
-    PlanningConfirmation.
+    PlanningConfirmation.where(["user_id <> ?", issue_params[:assigned_to_id] ]).
         where(issue_id: old_issue.id).not_any_confirmed.
         where(["planning_confirmations.date_start > ?", f_day]).update_all(user_id: issue_params[:assigned_to_id])
 
@@ -195,7 +195,12 @@ class PlanningConfirmation < ActiveRecord::Base
                                                                  :head_id => head_id
                                                              }) }
       #puts create_hash.inspect
+
       PlanningConfirmation.create(create_hash)
+      issue_ids.uniq.each do |issue_id|
+        PlanningConfirmation.kgip_not_confirmed.where(user_id: person.id, issue_id: issue_id).update_all(kgip_id: get_kgip_id(Issue.find(issue_id).try(:project_id)) )
+      end
+      PlanningConfirmation.head_not_confirmed.where(user_id: person.id).update_all(head_id: head_id)
     else
       PlanningConfirmation.delete_all(["user_id = ?", person.id])
     end
@@ -209,11 +214,16 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def get_head_id(assigned_to_id)
     department = Person.where(id: assigned_to_id).first.try(:department)
-    if (department.find_head.try(:id) == assigned_to_id) && department.parent.present?
+    if department && (department.find_head.try(:id) == assigned_to_id) && department.parent.present?
       return department.parent.try(:find_head)
     end
     department.confirmer_id.blank? ? department.find_head.try(:id) : department.confirmer_id if department
   end
+
+  def get_kgip_id(project_id)
+    Role.kgip_role.members.where(project_id: project_id).first.try(:user_id)
+  end
+
 
   private
   
@@ -242,9 +252,6 @@ class PlanningConfirmation < ActiveRecord::Base
 
 
 
-  def get_kgip_id(project_id)
-	  Role.kgip_role.members.where(project_id: project_id).first.try(:user_id)
-  end
 
   def first_date(start_date)
     start_date = start_date.try(:to_date) || Date.today
