@@ -191,7 +191,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
       pcs_ex = PlanningConfirmation.where(gsql_query).map{|i| i.attributes.symbolize_keys.select{|k,v| [:user_id, :issue_id, :date_start].include?(k)}}
       create_hash = (pcs_attrs - pcs_ex).map{|itm| itm.merge({
-                                                                 :kgip_id => get_kgip_id(Issue.find(itm[:issue_id]).try(:project_id)),
+                                                                 :kgip_id => (Issue.find(itm[:issue_id]).try(:project_id).try(:is_external) ? get_kgip_id(Issue.find(itm[:issue_id]).try(:project_id)) : nil),
                                                                  :head_id => head_id
                                                              }) }
       #puts create_hash.inspect

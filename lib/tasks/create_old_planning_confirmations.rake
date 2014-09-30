@@ -8,6 +8,7 @@ namespace :redmine do
           puts res.inspect unless res == 0
         end
       end
+
     end
 
     desc 'rehead confirmation'
