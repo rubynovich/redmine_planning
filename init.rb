@@ -59,6 +59,8 @@ Rails.configuration.to_prepare do
     require "planning_#{cl}_patch"
   end
 
+
+
   [
    [Issue, PlanningPlugin::IssuePatch],
    [Project, PlanningPlugin::ProjectPatch],

@@ -1,5 +1,19 @@
 namespace :redmine do
   namespace :plugins do
+
+    task :fix_kgip_confirmations => :environment do
+      Project.where(is_external: true, status: 1).find_each do |project|
+        PlanningConfirmation.kgip_not_confirmed.update_all(:kgip_id => project.kgips.last)
+      end
+    end
+
+    task :fix_heads_confirmations => :environment do
+      User.active.find_each do |user|
+        PlanningConfirmation.head_not_confirmed.where(user_id: user.id).update_all(head_id: PlanningConfirmation.get_head_id(user.id))
+      end
+    end
+
+
     desc 'Create old planning confirmations'
     task :create_old_planning_confirmations => :environment do
       Person.active.each do |person|
