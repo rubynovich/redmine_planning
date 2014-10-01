@@ -3,7 +3,7 @@ namespace :redmine do
 
     task :fix_kgip_confirmations => :environment do
       Project.where(is_external: true, status: 1).each do |project|
-        PlanningConfirmation.kgip_not_confirmed.update_all(:kgip_id => project.kgips.last)
+        PlanningConfirmation.joins(:issue).kgip_not_confirmed.where(["issues.project_id = ?", project.id]).update_all(:kgip_id => project.kgips.last)
       end
     end
 
