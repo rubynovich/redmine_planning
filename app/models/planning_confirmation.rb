@@ -259,21 +259,27 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def create_planning_for_period(first_d, due_date, a_id, i_id, kgip_id, head_id)
+      unless first_d.is_a?(Date)
+        first_d = (first_d.to_date rescue nil)
+      end
+      unless due_date.is_a?(Date)
+        due_date = (due_date.to_date rescue nil)
+      end
+      if first_d.is_a?(Date) && due_date.is_a?(Date)
+        days = first_d.beginning_of_week.step(due_date.beginning_of_week+1.week, 7).to_a
 
-      days = first_d.beginning_of_week.step(due_date.beginning_of_week+1.week, 7).to_a
+        exclude_days = PlanningConfirmation.where(:user_id => a_id, date_start: days, :issue_id => i_id).map(&:date_start)
+        create_hash = days.map{ |day|
 
-      exclude_days = PlanningConfirmation.where(:user_id => a_id, date_start: days, :issue_id => i_id).map(&:date_start)
-      create_hash = days.map{ |day|
+          {:user_id => a_id,
+          :issue_id => i_id,
+          :date_start => day,
+          :kgip_id => kgip_id,
+          :head_id => head_id} unless exclude_days.include?(day)
+        }.uniq.compact
 
-        {:user_id => a_id,
-        :issue_id => i_id,
-        :date_start => day,
-        :kgip_id => kgip_id,
-        :head_id => head_id} unless exclude_days.include?(day)
-      }.uniq.compact
-
-      PlanningConfirmation.create(create_hash)
-
+        PlanningConfirmation.create(create_hash)
+      end
   end
 
 end
