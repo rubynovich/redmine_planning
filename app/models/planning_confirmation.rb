@@ -111,9 +111,15 @@ class PlanningConfirmation < ActiveRecord::Base
 
     f_day = today_confirm_day
 
-    PlanningConfirmation.where(["user_id <> ?", issue_params[:assigned_to_id] ]).
+    pcs = PlanningConfirmation.where(["user_id <> ?", issue_params[:assigned_to_id] ]).
         where(issue_id: old_issue.id).not_any_confirmed.
-        where(["planning_confirmations.date_start > ?", f_day]).update_all(user_id: issue_params[:assigned_to_id])
+        where(["planning_confirmations.date_start > ?", f_day])
+
+
+
+    pcs.each do |pc|
+      pc.update_attributes(user_id: issue_params[:assigned_to_id]) rescue nil
+    end
 
 
 
