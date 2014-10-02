@@ -265,7 +265,7 @@ class PlanningConfirmation < ActiveRecord::Base
       exclude_days = PlanningConfirmation.where(:user_id => a_id, date_start: days, :issue_id => i_id).map(&:date_start)
       create_hash = days.map{ |day|
 
-        create_hash << {:user_id => a_id,
+        {:user_id => a_id,
         :issue_id => i_id,
         :date_start => day,
         :kgip_id => kgip_id,
