@@ -260,9 +260,12 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def create_planning_for_period(first_d, due_date, a_id, i_id, kgip_id, head_id)
 
-      exclude_days = PlanningConfirmation.where(:user_id => a_id, date_start: (first_d.beginning_of_week..due_date.beginning_of_week), :issue_id => i_id).map(&:date_start)
-      create_hash = (first_d.beginning_of_week..due_date.beginning_of_week).map{|day|
-        {:user_id => a_id,
+      days = first_d.beginning_of_week.step(due_date.beginning_of_week+1.week, 7).to_a
+
+      exclude_days = PlanningConfirmation.where(:user_id => a_id, date_start: days, :issue_id => i_id).map(&:date_start)
+      create_hash = days.map{ |day|
+
+        create_hash << {:user_id => a_id,
         :issue_id => i_id,
         :date_start => day,
         :kgip_id => kgip_id,
