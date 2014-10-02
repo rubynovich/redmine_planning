@@ -111,15 +111,9 @@ class PlanningConfirmation < ActiveRecord::Base
 
     f_day = today_confirm_day
 
-    pcs = PlanningConfirmation.where(["user_id <> ?", issue_params[:assigned_to_id] ]).
+    PlanningConfirmation.where(["user_id <> ?", issue_params[:assigned_to_id] ]).
         where(issue_id: old_issue.id).not_any_confirmed.
-        where(["planning_confirmations.date_start > ?", f_day])
-
-
-
-    pcs.each do |pc|
-      pc.update_attributes(user_id: issue_params[:assigned_to_id]) rescue nil
-    end
+        where(["planning_confirmations.date_start > ?", f_day]).update_all(user_id: issue_params[:assigned_to_id])
 
 
 
@@ -250,10 +244,10 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def planning_duration(first_d)
   	if Setting[:plugin_redmine_planning][:confirm_time_period].to_s == "0"
-		return 7
-	else
-		return month_length(first_d)
-	end
+		  return 7.days
+	  else
+		  return month_length(first_d)
+	  end
   end
 
 
@@ -265,22 +259,19 @@ class PlanningConfirmation < ActiveRecord::Base
   end
 
   def create_planning_for_period(first_d, due_date, a_id, i_id, kgip_id, head_id)
-  	while first_d.to_date <= due_date.to_date
 
-  		unless PlanningConfirmation.where(:user_id => a_id,
-			                        :issue_id => i_id,
-			                        :date_start => first_d, 
-			                        :kgip_id => kgip_id,
-			                        :head_id => head_id).count > 0
-			PlanningConfirmation.create(:user_id => a_id,
-				                        :issue_id => i_id,
-				                        :date_start => first_d, 
-				                        :kgip_id => kgip_id,
-				                        :head_id => head_id)
-		end
-		first_d = first_d + planning_duration(first_d)
-	end
+      exclude_days = PlanningConfirmation.where(:user_id => a_id, date_start: (first_d.beginning_of_week..due_date.beginning_of_week), :issue_id => i_id).map(&:date_start)
+      create_hash = (first_d.beginning_of_week..due_date.beginning_of_week).map{|day|
+        {:user_id => a_id,
+        :issue_id => i_id,
+        :date_start => day,
+        :kgip_id => kgip_id,
+        :head_id => head_id} unless exclude_days.include?(day)
+      }.uniq.compact
+
+      PlanningConfirmation.create(create_hash)
+
   end
-end
 
+end
 end
