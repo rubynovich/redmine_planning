@@ -149,7 +149,7 @@
               - if issue.total_spent_hours > 0.0
                 = link_to html_hours("%.2f" % hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
                 %br
-                = "(#{= link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")})"
+                = "(#{link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => 'всего по задаче')"
               - else
                 = "-"
             %td
