@@ -7,7 +7,7 @@ module EstimatedTimesHelper
 
   def can_confirm_time_entries?
     Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).any? ||
-                      Department.where(confirmer_id: User.current.id).any?
+                      Department.where(confirmer_id: User.current.id).any? || Department.where(head_id: User.current.id).any?
   end
 
   def first_day 
