@@ -7,6 +7,7 @@ class PlanningConfirmation < ActiveRecord::Base
   belongs_to :leader, class_name: 'Person', foreign_key: 'head_id'
   has_one :project, :through => :issue
   has_many :planning_confirmation_comments
+  has_many :planning_confirmation_histories
 
 
   scope :not_any_confirmed, where(["((planning_confirmations.kgip_confirmation IS NULL OR planning_confirmations.kgip_confirmation = ?) AND (planning_confirmations.kgip_id IS NOT NULL)) OR ((planning_confirmations.head_confirmation IS NULL OR planning_confirmations.head_confirmation = ?) AND (planning_confirmations.head_id IS NOT NULL))", false, false])
