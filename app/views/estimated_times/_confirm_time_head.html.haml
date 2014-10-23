@@ -5,7 +5,7 @@
         %tr.user_head
           %th{:colspan => 14, :align => :center}
             = link_to_function user.name, "open_close_user_item('.user_#{user.try(:id)}_issues', this);", class: 'closed'
-      - project_confirmations.each do |project, confirmations|
+      - project_confirmations.each do |project, issues|
         - if project.present?
           %tr{class: "user_#{user.try(:id)}_issues #{'users_issues' if user.present?}"}
             %th{:colspan => 14, :align => :center}
@@ -22,4 +22,4 @@
           %th= l(:label_estimated_hours)
           %th= l(:label_planning_kgip)
           %th= l(:label_planning_head)
-        = render partial: 'estimated_times/confirm_time', locals: {confirmations: confirmations, user: user, project: project}
+        = render partial: 'estimated_times/confirm_time', locals: {issues: issues, user: user, project: project}

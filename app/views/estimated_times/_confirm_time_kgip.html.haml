@@ -5,7 +5,7 @@
         %tr
           %th{:colspan => 14, :align => :center}
             = link_to project.name, {:controller => :projects, action: :show, :id => project.identifier}
-      - user_confirmations.each do |user, confirmations|
+      - user_confirmations.each do |user, issues|
         - if user.present?
           %tr.user_head
             %th{:colspan => 14, :align => :center}
@@ -22,4 +22,4 @@
           %th= l(:label_estimated_hours)
           %th= l(:label_planning_kgip)
           %th= l(:label_planning_head)
-        = render partial: 'estimated_times/confirm_time', locals: {confirmations: confirmations, user: user, project: project}
+        = render partial: 'estimated_times/confirm_time', locals: {issues: issues, user: user, project: project}
