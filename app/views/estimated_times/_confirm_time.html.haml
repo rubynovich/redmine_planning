@@ -1,4 +1,5 @@
-- issues.each do |issue|
+- confirmations.each do |confirm|
+  - issue = confirm.issue
   - hours = 0.0
   - confirmation = PlanningConfirmation.where(issue_id: issue.try(:id), date_start: @current_date.beginning_of_week, user_id: user.try(:id)).first
   - 7.times do |day|
@@ -35,21 +36,21 @@
       %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
         - if issue.project.is_external
           %div
-            = radio_button_tag "kgip_check#{issue.id}", "1", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :kgip_issue) == true, :title=> title_name_kgip(issue.issue), :disabled => (@confirm_role == 1) || issue.project.kgip_members.empty? , :onclick =>"update_confirmer('1','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "0", hours)}', '#{confirmation.nil? ? :post : :put}')"
+            = radio_button_tag "kgip_check#{user.id}_#{issue.id}", "1", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :kgip_confirmation) == true, :title=> title_name_kgip(issue), :disabled => (@confirm_role == 1) || issue.project.kgip_members.empty? , :onclick =>"update_confirmer('1','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "0", hours, issue.project.kgips.first.id)}', '#{confirmation.nil? ? :post : :put}')"
             = l(:label_yes)
-            = radio_button_tag "kgip_check#{issue.id}", "0", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :kgip_issue) == false, :title=> title_name_kgip(issue.issue), :disabled => (@confirm_role == 1) || issue.project.kgip_members.empty? , :onclick =>"update_confirmer('0','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "0", hours)}', '#{confirmation.nil? ? :post : :put}')"
+            = radio_button_tag "kgip_check#{user.id}_#{issue.id}", "0", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :kgip_confirmation) == false, :title=> title_name_kgip(issue), :disabled => (@confirm_role == 1) || issue.project.kgip_members.empty? , :onclick =>"update_confirmer('0','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "0", hours, issue.project.kgips.first.id)}', '#{confirmation.nil? ? :post : :put}')"
             = l(:label_no)
-          %div{id: "add_comment_kgip_issue_#{issue.id}"}
+          %div{id: "add_comment_kgip_#{user.id}_#{issue.id}"}
           %div{id: "comments-box-ctype0-id#{issue.id}"}
-            = render partial: 'planning_issues/comments', locals: {ctype: 0, confirm: issue, comments: issue.planning_issue_comments.kgips}
+            = render partial: 'planning_confirmations/comments', locals: {ctype: 0, confirm: confirm, comments: (confirmation.try(:planning_confirmation_comments).try(:kgips) || [])}
         - else
           = "-"
       %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
         %div
-          = radio_button_tag "head_check#{issue.id}", "1", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :head_issue) == true, :title=> title_name_head(issue.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer('1','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "1", hours)}', '#{confirmation.nil? ? :post : :put}')"
+          = radio_button_tag "head_check#{user.id}_#{issue.id}", "1", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :head_confirmation) == true, :title=> title_name_head(confirm.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer('1','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "1", hours,confirm.head_id)}', '#{confirmation.nil? ? :post : :put}')"
           = l(:label_yes)
-          = radio_button_tag "head_check#{issue.id}", "0", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :head_issue) == false, :title=> title_name_head(issue.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer('0','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "1", hours)}', '#{confirmation.nil? ? :post : :put}')"
+          = radio_button_tag "head_check#{user.id}_#{issue.id}", "0", is_confirmer_checked_conf(@current_date.beginning_of_week, issue, user, :head_confirmation) == false, :title=> title_name_head(confirm.head_id), :disabled => (@confirm_role == 0), :onclick =>"update_confirmer('0','#{url_for_confirmation(confirmation, @current_date.beginning_of_week, issue, user, "1", hours,confirm.head_id)}', '#{confirmation.nil? ? :post : :put}')"
           = l(:label_no)
-        %div{id: "add_comment_head_issue_#{issue.id}"}
-        %div{id: "comments-box-ctype1-id#{issue.id}"}
-          = render partial: 'planning_issues/comments', locals: {ctype: 1, confirm: issue, comments: issue.planning_issue_comments.heads}
+        %div{id: "add_comment_head_#{user.id}_#{issue.id}"}
+        %div{id: "comments-box-ctype1-id#{user.id}-#{issue.id}"}
+          = render partial: 'planning_confirmations/comments', locals: {ctype: 1, confirm: confirm, comments: (confirmation.planning_confirmation_comments rescue [])}

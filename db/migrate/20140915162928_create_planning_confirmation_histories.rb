@@ -7,6 +7,7 @@ class CreatePlanningConfirmationHistories < ActiveRecord::Migration
       t.boolean :confirm_as_kgip
       t.boolean :confirm_as_head
       t.boolean :as_deputy_employee
+      t.integer :deputed_user_id
     end
   end
 end

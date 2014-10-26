@@ -1,7 +1,7 @@
-if (! $( "#ajax-modal-<%= @confirm.id %>" ).length ) {
-    $('#ajax-modal').append('<div id="ajax-modal-<%= @confirm.id %>" style="display:none;"></div>');
-    $('#ajax-modal-<%= @confirm.id %>').copyCSS('#ajax-modal');
-    $('#ajax-modal-<%= @confirm.id %>').html('<%= escape_javascript(render :partial => 'planning_confirmations/new_comment') %>');
+if (! $( "#ajax-modal-<%= @confirm.user.id %>-<%= @confirm.issue.id %>" ).length ) {
+    $('#ajax-modal').append('<div id="ajax-modal-<%= @confirm.user.id %>-<%= @confirm.issue.id %>" style="display:none;"></div>');
+    $('#ajax-modal-<%= @confirm.user.id %>-<%= @confirm.issue.id %>').copyCSS('#ajax-modal');
+    $('#ajax-modal-<%= @confirm.user.id %>-<%= @confirm.issue.id %>').html('<%= escape_javascript(render :partial => 'planning_confirmations/new_comment') %>');
 };
 //showModal('ajax-modal', '400px');
-$("#add_comment_<%= @ctype == 0 ? 'kgip' : 'head'%>_confirmation_<%= @confirm.id %>").html('<%= escape_javascript(render :partial => 'planning_confirmations/add_link') %>');
+$("#add_comment_<%= @ctype == 0 ? 'kgip' : 'head'%>_<%= @confirm.user.id %>_<%= @confirm.issue.id %>").html('<%= escape_javascript(render :partial => 'planning_confirmations/add_link') %>');

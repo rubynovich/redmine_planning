@@ -392,7 +392,7 @@ class EstimatedTimesController < ApplicationController
                                 [[nil, project_confirmations]]
                               else
                                 unless params[:confirm_group_by_project].present?
-                                  @assigned_issues_for_confirmations.sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
+                                  @assigned_issues_for_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
                                     [user , confirmations.group_by(&:project).sort_by{|p,i| p.try(:name)}]
                                   }
                                 else
@@ -405,7 +405,7 @@ class EstimatedTimesController < ApplicationController
         user_confirmations = if params[:confirm_group_by_user].present?
                                   [[nil, @assigned_issues_for_confirmations]]
                                 else
-                                  @assigned_issues_for_confirmations.group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}.sort_by{|p,i| p.try(:name) || "" }
+                                  @assigned_issues_for_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }
                                 end
 
         @project_confirmations = if params[:confirm_group_by_project].present?
@@ -414,7 +414,6 @@ class EstimatedTimesController < ApplicationController
                                   unless params[:confirm_group_by_user].present?
                                     @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
                                       [project , confirmations.group_by(&:user).sort_by{|p,i| p.try(:name)}]
-                                      #[project , confirmations.group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}.sort_by{|p,i| p.try(:name) || "" }
                                     }
                                   else
                                     @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
