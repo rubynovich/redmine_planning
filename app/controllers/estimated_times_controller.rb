@@ -354,7 +354,17 @@ class EstimatedTimesController < ApplicationController
         #need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(tweek: @current_date.cweek, tyear: @current_date.year, head_id: @current_active_user_ids).where("projects.id IN (?)", @assigned_projects.map(&:id))
       end
       user_ids_need_confirmations = params[:current_user_id].to_i > 0 ? [params[:current_user_id].to_i] : @user_ids
-      @assigned_issues_for_confirmations = TimeEntry.joins(:user).joins("LEFT OUTER JOIN planning_confirmations ON planning_confirmations.id = time_entries.planning_confirmation_id").where((params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?) ? {kgip_confirmation: [nil,false], head_confirmation: [nil,false]} : "1 = 1").where(["users.id in (?)",user_ids_need_confirmations]).joins(:project).where(tweek: @current_date.cweek, tyear: @current_date.year).where("projects.id IN (?)", @assigned_projects.map(&:id)).select("distinct time_entries.issue_id, time_entries.user_id").group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}
+      @assigned_issues_for_confirmations = TimeEntry.joins(:user).
+          joins("LEFT OUTER JOIN planning_confirmations ON planning_confirmations.id = time_entries.planning_confirmation_id").
+          where(
+            (params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?) ?
+                {kgip_confirmation: [nil,false], head_confirmation: [nil,false]} : "1 = 1").
+          where(["users.id in (?)",user_ids_need_confirmations]).
+          joins(:project).
+          where(tweek: @current_date.cweek, tyear: @current_date.year).
+          where("projects.id IN (?)", @assigned_projects.
+          map(&:id)).select("distinct time_entries.issue_id, time_entries.user_id").map{|o| PlanningConfirmation.new(issue_id: o.issue_id, user_id: o.user_id)}
+          #group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}
       #@assigned_confirmations = need_confirmations
 
       #if params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?
@@ -395,7 +405,7 @@ class EstimatedTimesController < ApplicationController
         user_confirmations = if params[:confirm_group_by_user].present?
                                   [[nil, @assigned_issues_for_confirmations]]
                                 else
-                                  @assigned_issues_for_confirmations.sort_by{|p,i| p.try(:name) || "" }
+                                  @assigned_issues_for_confirmations.group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}.sort_by{|p,i| p.try(:name) || "" }
                                 end
 
         @project_confirmations = if params[:confirm_group_by_project].present?
@@ -404,6 +414,7 @@ class EstimatedTimesController < ApplicationController
                                   unless params[:confirm_group_by_user].present?
                                     @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
                                       [project , confirmations.group_by(&:user).sort_by{|p,i| p.try(:name)}]
+                                      #[project , confirmations.group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}.sort_by{|p,i| p.try(:name) || "" }
                                     }
                                   else
                                     @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
