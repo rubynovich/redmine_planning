@@ -27,13 +27,20 @@ class PlanningConfirmationsController < ApplicationController
       #t.boolean :confirm_as_head
       #t.boolean :as_deputy_employee
       #t.integer :deputed_user_id
+      #t.boolean :action #true - confirm, false - unconfirm
+      #t.float :current_week_hours
+      #t.float :current_issue_user_hours
       as_deputy_employee = (params[:main_user_id].to_i != User.current.id)
 
       @confirm.planning_confirmation_histories.create(user_id: User.current.id,
+                                                      event_time: Time.now,
                                                       confirm_as_kgip: (confirmation_type == :kgip_confirmation),
                                                       confirm_as_head: (confirmation_type == :head_confirmation),
                                                       as_deputy_employee: as_deputy_employee,
-                                                      deputed_user_id: (as_deputy_employee ? params[:main_user_id].to_i : nil)
+                                                      deputed_user_id: (as_deputy_employee ? params[:main_user_id].to_i : nil),
+                                                      action: params[:status].to_s == "1",
+                                                      current_week_hours: params[:current_week_hours].to_f,
+                                                      current_issue_hours: params[:current_issue_hours].to_f
       )
       @comment = @confirm.planning_confirmation_comments.build
 	  end

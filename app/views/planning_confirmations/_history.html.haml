@@ -1,0 +1,13 @@
+- if history.any?
+  = link_to_function l(:show_history), "$('#history-item-ctype#{ctype}-id#{confirm.user_id}-#{confirm.issue_id}').show(); $(this).hide();"
+  %div{style: 'display: none;', id: "history-item-ctype#{ctype}-id#{confirm.user_id}-#{confirm.issue_id}"}
+    - history.each do |item|
+      %p{style: 'text-align: left;'}
+        = (item.action ? '<span title="подтверждение" style="color: green; font-weight: bold;">+</span>' : '<span style="color: red; font-weight: bold;" title="отмена подтверждения">-</span>').html_safe
+        = item.event_time.strftime('%d-%m-%Y %H:%M')
+        = link_to_user item.user
+        - if item.as_deputy_employee?
+          %span{title: "в связи с замещением #{item.deputed_user.try(:name)}"}}(з)
+        = ":"
+        = item.current_week_hours
+        = link_to "(#{item.current_issue_hours})", "/issues/#{item.planning_confirmation.issue_id}"

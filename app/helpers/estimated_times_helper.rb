@@ -42,11 +42,31 @@ module EstimatedTimesHelper
     PlanningConfirmation.where(date_start: date_start, issue_id: issue.try(:id), user_id: user.try(:id)).map(&confirmer_type).first
   end
 
-  def url_for_confirmation(confirmation, date_start, issue, user, type, hours, main_user_id)
+  def url_for_confirmation(confirmation, date_start, issue, user, type, hours, main_user_id, current_week_hours = 0, current_issue_hours = 0)
     if confirmation.nil?
-      url_for({:controller => :planning_confirmations, :action => :create_confirmation, date_start: date_start, issue_id: issue.try(:id), user_id: user.try(:id), :type => type, :id => issue.try(:id), hours: hours, :main_user_id => main_user_id, :format => 'js'})
+      url_for({:controller => :planning_confirmations,
+               :action => :create_confirmation,
+               date_start: date_start,
+               issue_id: issue.try(:id),
+               user_id: user.try(:id),
+               :type => type,
+               :id => issue.try(:id),
+               hours: hours,
+               :main_user_id => main_user_id,
+               current_week_hours: current_week_hours,
+               current_issue_hours: current_issue_hours,
+               :format => 'js'
+              })
     else
-      url_for({:controller => :planning_confirmations, :action => :update_confirmer, :type => type, :id => confirmation.try(:id), hours: hours, :main_user_id => main_user_id, :format => 'js'})
+      url_for({:controller => :planning_confirmations,
+               :action => :update_confirmer,
+               :type => type, :id => confirmation.try(:id),
+               hours: hours,
+               :main_user_id => main_user_id,
+               current_week_hours: current_week_hours,
+               current_issue_hours: current_issue_hours,
+               :format => 'js'
+              })
     end
   end
 

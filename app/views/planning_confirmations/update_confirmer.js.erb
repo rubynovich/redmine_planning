@@ -5,3 +5,4 @@ if (! $( "#ajax-modal-<%= @confirm.user.id %>-<%= @confirm.issue.id %>" ).length
 };
 //showModal('ajax-modal', '400px');
 $("#add_comment_<%= @ctype == 0 ? 'kgip' : 'head'%>_<%= @confirm.user.id %>_<%= @confirm.issue.id %>").html('<%= escape_javascript(render :partial => 'planning_confirmations/add_link') %>');
+$("#history-box-ctype<%= @ctype %>-id<%= @confirm.user_id %>-<%= @confirm.issue_id %>").html('<%= escape_javascript(render partial: 'planning_confirmations/history', locals: {ctype: @ctype, confirm: @confirm, history: @ctype == 0 ? @confirm.planning_confirmation_histories.kgips : @confirm.planning_confirmation_histories.heads}) %>');

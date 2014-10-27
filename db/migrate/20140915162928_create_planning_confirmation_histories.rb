@@ -6,8 +6,12 @@ class CreatePlanningConfirmationHistories < ActiveRecord::Migration
       t.references :user
       t.boolean :confirm_as_kgip
       t.boolean :confirm_as_head
+      t.boolean :action #true - confirm, false - unconfirm
       t.boolean :as_deputy_employee
       t.integer :deputed_user_id
+      t.float :current_week_hours
+      t.float :current_issue_user_hours
+      t.float :current_issue_hours
     end
   end
 end
