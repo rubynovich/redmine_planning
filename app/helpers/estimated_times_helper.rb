@@ -177,7 +177,7 @@ module EstimatedTimesHelper
     calendar_days = 1
     current_day = day
     debugger
-    while business_days < 2
+    while business_days < 10
       current_day -= 1.day
       calendar_days += 1
       holiday = Calendar.is_holiday?(current_day) 
