@@ -167,8 +167,25 @@ module EstimatedTimesHelper
     issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    (10.days.ago <= day)&&(day < 1.day.from_now.to_date)&&
+    (count_of_back_days(day).days.ago <= day)&&(day < 1.day.from_now.to_date)&&
     (!(Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i))
+  end
+
+  def count_of_back_days(day)
+    Rails.logger.error("Day #{day.inspect} ")
+    business_days = 1
+    calendar_days = 1
+    current_day = day
+    debugger
+    while business_days < 2
+      current_day -= 1.day
+      calendar_days += 1
+      holiday = Calendar.is_holiday?(current_day) 
+      p holiday
+      business_days += 1 unless holiday
+    end
+    Rails.logger.error("Result #{calendar_days} ")
+    calendar_days
   end
 
   def link_to_spent_and_edit(issue, day, can_edit)
