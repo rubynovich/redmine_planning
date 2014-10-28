@@ -1,5 +1,19 @@
 namespace :redmine do
   namespace :plugins do
+
+    task :fix_kgip_confirmations => :environment do
+      Project.where(is_external: true, status: 1).each do |project|
+        PlanningConfirmation.joins(:issue).kgip_not_confirmed.where(["issues.project_id = ?", project.id]).update_all(:kgip_id => project.kgips.last)
+      end
+    end
+
+    task :fix_heads_confirmations => :environment do
+      User.active.each do |user|
+        PlanningConfirmation.head_not_confirmed.where(user_id: user.id).update_all(head_id: PlanningConfirmation.get_head_id(user.id))
+      end
+    end
+
+
     desc 'Create old planning confirmations'
     task :create_old_planning_confirmations => :environment do
       Person.active.each do |person|
@@ -8,6 +22,7 @@ namespace :redmine do
           puts res.inspect unless res == 0
         end
       end
+
     end
 
     desc 'rehead confirmation'
@@ -47,6 +62,31 @@ namespace :redmine do
         PlanningConfirmation.where(id: del_pc_ids).delete_all
       end
     end
+
+    #desc 'fix head_id'
+    #task :fix_head_id => :environment do
+    #  PlanningConfirmation.select("distinct user_id").map(&:user_id).each do |user_id|
+    #    if (@user = User.where(id: user_id).first) && @user.present? && @user.becomes(Person).department.present?
+    #      head_id = @user.becomes(Person).department.parent.nil? ? @user.becomes(Person).department.find_head : PlanningConfirmation.get_head_id(user_id)
+    #      errs = PlanningConfirmation.where(["(user_id = ?) and (head_id <> ?)", user_id, head_id])
+    #      ids = errs.map(&:id)
+    #      puts ids.inspect if errs.count > 0
+    #      puts "user_id: #{user_id} name: #{@user.name}\n--------------" if errs.count > 0
+    #      errs.update_all(head_id: head_id)
+    #
+    #    end
+    #  end
+    #end
+
+    #desc 'fix kgip confirmations'
+    #task :fix_kgip_confirmations => :environment do
+    #  Project.where(:is_external => true).each do |project|
+    #    kgip_id = project.kgips.first.try(:id)
+    #    planning_confirmation_ids = project.issues.joins(:planning_confirmations).map(&:id)
+    #    PlanningConfirmation.where(issue_id: planning_confirmation_ids).kgip_not_confirmed.where(["kgip_id <> ?", kgip_id]).update_all(kgip_id: kgip_id)
+    #    puts "update for project#{project.id}"
+    #  end
+    #end
 
   end
 end

@@ -25,7 +25,7 @@
   - if can_confirm_time_entries?
     = " | "
     = link_to l(:label_confirm_spent_time_caps), action: 'confirm_time'
-  - if User.current.admin && Redmine::Plugin.all.map(&:id).include?(:redmine_skynet)
+  - if Redmine::Plugin.all.map(&:id).include?(:redmine_skynet)
     = " | "
     = link_to l(:label_observer), {controller: 'skynet', action: 'index'}, {target: "_blank"}
 
@@ -114,7 +114,7 @@
           %th= l(:label_spent)
         %th= l(:label_estimated_hours)
         - if Date.today.beginning_of_week > @current_date
-          %th= l(:label_planning_KGIP)
+          %th= l(:label_planning_kgip)
           %th= l(:label_planning_head)
     %tbody
       - @project_issues.each do |project, issues|
@@ -148,6 +148,8 @@
             %td
               - if issue.total_spent_hours > 0.0
                 = link_to html_hours("%.2f" % hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => @time_entries.select{ |te| te.issue_id == issue.id }.sort_by(&:spent_on).map(&:comments).join("\r")
+                %br
+                = "(#{link_to html_hours("%.2f" % issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => issue.project, :issue_id => issue, :period_type => 1, :user_id => @current_user.id}, :title => 'всего по задаче'})".html_safe
               - else
                 = "-"
             %td
@@ -159,7 +161,7 @@
               - confirmation = get_issue_confirmation(issue, @current_user, @current_date)
               %td{:align=>:center, :style => "border-left-width:3px;"}
                 - if (hours > 0.0) && issue.project.is_external && has_confirm_record(issue, @current_user) && (issue.start_date <= (@current_date + 5))
-                  = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :KGIP_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_kgip(issue)
+                  = check_box_tag :kgip_check, "1", is_confirmer_checked(issue, :kgip_confirmation, @current_user, @current_date), :disabled => true, :title=> title_name_kgip(issue)
                   - if confirmation
                     %span{id: "add_comment_kgip_confirmation_#{confirmation.id}"}
                     %div{id: "comments-box-ctype0-id#{confirmation.id}"}
@@ -225,19 +227,15 @@
 
 - if my_planning? && @assigned_issues.any?
   %h2= l(:label_plan_time)
-  - form = labelled_form_for @estimated_time do |f|
+  = labelled_form_for @estimated_time do |f|
     = render :partial => 'form', :locals => {:f => f}
     = render :partial => 'google_calendar', :locals => {:f => f}
     = submit_tag l(:button_save), :disabled => false
-  = form if Rails::VERSION::MAJOR >= 3
 
 %h2= l(:label_current_month_time_balance)
 .box
-  %p
-    %i= l(:label_time_balance_disclaimer)
-
   %p= l(:label_current_month_min, :count => "%.2f" % @month_min_possible_hours, :max => "%.2f" % @month_possible_hours)
-  %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min => @today_min_possible_hours, :max => @today_possible_hours)
+  %p= l(:label_as_for_today, :count => "%.2f" % @today_spent_hours, :min =>"%.2f" % @today_min_possible_hours, :max =>"%.2f" % @today_possible_hours)
   %p
     - if @time_delta < 0
       = l(:label_you_should_describe, :amount => "%.2f" % @time_delta.abs)

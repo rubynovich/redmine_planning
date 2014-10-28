@@ -22,11 +22,16 @@ module PlanningPlugin
 
         validates_presence_of :comments
 
+        belongs_to :planning_confirmation
+
         #validate :validate
 
 
         alias_method :editable_by_without_planning_plugin, :editable_by?
         alias_method :editable_by?, :editable_by_with_planning_plugin
+
+
+        after_save :set_planning_confirmation_id
 
         #alias_method_chain :editable_by?, :planning_plugin
 
@@ -113,10 +118,17 @@ module PlanningPlugin
 
     module InstanceMethods
 
+      def set_planning_confirmation_id
+        if self.planning_confirmation.nil? || (! (self.planning_confirmation.date_start..self.planning_confirmation.date_start.end_of_week).include?(self.spent_on))
+          pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id, date_start: self.spent_on.beginning_of_week).first
+          self.update_column(:planning_confirmation_id, pc.id) if pc.present? && pc.head_confirmation.nil? && pc.kgip_confirmation.nil?
+        end
+      end
+
       def editable_by_with_planning_plugin(usr)
         if editable_by_without_planning_plugin(usr)
           #check plannig
-          PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'KGIP_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first.nil?
+          PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'kgip_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first.nil?
         else
           false
         end
@@ -124,10 +136,10 @@ module PlanningPlugin
 
 
       def validate_time_confirmed
-        if pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'KGIP_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first
-          if pc.KGIP_confirmation && pc.head_confirmation
+        if pc = PlanningConfirmation.where(issue_id: self.issue_id, user_id: self.user_id).where(["'kgip_confirmation' = ? OR head_confirmation = ?", true, true]).where(["date_start = ?", self.spent_on.beginning_of_week]).first
+          if pc.kgip_confirmation && pc.head_confirmation
             errors.add :base, :time_error_both_confirmation
-          elsif pc.KGIP_confirmation
+          elsif pc.kgip_confirmation
             errors.add :base, :time_error_kgip_confirmation
           elsif pc.head_confirmation
             errors.add :base, :time_error_head_confirmation
@@ -140,7 +152,12 @@ module PlanningPlugin
         issue = self.issue
         day = self.spent_on
         unless can_change_spent?(issue, day)
-          errors.add :spent_on, :invalid
+          if (Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i)
+            errors.add :base, l(:error_for_status_issue) % issue.status.name
+            return false
+          else
+            errors.add :spent_on, :invalid
+          end
         end
       end
 

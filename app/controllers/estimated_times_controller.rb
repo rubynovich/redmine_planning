@@ -317,8 +317,8 @@ class EstimatedTimesController < ApplicationController
         #as kgip
       end
 
-      departments = Department.where(["(departments.confirmer_id = ?) OR (departments.confirmer_id is null and departments.head_id = ?)", User.current.id, User.current.id])
-      if departments.any?
+      departments = Department.where(["(departments.confirmer_id = ?) OR (departments.head_id = ?)", User.current.id, User.current.id])
+      if departments.any? && PlanningConfirmation.where(head_id: User.current.id).first.present?
         @can_change_role = (@confirm_role == 0)
       end
       if departments.any? && ((params[:confirm_role].to_i == 1) || @confirm_role.nil?)
@@ -339,14 +339,14 @@ class EstimatedTimesController < ApplicationController
 
 
       if @confirm_role == 0
-        need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, KGIP_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
+        need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, kgip_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
       else
         need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, head_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
       end
       @assigned_confirmations = need_confirmations
 
       if params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?
-        @assigned_confirmations = @assigned_confirmations.where(KGIP_confirmation: [nil,false], head_confirmation: [nil,false])
+        @assigned_confirmations = @assigned_confirmations.where(kgip_confirmation: [nil,false], head_confirmation: [nil,false])
       end
 
 
@@ -447,11 +447,31 @@ class EstimatedTimesController < ApplicationController
       month_start, month_end = month.begin.to_date, month.end.to_date
 
       @today_spent_hours = TimeEntry.where(user_id: @current_user.id, tmonth: Time.now.month, tyear: Time.now.year).sum('hours')
-      
-      @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
-      @today_min_possible_hours = @today_possible_hours * min_ratio
 
-      @month_possible_hours = (working_days(month_start, month_end + 1.day) * hours_per_day).to_f
+
+      if Redmine::Plugin.all.map(&:id).include?(:redmine_business_calendar)
+        #Calendar
+        @today_possible_hours = Calendar.between_possible_hours(month_start, Date.today)
+        @month_possible_hours = Calendar.month_possible_hours(month_start)
+        if Redmine::Plugin.all.map(&:id).include?(:redmine_vacation)
+          VacationRange.where(user_id: @current_user.id).where(["(start_date <= ?) and (end_date >= ?)",month_end, month_start]).each do |range|
+            if range.start_date.present? && range.end_date.present?
+              start_date = range.start_date.dup
+              end_date = range.end_date.dup
+              start_date = (start_date < month_start ? month_start : start_date )
+              end_date = (end_date > month_end ? month_end : end_date )
+              @month_possible_hours -= Calendar.between_possible_hours(start_date, end_date)
+              @today_possible_hours -= Calendar.between_possible_hours(start_date, (end_date > Date.today ? Date.today : end_date))
+            end
+          end
+        end
+      else
+        @today_possible_hours = (working_days(month_start, Date.tomorrow) * hours_per_day).to_f
+        @month_possible_hours = (working_days(month_start, month_end + 1.day) * hours_per_day).to_f
+      end
+
+
+      @today_min_possible_hours = @today_possible_hours * min_ratio
       @month_min_possible_hours = @month_possible_hours * min_ratio
 
       @time_delta = (@today_spent_hours - @today_min_possible_hours).to_f
