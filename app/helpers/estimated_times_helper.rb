@@ -182,7 +182,7 @@ module EstimatedTimesHelper
       current_day -= 1.day
     end
     Rails.logger.debug(" Calendar days: #{calendar_days}".red)
-    calendar_days + 1
+    calendar_days 
   end
 
   def link_to_spent_and_edit(issue, day, can_edit)
