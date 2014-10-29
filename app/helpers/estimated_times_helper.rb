@@ -167,7 +167,7 @@ module EstimatedTimesHelper
     issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    ((count_of_back_days(day)-1).days.ago <= day)&&(day < 1.day.from_now.to_date)&&
+    (count_of_back_days(day).days.ago <= day)&&(day < 1.day.from_now.to_date)&&
     (!(Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i))
   end
 
