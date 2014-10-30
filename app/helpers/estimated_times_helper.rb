@@ -167,7 +167,7 @@ module EstimatedTimesHelper
     issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    (count_of_back_days(day).days.ago <= day)&&(day < 1.day.from_now.to_date)&&
+    (count_of_back_days(day).days.ago.to_date <= day)&&(day < 1.day.from_now.to_date)&&
     (!(Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i))
   end
 
@@ -187,10 +187,15 @@ module EstimatedTimesHelper
     calendar_days
   end
 
-  # count_of_back_days(Date.today, 10)
+  count_of_back_days(Date.today, 10)
 
   def link_to_spent_and_edit(issue, day, can_edit)
+    
     shift_day = @current_date + day.days
+    
+    # if issue.id = 81551 && day == Date.parse("2014-10-17")
+    #   Rails.logger.error(" shift_day: #{@current_date}
+
     time_entries = @time_entries.select{ |te| (te.spent_on == shift_day)&&(te.issue_id == issue.id)}
     if time_entries.any?
       sum = time_entries.map{|i| i.hours }.sum(0.0)
