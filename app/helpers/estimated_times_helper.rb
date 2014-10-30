@@ -200,14 +200,14 @@ module EstimatedTimesHelper
     issue&&day&&
     (issue.start_date && (issue.start_date <= day))&&
     (issue.due_date && (day <= issue.due_date))&&
-    (count_of_back_days(day).days.ago.to_date <= day)&&(day < 1.day.from_now.to_date)&&
+    ((count_of_back_days(day) - 1).days.ago.to_date <= day)&&(day < 1.day.from_now.to_date)&&
     (!(Setting[:plugin_redmine_planning][:issue_statuses].try(:to_a) || []).map{|i| i.to_i}.include?(issue.status_id.to_i))
   end
 
-  def count_of_back_days(day, limit = 10)
+  def count_of_back_days(day = Date.today, limit = 10)
     business_days = 0
     calendar_days = 0
-    current_day = day
+    current_day = Date.today
 #     debugger
     while business_days < limit
       vvv = rand
@@ -220,7 +220,7 @@ module EstimatedTimesHelper
     calendar_days
   end
 
-  count_of_back_days(Date.today, 10)
+#  count_of_back_days(Date.today, 10)
 
   def link_to_spent_and_edit(issue, day, can_edit)
     
