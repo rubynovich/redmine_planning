@@ -293,6 +293,11 @@ class EstimatedTimesController < ApplicationController
     end
 
     def add_confirm_info
+      @current_active_user_ids = [User.current.id]
+      begin
+        @current_active_user_ids += User.current.deputy_ids.map(&:id)
+      rescue
+      end
       @current_date = if params[:current_date].blank?
                         (Date.today - 1.week).beginning_of_week
                       else
@@ -310,15 +315,16 @@ class EstimatedTimesController < ApplicationController
       end
 
       # С какой ролью заходит подтверждающий
-      @assigned_projects = User.current.projects.where(is_external: true).keep_if{|p| p.kgip_ids.include?(User.current.id)}
+      #@assigned_projects = User.current.projects.where(is_external: true).keep_if{|p| p.kgip_ids.include?(User.current.id)}
       #@assigned_projects = Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true)
+      @assigned_projects = Project.where(id: Role.kgip_role.members.where(user_id: @current_active_user_ids).map(&:project_id))
       if @assigned_projects.count > 0
         @confirm_role = 0
         #as kgip
       end
 
-      departments = Department.where(["(departments.confirmer_id = ?) OR (departments.head_id = ?)", User.current.id, User.current.id])
-      if departments.any? && PlanningConfirmation.where(head_id: User.current.id).first.present?
+      departments = Department.where(["(departments.confirmer_id IN (?)) OR (departments.head_id IN (?))", @current_active_user_ids, @current_active_user_ids])
+      if departments.any? #&& PlanningConfirmation.where(head_id: @current_active_user_ids).first.present?
         @can_change_role = (@confirm_role == 0)
       end
       if departments.any? && ((params[:confirm_role].to_i == 1) || @confirm_role.nil?)
@@ -339,62 +345,78 @@ class EstimatedTimesController < ApplicationController
 
 
       if @confirm_role == 0
-        need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, kgip_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
+        #kgip confirmations
+        @user_ids = @assigned_projects.where(is_external: true).joins("LEFT OUTER JOIN members ON projects.id = members.project_id").joins("LEFT OUTER JOIN users ON members.user_id = users.id").where(["(users.no_planning <> ?) and (users.must_kgip_confirm = ?)",true, true]).where(["users.status = ?",1]).select("distinct members.user_id").map{|m| m.user_id.to_i}
       else
-        need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(date_start: @current_date, head_id: User.current.id).where("projects.id IN (?)", @assigned_projects.map(&:id))
+        #heads confirmations
+        @user_ids = departments.joins(:people).where(["users.status = ?",1]).where(["(users.no_planning <> ?) and (users.must_head_confirm = ?)",true, true]).select("distinct users.id").map(&:id).flatten.uniq.compact.map{|id| id if @current_active_user_ids.include?(PlanningConfirmation.get_head_id(id))}.compact
+        #need_confirmation_issues
+        #need_confirmations = PlanningConfirmation.joins(:user).where(["users.status = ?", 1]).joins(:project).where(tweek: @current_date.cweek, tyear: @current_date.year, head_id: @current_active_user_ids).where("projects.id IN (?)", @assigned_projects.map(&:id))
       end
-      @assigned_confirmations = need_confirmations
+      user_ids_need_confirmations = params[:current_user_id].to_i > 0 ? [params[:current_user_id].to_i] : @user_ids
+      @assigned_issues_for_confirmations = TimeEntry.joins(:user).
+          joins("LEFT OUTER JOIN planning_confirmations ON planning_confirmations.id = time_entries.planning_confirmation_id").
+          where(
+            (params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?) ?
+                {kgip_confirmation: [nil,false], head_confirmation: [nil,false]} : "1 = 1").
+          where(["users.id in (?)",user_ids_need_confirmations]).
+          joins(:project).
+          where(tweek: @current_date.cweek, tyear: @current_date.year).
+          where("projects.id IN (?)", @assigned_projects.
+          map(&:id)).select("distinct time_entries.issue_id, time_entries.user_id").map{|o| PlanningConfirmation.new(issue_id: o.issue_id, user_id: o.user_id)}
+          #group_by(&:user).map{|o| {o.first => o.second.each.map {|oi| oi.issue}}}
+      #@assigned_confirmations = need_confirmations
 
-      if params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?
-        @assigned_confirmations = @assigned_confirmations.where(kgip_confirmation: [nil,false], head_confirmation: [nil,false])
-      end
+      #if params[:confirm_confirmed_time].present? && !@assigned_confirmations.blank?
+      #  need_confirmation_issue_ids = PlanningConfirmation.where(issue_id: need_confirmation_issue_ids).where(kgip_confirmation: [nil,false], head_confirmation: [nil,false]).map(&:issue_id)
+      #end
 
+      @users = User.where(id: @user_ids)
+      #@assigned_confirmations.joins(:user).select('distinct users.id, users.*, planning_confirmations.user_id').order("users.lastname asc, users.firstname asc").map(&:user).sort
 
-      @assigned_confirmations = @assigned_confirmations.where(id: @assigned_confirmations.map{|confirmation| confirmation.id if confirmation.planned_in?}.compact)
-      @users = @assigned_confirmations.joins(:user).select('distinct users.id, users.*, planning_confirmations.user_id').order("users.lastname asc, users.firstname asc").map(&:user).sort
-      if params[:current_user_id].present?  && @assigned_confirmations.any?
-        @assigned_confirmations = @assigned_confirmations.where(user_id: params[:current_user_id].to_i)
-      end
-      @assigned_issue_ids = @assigned_confirmations.map(&:issue_id)
-
+      #if params[:current_user_id].present?  && @assigned_confirmations.any?
+      #  @assigned_confirmations = @assigned_confirmations.where(user_id: params[:current_user_id].to_i)
+      #end
+      #@assigned_issue_ids = need_confirmation_issue_ids #@assigned_confirmations.map(&:issue_id)
+      #@assigned_issues_for_confirmations = need_confirmation_issue_ids#Issue.where(id: need_confirmation_issue_ids)
 
 
       if @confirm_role == 1
         project_confirmations = if params[:confirm_group_by_project].present?
-                                  [[nil, @assigned_confirmations]]
+                                  [[nil, @assigned_issues_for_confirmations]]
                                 else
-                                  @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }
+                                  @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }
                                 end
 
         @user_confirmations = if params[:confirm_group_by_user].present?
                                 [[nil, project_confirmations]]
                               else
                                 unless params[:confirm_group_by_project].present?
-                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
+                                  @assigned_issues_for_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
                                     [user , confirmations.group_by(&:project).sort_by{|p,i| p.try(:name)}]
                                   }
                                 else
-                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
+                                  @assigned_issues_for_confirmations.sort_by{|p,i| p.try(:name) || "" }.map{|user, confirmations|
                                     [user , [[nil, confirmations]]]
                                   }
                                 end
                               end
       else
         user_confirmations = if params[:confirm_group_by_user].present?
-                                  [[nil, @assigned_confirmations]]
+                                  [[nil, @assigned_issues_for_confirmations]]
                                 else
-                                  @assigned_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }
+                                  @assigned_issues_for_confirmations.group_by(&:user).sort_by{|p,i| p.try(:name) || "" }
                                 end
 
         @project_confirmations = if params[:confirm_group_by_project].present?
                                   [[nil, user_confirmations]]
                               else
                                   unless params[:confirm_group_by_user].present?
-                                    @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
+                                    @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
                                       [project , confirmations.group_by(&:user).sort_by{|p,i| p.try(:name)}]
                                     }
                                   else
-                                    @assigned_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
+                                    @assigned_issues_for_confirmations.group_by(&:project).sort_by{|p,i| p.try(:name) || "" }.map{|project, confirmations|
                                       [project , [[nil, confirmations]]]
                                     }
                                   end
@@ -404,7 +426,7 @@ class EstimatedTimesController < ApplicationController
 
       @current_user = params[:current_user_id].nil? ? nil : User.where(id: params[:current_user_id]).first
       @current_user = nil unless @users.map(&:id).include?(@current_user.id) if @current_user
-
+      @assigned_issue_ids = @assigned_issues_for_confirmations.map(&:id)
       @time_entries = TimeEntry.
        for_issues(@assigned_issue_ids).
         actual(@current_date, @current_date+6.days)

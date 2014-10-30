@@ -5,6 +5,7 @@ ru:
   issuesplannedfortomorrow: "Мои задачи запланированные на завтра"
   issuesplannedforweek: "Мои задачи запланированные на эту неделю"
   issuesplannedfornextweek: "Мои задачи запланированные на следующую неделю"
+  show_history: 'показать историю'
   label_for_comment_confirmation: 'Комментарий'
   add_confirmation_comment: 'Добавить комментарий'
   show_comments_history: 'Показать комментарии'

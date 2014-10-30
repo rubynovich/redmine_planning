@@ -70,7 +70,7 @@ module PlanningPlugin
             }
           end
         }
-        after_create :create_planning
+        #after_create :create_planning
 
         before_update do |issue|
           @old_issue_status_id = Issue.where(id:  issue.id).first.try(:status_id)
@@ -106,9 +106,9 @@ module PlanningPlugin
         self_hours
       end
 
-      def create_planning
-        PlanningConfirmation.sidekiq_delay.create_planning(self)
-      end
+      #def create_planning
+      #  PlanningConfirmation.sidekiq_delay.create_planning(self)
+      #end
 
     end
   end

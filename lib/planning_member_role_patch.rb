@@ -11,7 +11,7 @@ module PlanningPlugin
         unloadable
 
 
-        after_create :change_kgip_planning
+        #after_create :change_kgip_planning
       end
     end
 
@@ -19,13 +19,13 @@ module PlanningPlugin
     end
 
     module InstanceMethods
-      def change_kgip_planning
-      	kgip_id = Role.kgip_role.try(:id)
-        #Rails.logger.error(("create_planning1: " + self.inspect).red) if Rails.env == 'development'
-        if self.role_id == kgip_id
-        	PlanningConfirmation.change_kgip_planning(self.member_id)
-        end
-      end
+      #def change_kgip_planning
+      #	kgip_id = Role.kgip_role.try(:id)
+      #  #Rails.logger.error(("create_planning1: " + self.inspect).red) if Rails.env == 'development'
+      #  if self.role_id == kgip_id
+      #  	PlanningConfirmation.change_kgip_planning(self.member_id)
+      #  end
+      #end
 
     end
   end

@@ -5,8 +5,8 @@ class PlanningConfirmationsController < ApplicationController
   def update_confirmer
   	confirmation_type = params[:type] == "0" ? :kgip_confirmation : :head_confirmation
     @ctype = params[:type] == "0" ? 0 : 1
-  	confirms = PlanningConfirmation.where(id: params[:id]).where(["date_start <= ? ", Date.today-1.week])
-  	if @confirm = confirms.first
+    @confirm ||= PlanningConfirmation.where(id: params[:id]).where(["date_start <= ? ", Date.today-1.week]).first
+  	if @confirm
 	  	@confirm.update_column(confirmation_type, params[:status].to_s == "1")
       if (! @confirm.kgip_confirmation) && (! @confirm.head_confirmation)
         @confirm.update_column(:hours, 0.0)
@@ -21,8 +21,46 @@ class PlanningConfirmationsController < ApplicationController
       end
       @is_confirmation = params[:status].to_s == "1"
 	  	@confirm.save
+      #t.datetime :event_time
+      #t.references :user
+      #t.boolean :confirm_as_kgip
+      #t.boolean :confirm_as_head
+      #t.boolean :as_deputy_employee
+      #t.integer :deputed_user_id
+      #t.boolean :action #true - confirm, false - unconfirm
+      #t.float :current_week_hours
+      #t.float :current_issue_user_hours
+      as_deputy_employee = (params[:main_user_id].to_i != User.current.id)
+
+      @confirm.planning_confirmation_histories.create(user_id: User.current.id,
+                                                      event_time: Time.now,
+                                                      confirm_as_kgip: (confirmation_type == :kgip_confirmation),
+                                                      confirm_as_head: (confirmation_type == :head_confirmation),
+                                                      as_deputy_employee: as_deputy_employee,
+                                                      deputed_user_id: (as_deputy_employee ? params[:main_user_id].to_i : nil),
+                                                      action: params[:status].to_s == "1",
+                                                      current_week_hours: params[:current_week_hours].to_f,
+                                                      current_issue_hours: params[:current_issue_hours].to_f
+      )
       @comment = @confirm.planning_confirmation_comments.build
 	  end
+  end
+
+  def  create_confirmation
+    if (@user = User.where(id: params[:user_id]).first) && (@issue = Issue.where(id:  params[:issue_id]).first)
+      @head_id = @user.must_head_confirm ? PlanningConfirmation.get_head_id(@user.id) : nil
+      @kgip_id = @user.must_kgip_confirm ? PlanningConfirmation.get_kgip_id(@issue.project_id) : nil
+      if @head_id || @kgip_id
+        @confirm = PlanningConfirmation.where(user_id: @user.id, issue_id: @issue.id,date_start: Date.parse(params[:date_start]).beginning_of_week).first || PlanningConfirmation.create(
+              user_id: @user.id,
+              issue_id: @issue.id,
+              head_id: @head_id,
+              kgip_id: @kgip_id,
+              date_start: Date.parse(params[:date_start]).beginning_of_week)
+        update_confirmer
+        render action: :update_confirmer
+      end
+    end
   end
 
   def create_comment

@@ -63,6 +63,15 @@ namespace :redmine do
       end
     end
 
+    desc 'destroy_old_planning_confirmations_planned'
+    task :destroy_old_planning_confirmations_planned => :environment do
+      Person.update_all(must_kgip_confirm: false, must_head_confirm: false)
+      PlanningConfirmation.not_any_confirmed.delete_all
+      must_kgip_confirm_users = Project.where(is_external: true).joins("LEFT OUTER JOIN members ON projects.id = members.project_id").joins("LEFT OUTER JOIN users ON members.user_id = users.id").where(["(users.no_planning <> ?)",true]).where(["users.status = ?",1]).select("distinct members.user_id").map{|m| m.user_id.to_i}
+      Person.where(id: must_kgip_confirm_users).update_all(must_kgip_confirm: true)
+      Person.where(["no_planning <> ?",true]).where(time_confirm: 1).update_all(must_head_confirm: true)
+    end
+
     #desc 'fix head_id'
     #task :fix_head_id => :environment do
     #  PlanningConfirmation.select("distinct user_id").map(&:user_id).each do |user_id|

@@ -1,8 +1,8 @@
 :javascript
-  function update_confirmer(status,url){
+  function update_confirmer(status,url, method){
       $.ajax({url: url,
           data: { status: status },
-          type: 'PUT',
+          type: method,
           dataType: 'script'})
   }
   function open_close_user_item(selector, item){
@@ -119,7 +119,7 @@
     |
     = link_to_function 'свернуть все', "$('.opened').removeClass('opened').addClass('closed'); $('.users_issues').hide();"
 
-  - if @assigned_confirmations.any?
+  - if @assigned_issues_for_confirmations.any?
     = render partial: (@confirm_role == 1 ? 'confirm_time_head' : 'confirm_time_kgip')
   - else
     %p.nodata

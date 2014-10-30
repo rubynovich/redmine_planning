@@ -37,6 +37,10 @@ module PlanningPlugin
           []
         end
       end
+
+      def get_head_id
+        PlanningConfirmation.get_head_id(self.id)
+      end
       
       def is_planning_manager?
         PlanningManager.find_by_user_id(self.id).present?

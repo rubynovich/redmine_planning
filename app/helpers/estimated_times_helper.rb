@@ -6,8 +6,13 @@ module EstimatedTimesHelper
   end
 
   def can_confirm_time_entries?
-    Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true).any? ||
-                      Department.where(confirmer_id: User.current.id).any? || Department.where(head_id: User.current.id).any?
+    current_active_user_ids = [User.current.id]
+    begin
+      current_active_user_ids += User.current.deputy_ids.map(&:id)
+    rescue
+    end
+    Project.where(id: Role.kgip_role.members.where(user_id: current_active_user_ids).map(&:project_id).uniq, is_external: true).any? ||
+                      Department.where(confirmer_id: current_active_user_ids).any? || Department.where(head_id: current_active_user_ids).any?
   end
 
   def first_day 
@@ -33,8 +38,36 @@ module EstimatedTimesHelper
     PlanningConfirmation.where(issue_id: issue.id, user_id: user.id, date_start: date).first
   end
 
-  def is_confirmer_checked_conf(confirmation, confirmer_type)
-    PlanningConfirmation.where(id: confirmation.id).map(&confirmer_type).first
+  def is_confirmer_checked_conf(date_start, issue, user, confirmer_type)
+    PlanningConfirmation.where(date_start: date_start, issue_id: issue.try(:id), user_id: user.try(:id)).map(&confirmer_type).first
+  end
+
+  def url_for_confirmation(confirmation, date_start, issue, user, type, hours, main_user_id, current_week_hours = 0, current_issue_hours = 0)
+    if confirmation.nil?
+      url_for({:controller => :planning_confirmations,
+               :action => :create_confirmation,
+               date_start: date_start,
+               issue_id: issue.try(:id),
+               user_id: user.try(:id),
+               :type => type,
+               :id => issue.try(:id),
+               hours: hours,
+               :main_user_id => main_user_id,
+               current_week_hours: current_week_hours,
+               current_issue_hours: current_issue_hours,
+               :format => 'js'
+              })
+    else
+      url_for({:controller => :planning_confirmations,
+               :action => :update_confirmer,
+               :type => type, :id => confirmation.try(:id),
+               hours: hours,
+               :main_user_id => main_user_id,
+               current_week_hours: current_week_hours,
+               current_issue_hours: current_issue_hours,
+               :format => 'js'
+              })
+    end
   end
 
 

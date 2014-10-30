@@ -20,6 +20,9 @@ module PlanningPlugin
     end
     
     module InstanceMethods
+      def get_head_id
+        PlanningConfirmation.get_head_id(self.id)
+      end
     end
   end
 end
