@@ -317,7 +317,7 @@ class EstimatedTimesController < ApplicationController
       # С какой ролью заходит подтверждающий
       #@assigned_projects = User.current.projects.where(is_external: true).keep_if{|p| p.kgip_ids.include?(User.current.id)}
       #@assigned_projects = Project.where(id: Role.kgip_role.members.where(user_id: User.current.id).map(&:project_id).uniq, is_external: true)
-      @assigned_projects = Role.kgip_role.members.where(user_id: @current_active_user_ids).map(&:project)
+      @assigned_projects = Project.where(id: Role.kgip_role.members.where(user_id: @current_active_user_ids).map(&:project_id))
       if @assigned_projects.count > 0
         @confirm_role = 0
         #as kgip
