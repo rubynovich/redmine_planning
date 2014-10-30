@@ -150,7 +150,7 @@ class PlanningConfirmation < ActiveRecord::Base
 
   def create_or_change_planning(person)
 
-  	if person.time_confirm.to_i == 1
+  	if (person.must_kgip_confirm || person.must_head_confirm)
 
   		# подтверждение для задач, назначенных на юзера сейчас и тех, которые были назначены раньше, но переназначены на другого
 
