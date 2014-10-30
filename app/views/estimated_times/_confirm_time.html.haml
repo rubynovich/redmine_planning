@@ -43,9 +43,9 @@
             = l(:label_no)
           %div{id: "add_comment_kgip_#{user.id}_#{issue.id}"}
           %div{id: "comments-box-ctype0-id#{issue.id}"}
-            = render partial: 'planning_confirmations/comments', locals: {ctype: 0, confirm: confirm, comments: (confirmation.try(:planning_confirmation_comments).try(:kgips) || [])}
+            = render partial: 'planning_confirmations/comments', locals: {ctype: 0, confirm: confirm, comments: (confirmation.planning_confirmation_comments.kgips rescue [])}
           %div{id: "history-box-ctype0-id#{user.id}-#{issue.id}"}
-            = render partial: 'planning_confirmations/history', locals: {ctype: 0, confirm: confirm, history: (confirmation.planning_confirmation_histories rescue [])}
+            = render partial: 'planning_confirmations/history', locals: {ctype: 0, confirm: confirm, history: (confirmation.planning_confirmation_histories.kgips rescue [])}
         - else
           = "-"
       %td{:align=>:center, :style => "border-left-width:3px;", :class => "odd"}
@@ -56,6 +56,6 @@
           = l(:label_no)
         %div{id: "add_comment_head_#{user.id}_#{issue.id}"}
         %div{id: "comments-box-ctype1-id#{user.id}-#{issue.id}"}
-          = render partial: 'planning_confirmations/comments', locals: {ctype: 1, confirm: confirm, comments: (confirmation.planning_confirmation_comments rescue [])}
+          = render partial: 'planning_confirmations/comments', locals: {ctype: 1, confirm: confirm, comments: (confirmation.planning_confirmation_comments.heads rescue [])}
         %div{id: "history-box-ctype1-id#{user.id}-#{issue.id}"}
-          = render partial: 'planning_confirmations/history', locals: {ctype: 1, confirm: confirm, history: (confirmation.planning_confirmation_histories rescue [])}
+          = render partial: 'planning_confirmations/history', locals: {ctype: 1, confirm: confirm, history: (confirmation.planning_confirmation_histories.heads rescue [])}
