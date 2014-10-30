@@ -220,7 +220,7 @@ module EstimatedTimesHelper
     calendar_days
   end
 
-  count_of_back_days(Date.today, 10)
+#  count_of_back_days(Date.today, 10)
 
   def link_to_spent_and_edit(issue, day, can_edit)
     
