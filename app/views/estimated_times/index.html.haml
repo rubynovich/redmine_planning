@@ -105,7 +105,7 @@
         %th{:rowspan => 2}= l(:field_deadline)
         - 7.times do |day|
           - marker = @current_date + day.days
-          %th{:colspan => 2, :style => "background-color: #{Calendar.is_holiday?(marker) ? 'red': '' }" }= marker.strftime("%d.%m")
+          %th{:colspan => 2, :style => "background-color: #{Calendar.is_holiday?(marker) ? '#FFCCCC': '' }" }= marker.strftime("%d.%m")
         %th{:colspan => 3}= l(:label_total)
         - if Date.today.beginning_of_week > @current_date
           %th{:colspan => 2}= l(:label_confirmation)
